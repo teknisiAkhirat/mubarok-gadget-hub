@@ -294,7 +294,7 @@ function PDP() {
             {Object.entries(product.specifications).map(([k, v]) => (
               <div key={k} className="flex justify-between gap-3 border-b border-border/60 py-2">
                 <dt className="text-muted-foreground">{k}</dt>
-                <dd className="text-right font-medium">{v}</dd>
+                <dd className="text-right font-medium">{String(v)}</dd>
               </div>
             ))}
           </dl>
