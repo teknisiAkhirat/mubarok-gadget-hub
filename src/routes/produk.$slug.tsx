@@ -110,7 +110,7 @@ function PDP() {
           </div>
           {product.images.length > 1 && (
             <div className="mt-3 flex gap-2">
-              {product.images.map((img, i) => (
+              {product.images.map((img: string, i: number) => (
                 <button
                   key={i}
                   onClick={() => setActiveImg(i)}
@@ -151,7 +151,7 @@ function PDP() {
             <div className="mt-4 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-900">
               <strong>Cocok untuk:</strong>{" "}
               {product.compatibleWith
-                .map((id) => findModel(id)?.name)
+                .map((id: string) => findModel(id)?.name)
                 .filter(Boolean)
                 .join(", ")}
             </div>

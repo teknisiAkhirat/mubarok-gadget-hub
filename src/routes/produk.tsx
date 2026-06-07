@@ -67,7 +67,7 @@ function ProdukPage() {
   }, [search, priceMax]);
 
   const setFilter = (key: keyof ProdukSearch, value: string | undefined) => {
-    navigate({ search: (prev) => ({ ...prev, [key]: value || undefined }) as ProdukSearch });
+    navigate({ search: (prev: ProdukSearch) => ({ ...prev, [key]: value || undefined }) });
   };
 
   return (
