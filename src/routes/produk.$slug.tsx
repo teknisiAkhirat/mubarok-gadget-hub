@@ -231,7 +231,7 @@ function PDP() {
             >
               Beli Sekarang
             </Button>
-            <Button asChild className="bg-green-500 text-white hover:bg-green-600">
+            <Button asChild className="h-auto min-h-9 whitespace-normal bg-green-500 text-white hover:bg-green-600">
               <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
                 <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
               </a>
