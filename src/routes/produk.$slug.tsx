@@ -65,7 +65,12 @@ function PDP() {
   const category = findCategory(product.categoryId);
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const [pageUrl, setPageUrl] = useState("");
   const { add, open } = useCart();
+
+  useEffect(() => {
+    setPageUrl(window.location.href);
+  }, []);
 
   const related = mockProducts.filter((p) => p.id !== product.id).slice(0, 4);
 
