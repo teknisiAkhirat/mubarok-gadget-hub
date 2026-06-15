@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   findProductBySlug,
   findBrand,
@@ -27,7 +27,7 @@ import {
   Store,
 } from "lucide-react";
 
-export const Route = createFileRoute("/produk/$slug")({
+export const Route = createFileRoute("/produk_/$slug")({
   loader: ({ params }) => {
     const product = findProductBySlug(params.slug);
     if (!product) throw notFound();
@@ -65,7 +65,12 @@ function PDP() {
   const category = findCategory(product.categoryId);
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const [pageUrl, setPageUrl] = useState("");
   const { add, open } = useCart();
+
+  useEffect(() => {
+    setPageUrl(window.location.origin + window.location.pathname);
+  }, [product.slug]);
 
   const related = mockProducts.filter((p) => p.id !== product.id).slice(0, 4);
 
@@ -76,7 +81,7 @@ function PDP() {
       ? `Stok hampir habis (sisa ${product.stock})`
       : `Tersedia · ${product.stock} unit`;
 
-  const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk:\n\n${product.name}\nHarga: ${formatIDR(product.price)}\n\nApakah masih tersedia?`;
+  const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${pageUrl}\n\nApakah masih tersedia?`;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
@@ -226,9 +231,9 @@ function PDP() {
             >
               Beli Sekarang
             </Button>
-            <Button asChild className="bg-green-500 text-white hover:bg-green-600">
+            <Button asChild className="h-auto min-h-9 whitespace-normal bg-green-500 text-white hover:bg-green-600">
               <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
-                <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
+                <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
               </a>
             </Button>
           </div>
