@@ -81,7 +81,7 @@ function PDP() {
       ? `Stok hampir habis (sisa ${product.stock})`
       : `Tersedia · ${product.stock} unit`;
 
-  const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk:\n\n${product.name}\nHarga: ${formatIDR(product.price)}\n\nApakah masih tersedia?`;
+  const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${pageUrl}\n\nApakah masih tersedia?`;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
