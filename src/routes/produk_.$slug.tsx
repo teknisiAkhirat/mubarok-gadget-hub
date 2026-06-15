@@ -27,7 +27,7 @@ import {
   Store,
 } from "lucide-react";
 
-export const Route = createFileRoute("/produk/$slug")({
+export const Route = createFileRoute("/produk_/$slug")({
   loader: ({ params }) => {
     const product = findProductBySlug(params.slug);
     if (!product) throw notFound();
