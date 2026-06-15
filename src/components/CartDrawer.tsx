@@ -105,7 +105,7 @@ export function CartDrawer() {
                 <Link to="/checkout" onClick={close}>Checkout</Link>
               </Button>
               <Button asChild variant="outline" className="border-green-500 text-green-700 hover:bg-green-50">
-                <a href={waLink(waMessage)} target="_blank" rel="noreferrer">Hubungi WA</a>
+                <a href={waLink(waMessage)} target="_blank" rel="noreferrer">Beli / Hubungi via WA</a>
               </Button>
             </div>
           </footer>
