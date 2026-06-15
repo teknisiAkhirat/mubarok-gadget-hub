@@ -2,9 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatIDR, waLink } from "@/lib/format";
+import { mockProducts } from "@/lib/mock-data";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function CartDrawer() {
   const { isOpen, close, items, updateQty, remove, subtotal } = useCart();
