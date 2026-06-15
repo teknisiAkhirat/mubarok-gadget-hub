@@ -18,9 +18,13 @@ export function CartDrawer() {
 
   if (!isOpen) return null;
 
-  const waMessage = `Halo Mubarok SMS&S, saya tertarik dengan pesanan:\n\n${items
-    .map((i) => `- ${i.name} (${i.condition}) x${i.quantity} = ${formatIDR(i.price * i.quantity)}`)
-    .join("\n")}\n\nTotal: ${formatIDR(subtotal)}`;
+  const waMessage = `Halo Mubarok SMS&S, saya tertarik dengan pesanan berikut:\n\n${items
+    .map((i) => {
+      const product = mockProducts.find((p) => p.id === i.productId);
+      const link = product ? `${origin}/produk/${product.slug}` : "";
+      return `- ${i.name} (${i.condition}) x${i.quantity}\nHarga: ${formatIDR(i.price * i.quantity)}\nLink Produk: ${link}`;
+    })
+    .join("\n\n")}\n\nTotal: ${formatIDR(subtotal)}\n\nApakah masih tersedia?`;
 
   return (
     <div className="fixed inset-0 z-50 flex">
