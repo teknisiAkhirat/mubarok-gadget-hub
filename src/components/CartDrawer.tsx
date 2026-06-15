@@ -104,7 +104,7 @@ export function CartDrawer() {
               <Button asChild className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)] hover:bg-[var(--color-brand)]/90">
                 <Link to="/checkout" onClick={close}>Checkout</Link>
               </Button>
-              <Button asChild variant="outline" className="border-green-500 text-green-700 hover:bg-green-50">
+              <Button asChild variant="outline" className="h-auto min-h-9 whitespace-normal border-green-500 text-green-700 hover:bg-green-50">
                 <a href={waLink(waMessage)} target="_blank" rel="noreferrer">Beli / Hubungi via WA</a>
               </Button>
             </div>
