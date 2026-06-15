@@ -69,8 +69,8 @@ function PDP() {
   const { add, open } = useCart();
 
   useEffect(() => {
-    setPageUrl(window.location.href);
-  }, []);
+    setPageUrl(window.location.origin + window.location.pathname);
+  }, [product.slug]);
 
   const related = mockProducts.filter((p) => p.id !== product.id).slice(0, 4);
 
