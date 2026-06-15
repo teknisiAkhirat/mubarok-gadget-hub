@@ -10,6 +10,11 @@ import { useEffect, useState } from "react";
 export function CartDrawer() {
   const { isOpen, close, items, updateQty, remove, subtotal } = useCart();
   const [promo, setPromo] = useState("");
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   if (!isOpen) return null;
 
