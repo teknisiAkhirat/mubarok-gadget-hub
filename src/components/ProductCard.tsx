@@ -1,14 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { MapPin, ShoppingCart, Star } from "lucide-react";
+import { MapPin, MessageCircle, Star } from "lucide-react";
 import type { Product } from "@/lib/mock-data";
 import { mockSeller } from "@/lib/mock-data";
-import { formatIDR } from "@/lib/format";
+import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "./BadgeKondisi";
 import { Button } from "./ui/button";
-import { useCart } from "@/lib/cart-store";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { add } = useCart();
+  const handleWa = () => {
+    const link = `${window.location.origin}/produk/${product.slug}`;
+    const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${link}\n\nApakah masih tersedia?`;
+    window.open(waLink(waMsg), "_blank");
+  };
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md hover:border-[var(--color-accent-orange)]/40">
@@ -51,21 +54,11 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <Button
           size="sm"
-          className="mt-2 bg-[var(--color-brand)] text-[var(--color-brand-foreground)] hover:bg-[var(--color-brand)]/90"
-          onClick={() =>
-            add({
-              productId: product.id,
-              sellerId: product.sellerId,
-              name: product.name,
-              image: product.images[0],
-              condition: product.conditionLabel,
-              price: product.price,
-              stock: product.stock,
-            })
-          }
+          className="mt-2 bg-green-500 text-white hover:bg-green-600"
+          onClick={handleWa}
         >
-          <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
-          {product.type === "hp-bekas" ? "Beli" : "+ Keranjang"}
+          <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
+          Beli via WA
         </Button>
       </div>
     </div>
