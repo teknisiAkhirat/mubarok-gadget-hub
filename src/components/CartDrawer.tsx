@@ -1,5 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Minus, Plus, MessageCircle, ShoppingBag, Trash2, X } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatIDR, waLink } from "@/lib/format";
 import { mockProducts } from "@/lib/mock-data";
