@@ -54,21 +54,11 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <Button
           size="sm"
-          className="mt-2 bg-[var(--color-brand)] text-[var(--color-brand-foreground)] hover:bg-[var(--color-brand)]/90"
-          onClick={() =>
-            add({
-              productId: product.id,
-              sellerId: product.sellerId,
-              name: product.name,
-              image: product.images[0],
-              condition: product.conditionLabel,
-              price: product.price,
-              stock: product.stock,
-            })
-          }
+          className="mt-2 bg-green-500 text-white hover:bg-green-600"
+          onClick={handleWa}
         >
-          <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
-          {product.type === "hp-bekas" ? "Beli" : "+ Keranjang"}
+          <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
+          Beli via WA
         </Button>
       </div>
     </div>
