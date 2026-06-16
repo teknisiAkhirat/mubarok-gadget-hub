@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { MapPin, ShoppingCart, Star } from "lucide-react";
+import { MapPin, MessageCircle, Star } from "lucide-react";
 import type { Product } from "@/lib/mock-data";
 import { mockSeller } from "@/lib/mock-data";
-import { formatIDR } from "@/lib/format";
+import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "./BadgeKondisi";
 import { Button } from "./ui/button";
-import { useCart } from "@/lib/cart-store";
 
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
