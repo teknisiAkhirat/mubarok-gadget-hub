@@ -168,64 +168,8 @@ function PDP() {
             <div className="mt-1 text-sm font-medium text-foreground">{stokLabel}</div>
           </div>
 
-          <div className="mt-5 flex items-center gap-4">
-            <span className="text-sm font-semibold">Jumlah:</span>
-            <div className="flex items-center rounded-md border border-border">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-2 hover:bg-muted">
-                <Minus className="h-3 w-3" />
-              </button>
-              <span className="w-12 text-center font-semibold">{qty}</span>
-              <button
-                onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
-                className="px-3 py-2 hover:bg-muted"
-              >
-                <Plus className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <Button
-              variant="outline"
-              className="border-[var(--color-brand)] text-[var(--color-brand)] hover:bg-[var(--color-brand)] hover:text-[var(--color-brand-foreground)]"
-              onClick={() => {
-                add(
-                  {
-                    productId: product.id,
-                    sellerId: product.sellerId,
-                    name: product.name,
-                    image: product.images[0],
-                    condition: product.conditionLabel,
-                    price: product.price,
-                    stock: product.stock,
-                  },
-                  qty
-                );
-              }}
-            >
-              <ShoppingCart className="mr-2 h-4 w-4" /> + Keranjang
-            </Button>
-            <Button
-              className="bg-[var(--color-accent-orange)] text-white hover:bg-[var(--color-accent-orange)]/90"
-              onClick={() => {
-                add(
-                  {
-                    productId: product.id,
-                    sellerId: product.sellerId,
-                    name: product.name,
-                    image: product.images[0],
-                    condition: product.conditionLabel,
-                    price: product.price,
-                    stock: product.stock,
-                  },
-                  qty
-                );
-                open();
-              }}
-            >
-              Beli Sekarang
-            </Button>
-            <Button asChild className="h-auto min-h-9 whitespace-normal bg-green-500 text-white hover:bg-green-600">
+          <div className="mt-5">
+            <Button asChild className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600">
               <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
                 <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
               </a>
