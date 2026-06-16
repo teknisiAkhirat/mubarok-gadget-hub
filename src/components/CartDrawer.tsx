@@ -99,14 +99,11 @@ export function CartDrawer() {
               <span className="text-muted-foreground">Subtotal</span>
               <span className="text-xl font-bold text-[var(--color-accent-orange)]">{formatIDR(subtotal)}</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button asChild className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)] hover:bg-[var(--color-brand)]/90">
-                <Link to="/checkout" onClick={close}>Checkout</Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto min-h-9 whitespace-normal border-green-500 text-green-700 hover:bg-green-50">
-                <a href={waLink(waMessage)} target="_blank" rel="noreferrer">Beli / Hubungi via WA</a>
-              </Button>
-            </div>
+            <Button asChild className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600">
+              <a href={waLink(waMessage)} target="_blank" rel="noreferrer" onClick={close}>
+                <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
+              </a>
+            </Button>
           </footer>
         )}
       </aside>
