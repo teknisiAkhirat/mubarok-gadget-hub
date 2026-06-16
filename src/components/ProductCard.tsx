@@ -7,7 +7,11 @@ import { BadgeKondisi } from "./BadgeKondisi";
 import { Button } from "./ui/button";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { add } = useCart();
+  const handleWa = () => {
+    const link = `${window.location.origin}/produk/${product.slug}`;
+    const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${link}\n\nApakah masih tersedia?`;
+    window.open(waLink(waMsg), "_blank");
+  };
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md hover:border-[var(--color-accent-orange)]/40">
