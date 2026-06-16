@@ -18,10 +18,7 @@ import {
   Clock,
   MapPin,
   MessageCircle,
-  Minus,
-  Plus,
   ShieldCheck,
-  ShoppingCart,
   Star,
   Store,
 } from "lucide-react";
