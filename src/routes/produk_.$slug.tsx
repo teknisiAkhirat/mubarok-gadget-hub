@@ -59,10 +59,8 @@ function PDP() {
   const brand = findBrand(product.brandId);
   const model = findModel(product.modelId);
   const category = findCategory(product.categoryId);
-  const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const [pageUrl, setPageUrl] = useState("");
-  const { add, open } = useCart();
 
   useEffect(() => {
     setPageUrl(window.location.origin + window.location.pathname);
