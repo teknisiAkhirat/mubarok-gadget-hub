@@ -11,7 +11,6 @@ import {
 import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { ProductCard } from "@/components/ProductCard";
-import { useCart } from "@/lib/cart-store";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
