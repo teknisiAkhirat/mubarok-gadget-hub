@@ -14,7 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      products: {
+        Row: {
+          brand_id: string
+          category_id: string | null
+          compare_at_price: number | null
+          compatible_with: Json
+          condition: string
+          condition_label: string
+          condition_note: string
+          created_at: string
+          description: string
+          id: string
+          images: Json
+          is_active: boolean
+          is_featured: boolean
+          model_id: string | null
+          name: string
+          price: number
+          rating: number
+          review_count: number
+          seller_id: string
+          slug: string
+          sold_count: number
+          specifications: Json
+          stock: number
+          tags: Json
+          type: string
+          updated_at: string
+          warranty: string
+          weight: number
+        }
+        Insert: {
+          brand_id: string
+          category_id?: string | null
+          compare_at_price?: number | null
+          compatible_with?: Json
+          condition: string
+          condition_label?: string
+          condition_note?: string
+          created_at?: string
+          description?: string
+          id: string
+          images?: Json
+          is_active?: boolean
+          is_featured?: boolean
+          model_id?: string | null
+          name: string
+          price?: number
+          rating?: number
+          review_count?: number
+          seller_id?: string
+          slug: string
+          sold_count?: number
+          specifications?: Json
+          stock?: number
+          tags?: Json
+          type: string
+          updated_at?: string
+          warranty?: string
+          weight?: number
+        }
+        Update: {
+          brand_id?: string
+          category_id?: string | null
+          compare_at_price?: number | null
+          compatible_with?: Json
+          condition?: string
+          condition_label?: string
+          condition_note?: string
+          created_at?: string
+          description?: string
+          id?: string
+          images?: Json
+          is_active?: boolean
+          is_featured?: boolean
+          model_id?: string | null
+          name?: string
+          price?: number
+          rating?: number
+          review_count?: number
+          seller_id?: string
+          slug?: string
+          sold_count?: number
+          specifications?: Json
+          stock?: number
+          tags?: Json
+          type?: string
+          updated_at?: string
+          warranty?: string
+          weight?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
