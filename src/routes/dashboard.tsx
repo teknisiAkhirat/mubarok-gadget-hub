@@ -1,11 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { mockProducts, mockSeller, mockBrands, type Product } from "@/lib/mock-data";
+import { mockSeller, mockBrands, type Product } from "@/lib/mock-data";
 import { formatIDR } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  fetchProducts,
+  seedIfEmpty,
+  insertProduct,
+  updateProduct,
+  deleteProduct,
+} from "@/lib/products-db";
+import { toast, Toaster } from "sonner";
 import {
   Package,
   Plus,
@@ -15,6 +24,8 @@ import {
   TrendingUp,
   ShoppingBag,
   Power,
+  LogOut,
+  Loader2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
@@ -22,41 +33,65 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-const LS_KEY = "mubarok_products";
-
-function loadProducts(): Product[] {
-  if (typeof window === "undefined") return mockProducts;
-  try {
-    const raw = window.localStorage.getItem(LS_KEY);
-    if (!raw) return mockProducts;
-    const parsed = JSON.parse(raw) as Product[];
-    return Array.isArray(parsed) && parsed.length ? parsed : mockProducts;
-  } catch {
-    return mockProducts;
-  }
-}
-
-function saveProducts(p: Product[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(LS_KEY, JSON.stringify(p));
-  } catch {
-    /* ignore */
-  }
-}
-
 function DashboardPage() {
-  const [products, setProductsState] = useState<Product[]>(mockProducts);
+  const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "produk" | "pesanan" | "toko">("overview");
 
+  // Auth gate
   useEffect(() => {
-    setProductsState(loadProducts());
-  }, []);
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+      setAuthChecked(true);
+      if (!session) navigate({ to: "/auth" });
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(!!data.session);
+      setAuthChecked(true);
+      if (!data.session) navigate({ to: "/auth" });
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
 
-  const setProducts = (p: Product[]) => {
-    setProductsState(p);
-    saveProducts(p);
-  };
+  // Load products
+  useEffect(() => {
+    if (!signedIn) return;
+    (async () => {
+      setLoading(true);
+      try {
+        await seedIfEmpty();
+        setProducts(await fetchProducts());
+      } catch (e) {
+        toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [signedIn]);
+
+  async function refresh() {
+    try {
+      setProducts(await fetchProducts());
+    } catch (e) {
+      toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
+    }
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth" });
+  }
+
+  if (!authChecked || !signedIn) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   const stats = [
     { label: "Total Penjualan", value: formatIDR(0), icon: TrendingUp, color: "from-orange-500 to-red-500" },
@@ -65,20 +100,23 @@ function DashboardPage() {
     { label: "Rating Toko", value: mockSeller.rating, icon: Star, color: "from-yellow-400 to-orange-400" },
   ];
 
-  function resetDefault() {
-    if (typeof window === "undefined") return;
-    window.localStorage.removeItem(LS_KEY);
-    window.location.reload();
-  }
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
+      <Toaster richColors position="top-center" />
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-3xl font-extrabold">Dashboard Penjual</h1>
           <p className="text-sm text-muted-foreground">{mockSeller.storeName} · {mockSeller.city}</p>
         </div>
-        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">✓ Terverifikasi</span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">✓ Terverifikasi</span>
+          <button
+            onClick={logout}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+          >
+            <LogOut className="h-3.5 w-3.5" /> Logout
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -123,7 +161,7 @@ function DashboardPage() {
         )}
 
         {tab === "produk" && (
-          <ProdukManager products={products} setProducts={setProducts} />
+          <ProdukManager products={products} loading={loading} refresh={refresh} />
         )}
 
         {tab === "pesanan" && (
@@ -148,16 +186,6 @@ function DashboardPage() {
             <Button className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)] md:col-span-2">Simpan Perubahan</Button>
           </div>
         )}
-      </div>
-
-      <div className="mt-10 flex justify-end">
-        <button
-          onClick={resetDefault}
-          className="rounded-md border border-border bg-muted px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/70"
-          title="Hapus localStorage dan muat ulang"
-        >
-          Reset ke Default
-        </button>
       </div>
     </div>
   );
@@ -199,25 +227,26 @@ const emptyForm: FormState = {
 };
 
 function capitalize(s: string) {
-  return s
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  return s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
 function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
+  return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
 }
 
-function ProdukManager({ products, setProducts }: { products: Product[]; setProducts: (p: Product[]) => void }) {
+function ProdukManager({
+  products,
+  loading,
+  refresh,
+}: {
+  products: Product[];
+  loading: boolean;
+  refresh: () => Promise<void>;
+}) {
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [busy, setBusy] = useState(false);
 
   function startAdd() {
     setEditId(null);
@@ -242,76 +271,94 @@ function ProdukManager({ products, setProducts }: { products: Product[]; setProd
     setShowAdd(true);
   }
 
-  function save() {
-    if (editId) {
-      setProducts(
-        products.map((p) =>
-          p.id === editId
-            ? {
-                ...p,
-                name: form.name,
-                price: form.price,
-                stock: form.stock,
-                type: form.type,
-                images: form.imageUrl ? [form.imageUrl] : p.images,
-                description: form.description,
-                condition: form.condition,
-                conditionLabel: capitalize(form.condition),
-                conditionNote: form.conditionNote,
-                brandId: form.brandId,
-                warranty: form.warranty,
-              }
-            : p,
-        ),
-      );
-    } else {
-      const name = form.name || "Produk Baru";
-      const newP: Product = {
-        id: `prod-${Date.now()}`,
-        sellerId: mockSeller.id,
-        type: form.type,
-        name,
-        slug: slugify(name) || `prod-${Date.now()}`,
-        categoryId: null,
-        compatibleWith: [],
-        brandId: form.brandId,
-        modelId: null,
-        condition: form.condition,
-        conditionLabel: capitalize(form.condition),
-        conditionNote: form.conditionNote,
-        description: form.description,
-        specifications: {},
-        price: form.price,
-        compareAtPrice: null,
-        stock: form.stock,
-        images: form.imageUrl ? [form.imageUrl] : [],
-        warranty: form.warranty,
-        weight: 300,
-        rating: 0,
-        reviewCount: 0,
-        soldCount: 0,
-        isFeatured: false,
-        isActive: true,
-        tags: [],
-        createdAt: new Date(),
-      };
-      setProducts([newP, ...products]);
+  async function save() {
+    setBusy(true);
+    try {
+      if (editId) {
+        await updateProduct(editId, {
+          name: form.name,
+          price: form.price,
+          stock: form.stock,
+          type: form.type,
+          images: form.imageUrl ? [form.imageUrl] : [],
+          description: form.description,
+          condition: form.condition,
+          conditionLabel: capitalize(form.condition),
+          conditionNote: form.conditionNote,
+          brandId: form.brandId,
+          warranty: form.warranty,
+        });
+        toast.success("Produk diperbarui");
+      } else {
+        const name = form.name || "Produk Baru";
+        const newP: Product = {
+          id: `prod-${Date.now()}`,
+          sellerId: mockSeller.id,
+          type: form.type,
+          name,
+          slug: slugify(name) || `prod-${Date.now()}`,
+          categoryId: null,
+          compatibleWith: [],
+          brandId: form.brandId,
+          modelId: null,
+          condition: form.condition,
+          conditionLabel: capitalize(form.condition),
+          conditionNote: form.conditionNote,
+          description: form.description,
+          specifications: {},
+          price: form.price,
+          compareAtPrice: null,
+          stock: form.stock,
+          images: form.imageUrl ? [form.imageUrl] : [],
+          warranty: form.warranty,
+          weight: 300,
+          rating: 0,
+          reviewCount: 0,
+          soldCount: 0,
+          isFeatured: false,
+          isActive: true,
+          tags: [],
+          createdAt: new Date(),
+        };
+        await insertProduct(newP);
+        toast.success("Produk ditambahkan");
+      }
+      await refresh();
+      setShowAdd(false);
+    } catch (e) {
+      toast.error("Gagal simpan: " + (e instanceof Error ? e.message : "unknown"));
+    } finally {
+      setBusy(false);
     }
-    setShowAdd(false);
   }
 
-  function toggleActive(id: string) {
-    setProducts(products.map((p) => p.id === id ? { ...p, isActive: !p.isActive } : p));
+  async function toggleActive(p: Product) {
+    try {
+      await updateProduct(p.id, { isActive: !p.isActive });
+      await refresh();
+    } catch (e) {
+      toast.error("Gagal update: " + (e instanceof Error ? e.message : "unknown"));
+    }
   }
 
-  function remove(id: string) {
-    setProducts(products.filter((p) => p.id !== id));
+  async function remove(id: string) {
+    if (!confirm("Hapus produk ini?")) return;
+    try {
+      await deleteProduct(id);
+      toast.success("Produk dihapus");
+      await refresh();
+    } catch (e) {
+      toast.error("Gagal hapus: " + (e instanceof Error ? e.message : "unknown"));
+    }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-bold">Manajemen Produk ({products.length})</h2>
+        <h2 className="text-lg font-bold">
+          Manajemen Produk ({products.length})
+          {loading && <Loader2 className="ml-2 inline h-4 w-4 animate-spin text-muted-foreground" />}
+        </h2>
         <Button onClick={startAdd} className="bg-[var(--color-accent-orange)] text-white hover:bg-[var(--color-accent-orange)]/90">
           <Plus className="mr-1.5 h-4 w-4" /> Tambah Produk
         </Button>
@@ -346,19 +393,11 @@ function ProdukManager({ products, setProducts }: { products: Product[]; setProd
             </div>
             <div className="space-y-1 md:col-span-2">
               <label className="text-xs font-semibold text-muted-foreground">URL Foto</label>
-              <Input
-                placeholder="https://..."
-                value={form.imageUrl}
-                onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              />
+              <Input placeholder="https://..." value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
             </div>
             <div className="space-y-1 md:col-span-2">
               <label className="text-xs font-semibold text-muted-foreground">Deskripsi</label>
-              <Textarea
-                rows={3}
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-              />
+              <Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-semibold text-muted-foreground">Kondisi</label>
@@ -387,24 +426,18 @@ function ProdukManager({ products, setProducts }: { products: Product[]; setProd
             </div>
             <div className="space-y-1">
               <label className="text-xs font-semibold text-muted-foreground">Catatan Kondisi</label>
-              <Input
-                placeholder="Mesin mulus, belum servis"
-                value={form.conditionNote}
-                onChange={(e) => setForm({ ...form, conditionNote: e.target.value })}
-              />
+              <Input placeholder="Mesin mulus, belum servis" value={form.conditionNote} onChange={(e) => setForm({ ...form, conditionNote: e.target.value })} />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-semibold text-muted-foreground">Garansi</label>
-              <Input
-                placeholder="3 hari garansi toko"
-                value={form.warranty}
-                onChange={(e) => setForm({ ...form, warranty: e.target.value })}
-              />
+              <Input placeholder="3 hari garansi toko" value={form.warranty} onChange={(e) => setForm({ ...form, warranty: e.target.value })} />
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <Button onClick={save} className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">Simpan</Button>
-            <Button variant="outline" onClick={() => setShowAdd(false)}>Batal</Button>
+            <Button onClick={save} disabled={busy} className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
+              {busy ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button variant="outline" onClick={() => setShowAdd(false)} disabled={busy}>Batal</Button>
           </div>
         </div>
       )}
@@ -417,9 +450,7 @@ function ProdukManager({ products, setProducts }: { products: Product[]; setProd
               {p.images[0] ? (
                 <img src={p.images[0]} alt="" className="h-16 w-16 shrink-0 rounded object-cover" />
               ) : (
-                <div className="grid h-16 w-16 shrink-0 place-items-center rounded bg-muted text-xs text-muted-foreground">
-                  No img
-                </div>
+                <div className="grid h-16 w-16 shrink-0 place-items-center rounded bg-muted text-xs text-muted-foreground">No img</div>
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{p.name}</p>
@@ -435,25 +466,15 @@ function ProdukManager({ products, setProducts }: { products: Product[]; setProd
               </span>
             </div>
             <div className="mt-3 grid grid-cols-3 gap-2">
-              <button
-                onClick={() => startEdit(p)}
-                className="flex flex-col items-center justify-center rounded-md bg-blue-50 py-2 text-blue-600 hover:bg-blue-100"
-              >
+              <button onClick={() => startEdit(p)} className="flex flex-col items-center justify-center rounded-md bg-blue-50 py-2 text-blue-600 hover:bg-blue-100">
                 <Pencil className="h-4 w-4" />
                 <span className="mt-0.5 text-[10px] font-semibold">Edit</span>
               </button>
-              <button
-                onClick={() => toggleActive(p.id)}
-                title="Toggle status aktif"
-                className="flex flex-col items-center justify-center rounded-md bg-yellow-50 py-2 text-yellow-600 hover:bg-yellow-100"
-              >
+              <button onClick={() => toggleActive(p)} title="Toggle status aktif" className="flex flex-col items-center justify-center rounded-md bg-yellow-50 py-2 text-yellow-600 hover:bg-yellow-100">
                 <Power className="h-4 w-4" />
                 <span className="mt-0.5 text-[10px] font-semibold">Aktif/Nonaktif</span>
               </button>
-              <button
-                onClick={() => remove(p.id)}
-                className="flex flex-col items-center justify-center rounded-md bg-red-50 py-2 text-red-600 hover:bg-red-100"
-              >
+              <button onClick={() => remove(p.id)} className="flex flex-col items-center justify-center rounded-md bg-red-50 py-2 text-red-600 hover:bg-red-100">
                 <Trash2 className="h-4 w-4" />
                 <span className="mt-0.5 text-[10px] font-semibold">Hapus</span>
               </button>
@@ -504,11 +525,7 @@ function ProdukManager({ products, setProducts }: { products: Product[]; setProd
                     <button onClick={() => startEdit(p)} className="rounded p-1.5 text-blue-600 hover:bg-blue-50" title="Edit">
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button
-                      onClick={() => toggleActive(p.id)}
-                      className="flex flex-col items-center rounded px-1.5 py-1 text-yellow-600 hover:bg-yellow-50"
-                      title="Toggle status aktif"
-                    >
+                    <button onClick={() => toggleActive(p)} className="flex flex-col items-center rounded px-1.5 py-1 text-yellow-600 hover:bg-yellow-50" title="Toggle status aktif">
                       <Power className="h-4 w-4" />
                       <span className="text-[9px] font-semibold leading-tight">Aktif/Nonaktif</span>
                     </button>
