@@ -1,13 +1,13 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import {
-  findProductBySlug,
   findBrand,
   findModel,
   findCategory,
-  mockProducts,
   mockSeller,
+  type Product,
 } from "@/lib/mock-data";
+import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { ProductCard } from "@/components/ProductCard";
@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChevronRight,
   Clock,
+  Loader2,
   MapPin,
   MessageCircle,
   ShieldCheck,
@@ -24,27 +25,11 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/produk_/$slug")({
-  loader: ({ params }) => {
-    const product = findProductBySlug(params.slug);
-    if (!product) throw notFound();
-    return { product };
-  },
-  head: ({ loaderData }) => ({
+  head: () => ({
     meta: [
-      { title: loaderData ? `${loaderData.product.name} · Mubarok SMS&S` : "Produk" },
-      { name: "description", content: loaderData?.product.description.slice(0, 160) ?? "" },
-      { property: "og:title", content: loaderData?.product.name ?? "Produk" },
-      { property: "og:image", content: loaderData?.product.images[0] ?? "" },
+      { title: "Produk · Mubarok SMS&S" },
     ],
   }),
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-7xl px-4 py-20 text-center">
-      <h2 className="text-2xl font-bold">Produk tidak ditemukan</h2>
-      <Link to="/produk" className="mt-4 inline-block text-[var(--color-accent-orange)] hover:underline">
-        ← Kembali ke katalog
-      </Link>
-    </div>
-  ),
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-7xl px-4 py-20 text-center">
       <h2 className="text-2xl font-bold">Terjadi error</h2>
@@ -55,18 +40,72 @@ export const Route = createFileRoute("/produk_/$slug")({
 });
 
 function PDP() {
-  const { product } = Route.useLoaderData();
-  const brand = findBrand(product.brandId);
-  const model = findModel(product.modelId);
-  const category = findCategory(product.categoryId);
+  const { slug } = Route.useParams();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
   const [pageUrl, setPageUrl] = useState("");
 
   useEffect(() => {
-    setPageUrl(window.location.origin + window.location.pathname);
-  }, [product.slug]);
+    let mounted = true;
+    (async () => {
+      try {
+        await seedIfEmpty().catch(() => {});
+        const list = await fetchProducts();
+        if (mounted) setProducts(list);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-  const related = mockProducts.filter((p) => p.id !== product.id).slice(0, 4);
+  useEffect(() => {
+    setPageUrl(window.location.origin + window.location.pathname);
+    setActiveImg(0);
+  }, [slug]);
+
+  const product = useMemo(() => products.find((p) => p.slug === slug), [products, slug]);
+
+  const related = useMemo(() => {
+    if (!product) return [];
+    return products
+      .filter(
+        (p) =>
+          p.id !== product.id &&
+          p.isActive &&
+          (p.categoryId === product.categoryId || p.brandId === product.brandId),
+      )
+      .slice(0, 4);
+  }, [products, product]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+        <p className="mt-3 text-sm text-muted-foreground">Memuat produk…</p>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <h2 className="text-2xl font-bold">Produk tidak ditemukan</h2>
+        <Link to="/produk" className="mt-4 inline-block text-[var(--color-accent-orange)] hover:underline">
+          ← Kembali ke katalog
+        </Link>
+      </div>
+    );
+  }
+
+  const brand = findBrand(product.brandId);
+  const model = findModel(product.modelId);
+  const category = findCategory(product.categoryId);
 
   const stokLabel =
     product.stock === 0
