@@ -30,6 +30,7 @@ type ProductRow = {
   is_active: boolean;
   tags: unknown;
   created_at: string;
+  updated_at?: string;
 };
 
 function toArr(v: unknown): string[] {
@@ -101,6 +102,39 @@ export function productToRow(p: Product): ProductRow {
   };
 }
 
+function patchToRow(patch: Partial<Product>): Partial<ProductRow> {
+  const row: Partial<ProductRow> = {};
+
+  if (patch.sellerId !== undefined) row.seller_id = patch.sellerId;
+  if (patch.type !== undefined) row.type = patch.type;
+  if (patch.name !== undefined) row.name = patch.name;
+  if (patch.slug !== undefined) row.slug = patch.slug;
+  if (patch.categoryId !== undefined) row.category_id = patch.categoryId;
+  if (patch.compatibleWith !== undefined) row.compatible_with = patch.compatibleWith;
+  if (patch.brandId !== undefined) row.brand_id = patch.brandId;
+  if (patch.modelId !== undefined) row.model_id = patch.modelId;
+  if (patch.condition !== undefined) row.condition = patch.condition;
+  if (patch.conditionLabel !== undefined) row.condition_label = patch.conditionLabel;
+  if (patch.conditionNote !== undefined) row.condition_note = patch.conditionNote;
+  if (patch.description !== undefined) row.description = patch.description;
+  if (patch.specifications !== undefined) row.specifications = patch.specifications;
+  if (patch.price !== undefined) row.price = patch.price;
+  if (patch.compareAtPrice !== undefined) row.compare_at_price = patch.compareAtPrice;
+  if (patch.stock !== undefined) row.stock = patch.stock;
+  if (patch.images !== undefined) row.images = patch.images;
+  if (patch.warranty !== undefined) row.warranty = patch.warranty;
+  if (patch.weight !== undefined) row.weight = patch.weight;
+  if (patch.rating !== undefined) row.rating = patch.rating;
+  if (patch.reviewCount !== undefined) row.review_count = patch.reviewCount;
+  if (patch.soldCount !== undefined) row.sold_count = patch.soldCount;
+  if (patch.isFeatured !== undefined) row.is_featured = patch.isFeatured;
+  if (patch.isActive !== undefined) row.is_active = patch.isActive;
+  if (patch.tags !== undefined) row.tags = patch.tags;
+
+  // created_at is owned by the database on updates and must not be overwritten
+  return row;
+}
+
 export async function fetchProducts(): Promise<Product[]> {
   const { data, error } = await supabase
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -129,20 +163,9 @@ export async function insertProduct(p: Product) {
 }
 
 export async function updateProduct(id: string, patch: Partial<Product>) {
-  const row: Record<string, unknown> = {};
-  const full = productToRow({ ...(patch as Product), id } as Product);
-  for (const k of Object.keys(patch) as (keyof Product)[]) {
-    // Map camelCase key -> snake_case via productToRow result
-    const map: Record<string, string> = {
-      sellerId: "seller_id", categoryId: "category_id", compatibleWith: "compatible_with",
-      brandId: "brand_id", modelId: "model_id", conditionLabel: "condition_label",
-      conditionNote: "condition_note", compareAtPrice: "compare_at_price",
-      reviewCount: "review_count", soldCount: "sold_count", isFeatured: "is_featured",
-      isActive: "is_active", createdAt: "created_at",
-    };
-    const snake = map[k as string] ?? (k as string);
-    row[snake] = (full as unknown as Record<string, unknown>)[snake];
-  }
+  const row = patchToRow(patch);
+  if (Object.keys(row).length === 0) return;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await supabase.from("products" as any).update(row).eq("id", id);
   if (error) throw error;
