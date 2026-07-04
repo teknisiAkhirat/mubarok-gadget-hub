@@ -201,7 +201,11 @@ function ProdukPage() {
             </select>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="grid place-items-center py-20">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-12 text-center">
               <p className="text-lg font-semibold">Produk tidak ditemukan 😅</p>
               <p className="mt-1 text-sm text-muted-foreground">Coba ubah filter atau kata kunci pencarian.</p>
