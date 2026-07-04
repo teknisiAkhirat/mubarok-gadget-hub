@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { mockBrands, mockCategories, mockProducts, type Product } from "@/lib/mock-data";
+import { useEffect, useMemo, useState } from "react";
+import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
+import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
-import { ChevronRight, SlidersHorizontal } from "lucide-react";
+import { ChevronRight, SlidersHorizontal, Loader2 } from "lucide-react";
+import { toast, Toaster } from "sonner";
 
 interface ProdukSearch {
   q?: string;
@@ -35,9 +37,25 @@ function ProdukPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const [priceMax, setPriceMax] = useState(5000000);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        try { await seedIfEmpty(); } catch { /* seed may fail without admin auth; ignore */ }
+        setProducts(await fetchProducts());
+      } catch (e) {
+        toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   const filtered = useMemo(() => {
-    let list: Product[] = [...mockProducts];
+    let list: Product[] = products.filter((p) => p.isActive);
     if (search.q) {
       const q = search.q.toLowerCase();
       list = list.filter(
