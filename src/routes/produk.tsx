@@ -82,7 +82,7 @@ function ProdukPage() {
       default: list.sort((a, b) => +b.createdAt - +a.createdAt);
     }
     return list;
-  }, [search, priceMax]);
+  }, [search, priceMax, products]);
 
   const setFilter = (key: keyof ProdukSearch, value: string | undefined) => {
     navigate({ search: (prev: ProdukSearch) => ({ ...prev, [key]: value || undefined }) });
