@@ -90,6 +90,8 @@ function ProdukPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
+      <Toaster richColors position="top-center" />
+
       {/* Breadcrumb */}
       <nav className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
         <Link to="/" className="hover:text-foreground">Beranda</Link>
