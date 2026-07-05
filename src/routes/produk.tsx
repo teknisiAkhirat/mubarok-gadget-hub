@@ -1,18 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
+import { mockBrands, mockCategories, type Product, PRODUCT_TYPE_LABELS } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
 import { ChevronRight, SlidersHorizontal, Loader2 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
-interface ProdukSearch {
+type ProdukSearch = {
   q?: string;
-  type?: "hp-bekas" | "sparepart";
+  type?: "hp-bekas" | "sparepart" | "tablet";
   brand?: string;
   category?: string;
   sort?: "terbaru" | "termurah" | "termahal" | "terlaris";
-}
+};
 
 export const Route = createFileRoute("/produk")({
   head: () => ({
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/produk")({
   }),
   validateSearch: (s: Record<string, unknown>): ProdukSearch => ({
     q: typeof s.q === "string" ? s.q : undefined,
-    type: s.type === "hp-bekas" || s.type === "sparepart" ? s.type : undefined,
+    type: s.type === "hp-bekas" || s.type === "sparepart" || s.type === "tablet" ? s.type : undefined,
     brand: typeof s.brand === "string" ? s.brand : undefined,
     category: typeof s.category === "string" ? s.category : undefined,
     sort: ["terbaru", "termurah", "termahal", "terlaris"].includes(s.sort as string)
@@ -88,6 +88,14 @@ function ProdukPage() {
     navigate({ search: (prev: ProdukSearch) => ({ ...prev, [key]: value || undefined }) });
   };
 
+  // Helper to get type label
+  const getTypeLabel = (type: "hp-bekas" | "sparepart" | "tablet") => {
+    if (type === "hp-bekas") return "HP Bekas";
+    if (type === "sparepart") return "Sparepart";
+    if (type === "tablet") return "Tablet";
+    return type;
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <Toaster richColors position="top-center" />
@@ -101,7 +109,7 @@ function ProdukPage() {
           <>
             <ChevronRight className="h-3 w-3" />
             <span className="text-foreground capitalize">
-              {search.type === "hp-bekas" ? "HP Bekas" : "Sparepart"}
+              {getTypeLabel(search.type)}
             </span>
           </>
         )}
@@ -119,13 +127,13 @@ function ProdukPage() {
               { v: undefined, label: "Semua" },
               { v: "hp-bekas", label: "📱 HP Bekas" },
               { v: "sparepart", label: "🔧 Sparepart" },
+              { v: "tablet", label: "📱 Tablet" },
             ].map((opt) => (
               <button
                 key={opt.label}
                 onClick={() => setFilter("type", opt.v)}
-                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition ${
-                  search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" : "hover:bg-muted"
-                }`}
+                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition ${search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" : "hover:bg-muted"}`
+              }
               >
                 {opt.label}
               </button>
@@ -139,7 +147,8 @@ function ProdukPage() {
                 <button
                   key={b.id}
                   onClick={() => setFilter("brand", b.slug)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`
+                }
                 >
                   {b.name}
                 </button>
@@ -154,7 +163,8 @@ function ProdukPage() {
                 <button
                   key={c.id}
                   onClick={() => setFilter("category", c.slug)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`
+                }
                 >
                   {c.icon} {c.name}
                 </button>

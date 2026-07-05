@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { mockSeller, mockBrands, type Product } from "@/lib/mock-data";
+import { mockSeller, mockBrands, type Product, PRODUCT_TYPE_LABELS } from "@/lib/mock-data";
 import { formatIDR } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -403,6 +403,7 @@ function ProdukManager({
               >
                 <option value="hp-bekas">HP Bekas</option>
                 <option value="sparepart">Sparepart</option>
+                <option value="tablet">Tablet</option>
               </select>
             </div>
             <div className="space-y-1">
@@ -482,7 +483,7 @@ function ProdukManager({
             </div>
             <div className="mt-3 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Stok: <b className="text-foreground">{p.stock}</b></span>
-              <span className="capitalize text-muted-foreground">{p.type === "hp-bekas" ? "HP Bekas" : "Sparepart"}</span>
+              <span className="capitalize text-muted-foreground">{PRODUCT_TYPE_LABELS[p.type]}</span>
               <span className={`rounded-full px-2 py-0.5 font-bold ${p.isActive ? "bg-green-100 text-green-700" : "bg-zinc-200 text-zinc-600"}`}>
                 {p.isActive ? "Aktif" : "Nonaktif"}
               </span>

@@ -1,7 +1,13 @@
 import samsungM52 from "@/assets/samsung-m52.jpg";
 import spenNote8 from "@/assets/spen-note8.jpg";
 
-export type ProductType = "hp-bekas" | "sparepart";
+export type ProductType = "hp-bekas" | "sparepart" | "tablet";
+
+export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
+  "hp-bekas": "HP Bekas",
+  sparepart: "Sparepart",
+  tablet: "Tablet",
+};
 
 export interface PhoneModel {
   id: string;
