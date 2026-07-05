@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 
 export function CartDrawer() {
   const { isOpen, close, updateQty, remove } = useCart();
-  const { details, subtotal } = useCartDetails();
+  const { details, subtotal, isLoading } = useCartDetails();
   const [promo, setPromo] = useState("");
   const [origin, setOrigin] = useState("");
 
@@ -17,6 +17,24 @@ export function CartDrawer() {
   }, []);
 
   if (!isOpen) return null;
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex">
+        <div className="flex-1 bg-black/50 backdrop-blur-sm" />
+        <aside className="flex h-full w-full max-w-md flex-col bg-background shadow-2xl">
+          <header className="flex items-center justify-between border-b border-border p-4">
+            <h2 className="flex items-center gap-2 text-lg font-bold">
+              <ShoppingBag className="h-5 w-5" /> Keranjang
+            </h2>
+          </header>
+          <div className="flex-1 flex items-center justify-center p-4">
+            <p className="text-muted-foreground">Memuat keranjang...</p>
+          </div>
+        </aside>
+      </div>
+    );
+  }
 
   const waMessage = `Halo Mubarok SMS&S, saya tertarik dengan pesanan berikut:\n\n${details
     .map((d) => {
