@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Repeat, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import { useEffect, useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
-import { mockBrands, mockCategories, mockProducts } from "@/lib/mock-data";
+import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
+import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/")({
@@ -15,8 +17,24 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const featured = mockProducts.filter((p) => p.isFeatured);
-  const latest = [...mockProducts].sort((a, b) => +b.createdAt - +a.createdAt);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await seedIfEmpty();
+        const data = await fetchProducts();
+        if (mounted) setProducts(data.filter((p) => p.isActive));
+      } catch {
+        // silent — etalase kosong lebih baik daripada crash
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const featured = products.filter((p) => p.isFeatured);
+  const latest = [...products].sort((a, b) => +b.createdAt - +a.createdAt);
 
   return (
     <div>
