@@ -12,15 +12,7 @@ export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
 
   const handleAddToCart = () => {
-    add({
-      productId: product.id,
-      sellerId: product.sellerId,
-      name: product.name,
-      image: product.images[0],
-      condition: product.condition,
-      price: product.price,
-      stock: product.stock,
-    });
+    add(product.id);
     toast.success(`${product.name} ditambahkan ke keranjang`);
   };
 

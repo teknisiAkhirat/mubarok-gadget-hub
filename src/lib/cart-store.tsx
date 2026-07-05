@@ -2,13 +2,7 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 
 export interface CartItem {
   productId: string;
-  sellerId: string;
-  name: string;
-  image: string;
-  condition: string;
-  price: number;
   quantity: number;
-  stock: number;
 }
 
 interface CartContextValue {
@@ -17,7 +11,7 @@ interface CartContextValue {
   open: () => void;
   close: () => void;
   toggle: () => void;
-  add: (item: Omit<CartItem, "quantity">, qty?: number) => void;
+  add: (productId: string, qty?: number) => void;
   remove: (productId: string) => void;
   updateQty: (productId: string, qty: number) => void;
   clear: () => void;
@@ -31,17 +25,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const add = useCallback((item: Omit<CartItem, "quantity">, qty = 1) => {
+  const add = useCallback((productId: string, qty = 1) => {
     setItems((curr) => {
-      const existing = curr.find((c) => c.productId === item.productId);
+      const existing = curr.find((c) => c.productId === productId);
       if (existing) {
         return curr.map((c) =>
-          c.productId === item.productId
-            ? { ...c, quantity: Math.min(c.stock, c.quantity + qty) }
+          c.productId === productId
+            ? { ...c, quantity: c.quantity + qty }
             : c
         );
       }
-      return [...curr, { ...item, quantity: Math.min(item.stock, qty) }];
+      return [...curr, { productId, quantity: qty }];
     });
     setIsOpen(true);
   }, []);
@@ -54,7 +48,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((curr) =>
       curr.map((c) =>
         c.productId === productId
-          ? { ...c, quantity: Math.max(1, Math.min(c.stock, qty)) }
+          ? { ...c, quantity: Math.max(1, qty) }
           : c
       )
     );
@@ -62,7 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => setItems([]), []);
 
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const subtotal = 0; // TODO: hitung setelah fetch product details
   const count = items.reduce((s, i) => s + i.quantity, 0);
 
   return (

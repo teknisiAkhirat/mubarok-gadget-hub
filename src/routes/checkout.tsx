@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useCart } from "@/lib/cart-store";
+import { useCartDetails } from "@/hooks/use-cart-details";
 import { formatIDR, waLink } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,8 @@ export const Route = createFileRoute("/checkout")({
 const STEPS = ["Alamat", "Pengiriman", "Pembayaran", "Konfirmasi"];
 
 function CheckoutPage() {
-  const { items, subtotal, clear } = useCart();
+  const { clear } = useCart();
+  const { details, subtotal } = useCartDetails();
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
 
@@ -33,7 +35,7 @@ function CheckoutPage() {
 
   const grandTotal = subtotal + shipping.cost;
 
-  if (items.length === 0 && !done) {
+  if (details.length === 0 && !done) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Keranjang kosong</h1>
@@ -168,10 +170,10 @@ function CheckoutPage() {
               <Info title="Pengiriman" body={`${shipping.method.toUpperCase()} · ${formatIDR(shipping.cost)}`} />
               <Info title="Pembayaran" body={payment.toUpperCase()} />
               <div className="space-y-2 rounded-md border border-border p-3">
-                {items.map((i) => (
-                  <div key={i.productId} className="flex justify-between text-sm">
-                    <span>{i.name} × {i.quantity}</span>
-                    <span className="font-semibold">{formatIDR(i.price * i.quantity)}</span>
+                {details.map((d) => (
+                  <div key={d.productId} className="flex justify-between text-sm">
+                    <span>{d.product.name} × {d.quantity}</span>
+                    <span className="font-semibold">{formatIDR(d.product.price * d.quantity)}</span>
                   </div>
                 ))}
               </div>
@@ -199,12 +201,12 @@ function CheckoutPage() {
         <aside className="h-fit rounded-xl border border-border bg-card p-5 md:sticky md:top-32">
           <h3 className="text-base font-bold">Ringkasan Pesanan</h3>
           <ul className="mt-3 space-y-2">
-            {items.map((i) => (
-              <li key={i.productId} className="flex gap-2 text-sm">
-                <img src={i.image} className="h-12 w-12 rounded object-cover" alt="" />
+            {details.map((d) => (
+              <li key={d.productId} className="flex gap-2 text-sm">
+                <img src={d.product.images[0] ?? ""} className="h-12 w-12 rounded object-cover" alt="" />
                 <div className="flex-1">
-                  <p className="line-clamp-2 text-xs font-medium">{i.name}</p>
-                  <p className="text-xs text-muted-foreground">{i.quantity} × {formatIDR(i.price)}</p>
+                  <p className="line-clamp-2 text-xs font-medium">{d.product.name}</p>
+                  <p className="text-xs text-muted-foreground">{d.quantity} × {formatIDR(d.product.price)}</p>
                 </div>
               </li>
             ))}
