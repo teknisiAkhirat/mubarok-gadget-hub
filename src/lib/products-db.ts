@@ -157,3 +157,8 @@ export async function updateProduct(id: string, patch: Partial<Product>) {
   const { error } = await supabase.from("products" as any).update(row).eq("id", id);
   if (error) throw error;
 }
+export async function deleteProduct(id: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await supabase.from("products" as any).delete().eq("id", id);
+  if (error) throw error;
+}
