@@ -1,7 +1,8 @@
 import { Minus, Plus, MessageCircle, ShoppingBag, Trash2, X } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatIDR, waLink } from "@/lib/format";
-import { mockProducts } from "@/lib/mock-data";
+import { fetchProducts } from "@/lib/products-db";
+import type { Product } from "@/lib/mock-data";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useEffect, useState } from "react";
@@ -10,16 +11,28 @@ export function CartDrawer() {
   const { isOpen, close, items, updateQty, remove, subtotal } = useCart();
   const [promo, setPromo] = useState("");
   const [origin, setOrigin] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
 
+  // Ambil daftar produk dari Supabase hanya saat drawer dibuka & ada item,
+  // supaya link WA bisa dibangun tanpa bergantung ke mockProducts.
+  useEffect(() => {
+    if (!isOpen || items.length === 0) return;
+    let mounted = true;
+    fetchProducts()
+      .then((data) => { if (mounted) setProducts(data); })
+      .catch(() => { /* biar link kosong daripada crash */ });
+    return () => { mounted = false; };
+  }, [isOpen, items.length]);
+
   if (!isOpen) return null;
 
   const waMessage = `Halo Mubarok SMS&S, saya tertarik dengan pesanan berikut:\n\n${items
     .map((i) => {
-      const product = mockProducts.find((p) => p.id === i.productId);
+      const product = products.find((p) => p.id === i.productId);
       const link = product ? `${origin}/produk/${product.slug}` : "";
       return `- ${i.name} (${i.condition}) x${i.quantity}\nHarga: ${formatIDR(i.price * i.quantity)}\nLink Produk: ${link}`;
     })
