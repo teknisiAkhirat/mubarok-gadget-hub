@@ -129,27 +129,31 @@ export async function insertProduct(p: Product) {
 }
 
 export async function updateProduct(id: string, patch: Partial<Product>) {
+  // Map langsung dari key patch (camelCase) ke kolom snake_case,
+  // TANPA membangun object Product palsu / tanpa memanggil productToRow.
+  // Ini menghindari error createdAt undefined karena patch parsial
+  // tidak selalu punya semua field Product.
+  const map: Record<string, string> = {
+    sellerId: "seller_id", categoryId: "category_id", compatibleWith: "compatible_with",
+    brandId: "brand_id", modelId: "model_id", conditionLabel: "condition_label",
+    conditionNote: "condition_note", compareAtPrice: "compare_at_price",
+    reviewCount: "review_count", soldCount: "sold_count", isFeatured: "is_featured",
+    isActive: "is_active",
+    // createdAt sengaja TIDAK dimasukkan di sini — tidak boleh diubah dari client.
+  };
+
   const row: Record<string, unknown> = {};
-  const full = productToRow({ ...(patch as Product), id } as Product);
-  for (const k of Object.keys(patch) as (keyof Product)[]) {
-    // Map camelCase key -> snake_case via productToRow result
-    const map: Record<string, string> = {
-      sellerId: "seller_id", categoryId: "category_id", compatibleWith: "compatible_with",
-      brandId: "brand_id", modelId: "model_id", conditionLabel: "condition_label",
-      conditionNote: "condition_note", compareAtPrice: "compare_at_price",
-      reviewCount: "review_count", soldCount: "sold_count", isFeatured: "is_featured",
-      isActive: "is_active", createdAt: "created_at",
-    };
-    const snake = map[k as string] ?? (k as string);
-    row[snake] = (full as unknown as Record<string, unknown>)[snake];
+  for (const [key, value] of Object.entries(patch)) {
+    if (key === "createdAt" || key === "id") continue; // jangan pernah overwrite ini
+    const snakeKey = map[key] ?? key; // field yang sudah sama (name, price, stock, dst) pakai apa adanya
+    // Value seperti compatibleWith/images/specifications/tags biasanya array/object,
+    // Supabase client otomatis serialize ke JSONB, tidak perlu transformasi tambahan.
+    row[snakeKey] = value;
   }
+
+  if (Object.keys(row).length === 0) return; // tidak ada yang berubah, tidak perlu request
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await supabase.from("products" as any).update(row).eq("id", id);
-  if (error) throw error;
-}
-
-export async function deleteProduct(id: string) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await supabase.from("products" as any).delete().eq("id", id);
   if (error) throw error;
 }
