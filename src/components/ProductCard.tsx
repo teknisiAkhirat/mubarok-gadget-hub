@@ -5,8 +5,25 @@ import { mockSeller } from "@/lib/mock-data";
 import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "./BadgeKondisi";
 import { Button } from "./ui/button";
+import { useCart } from "@/lib/cart-store";
+import { toast } from "sonner";
 
 export function ProductCard({ product }: { product: Product }) {
+  const { add } = useCart();
+
+  const handleAddToCart = () => {
+    add({
+      productId: product.id,
+      sellerId: product.sellerId,
+      name: product.name,
+      image: product.images[0],
+      condition: product.condition,
+      price: product.price,
+      stock: product.stock,
+    });
+    toast.success(`${product.name} ditambahkan ke keranjang`);
+  };
+
   const handleWa = () => {
     const link = `${window.location.origin}/produk/${product.slug}`;
     const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${link}\n\nApakah masih tersedia?`;
@@ -52,14 +69,24 @@ export function ProductCard({ product }: { product: Product }) {
           <MapPin className="h-3 w-3" />
           <span className="truncate">Blora · {mockSeller.storeName.split(" ").slice(0, 2).join(" ")}</span>
         </div>
+        <div className="flex flex-col gap-1.5">
         <Button
           size="sm"
-          className="mt-2 bg-green-500 text-white hover:bg-green-600"
+          variant="outline"
+          className="mt-1 border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white"
+          onClick={handleAddToCart}
+        >
+          + Keranjang
+        </Button>
+        <Button
+          size="sm"
+          className="bg-green-500 text-white hover:bg-green-600"
           onClick={handleWa}
         >
           <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
           Beli via WA
         </Button>
+        </div>
       </div>
     </div>
   );

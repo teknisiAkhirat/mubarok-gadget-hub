@@ -13,6 +13,8 @@ import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCart } from "@/lib/cart-store";
+import { toast } from "sonner";
 import {
   ChevronRight,
   Clock,
@@ -116,6 +118,21 @@ function PDP() {
 
   const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${pageUrl}\n\nApakah masih tersedia?`;
 
+  const { add } = useCart();
+
+  const handleAddToCart = () => {
+    add({
+      productId: product.id,
+      sellerId: product.sellerId,
+      name: product.name,
+      image: product.images[0],
+      condition: product.condition,
+      price: product.price,
+      stock: product.stock,
+    });
+    toast.success(`${product.name} ditambahkan ke keranjang`);
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <nav className="mb-4 flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
@@ -207,7 +224,15 @@ function PDP() {
             <div className="mt-1 text-sm font-medium text-foreground">{stokLabel}</div>
           </div>
 
-          <div className="mt-5">
+          <div className="mt-5 flex flex-col gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white"
+              onClick={handleAddToCart}
+            >
+              + Keranjang
+            </Button>
             <Button asChild className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600">
               <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
                 <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
