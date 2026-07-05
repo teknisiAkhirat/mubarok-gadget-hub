@@ -129,6 +129,8 @@ export const mockBrands: PhoneBrand[] = [
   { id: "brand-tecno", name: "Tecno", slug: "tecno", logo: "", models: [] },
   { id: "brand-infinix", name: "Infinix", slug: "infinix", logo: "", models: [] },
   { id: "brand-motorola", name: "Motorola", slug: "motorola", logo: "", models: [] },
+  { id: "brand-huawei", name: "Huawei", slug: "huawei", logo: "", models: [] },
+  { id: "brand-oppo", name: "Oppo", slug: "oppo", logo: "", models: [] },
 ];
 
 export const mockCategories: SparePartCategory[] = [
