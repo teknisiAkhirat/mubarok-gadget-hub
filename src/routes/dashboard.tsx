@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { mockSeller, mockBrands, type Product } from "@/lib/mock-data";
 import { formatIDR } from "@/lib/format";
@@ -29,9 +29,31 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
+  // Client-side only: session Supabase disimpan di localStorage, tidak tersedia saat SSR.
+  ssr: false,
   head: () => ({ meta: [{ title: "Dashboard Penjual · Mubarok SMS&S" }] }),
+  // Cek session + role admin SEBELUM komponen render. Non-admin di-redirect
+  // langsung ke "/" tanpa pernah melihat isi dashboard.
+  beforeLoad: async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      throw redirect({ to: "/auth" });
+    }
+    const userId = sessionData.session.user.id;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: roleRow, error } = await (supabase as any)
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (error || !roleRow) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: DashboardPage,
 });
+
 
 function DashboardPage() {
   const navigate = useNavigate();
