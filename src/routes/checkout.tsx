@@ -17,7 +17,7 @@ const STEPS = ["Alamat", "Pengiriman", "Pembayaran", "Konfirmasi"];
 
 function CheckoutPage() {
   const { clear } = useCart();
-  const { details, subtotal } = useCartDetails();
+  const { details, subtotal, isLoading } = useCartDetails();
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
 
@@ -43,6 +43,16 @@ function CheckoutPage() {
         <Button asChild className="mt-6 bg-[var(--color-brand)]">
           <Link to="/produk">Lihat Produk</Link>
         </Button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="text-muted-foreground">Memuat detail checkout...</p>
+        </div>
       </div>
     );
   }
