@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useCart } from "@/lib/cart-store";
 import { fetchProducts } from "@/lib/products-db";
 import type { Product } from "@/lib/mock-data";
@@ -11,21 +12,10 @@ export interface CartItemDetail {
 
 export function useCartDetails() {
   const { items } = useCart();
-  const [products, setProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
-    let mounted = true;
-    fetchProducts()
-      .then((data) => {
-        if (mounted) setProducts(data);
-      })
-      .catch(() => {
-        /* biar kosong daripada crash */
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
 
   const details = useMemo<CartItemDetail[]>(() => {
     return items
@@ -41,5 +31,5 @@ export function useCartDetails() {
     return details.reduce((s, d) => s + d.product.price * d.quantity, 0);
   }, [details]);
 
-  return { details, subtotal };
+  return { details, subtotal, isLoading };
 }
