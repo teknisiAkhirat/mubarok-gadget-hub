@@ -535,7 +535,7 @@ function ProdukManager({
                     </div>
                   </div>
                 </td>
-                <td className="p-3 capitalize">{p.type === "hp-bekas" ? "HP Bekas" : "Sparepart"}</td>
+                <td className="p-3 capitalize">{PRODUCT_TYPE_LABELS[p.type] || p.type}</td>
                 <td className="p-3 font-bold text-[var(--color-accent-orange)]">{formatIDR(p.price)}</td>
                 <td className="p-3">{p.stock}</td>
                 <td className="p-3">
