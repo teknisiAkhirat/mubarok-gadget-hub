@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RepairTrackerRouteImport } from './routes/repair-tracker'
 import { Route as ProdukRouteImport } from './routes/produk'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -16,6 +17,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdukSlugRouteImport } from './routes/produk_.$slug'
 
+const RepairTrackerRoute = RepairTrackerRouteImport.update({
+  id: '/repair-tracker',
+  path: '/repair-tracker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdukRoute = ProdukRouteImport.update({
   id: '/produk',
   path: '/produk',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/produk': typeof ProdukRoute
+  '/repair-tracker': typeof RepairTrackerRoute
   '/produk/$slug': typeof ProdukSlugRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/produk': typeof ProdukRoute
+  '/repair-tracker': typeof RepairTrackerRoute
   '/produk/$slug': typeof ProdukSlugRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,28 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/produk': typeof ProdukRoute
+  '/repair-tracker': typeof RepairTrackerRoute
   '/produk_/$slug': typeof ProdukSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/checkout' | '/dashboard' | '/produk' | '/produk/$slug'
+    | '/'
+    | '/auth'
+    | '/checkout'
+    | '/dashboard'
+    | '/produk'
+    | '/repair-tracker'
+    | '/produk/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/checkout' | '/dashboard' | '/produk' | '/produk/$slug'
+  to:
+    | '/'
+    | '/auth'
+    | '/checkout'
+    | '/dashboard'
+    | '/produk'
+    | '/repair-tracker'
+    | '/produk/$slug'
   id:
     | '__root__'
     | '/'
@@ -85,6 +107,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard'
     | '/produk'
+    | '/repair-tracker'
     | '/produk_/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -94,11 +117,19 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   DashboardRoute: typeof DashboardRoute
   ProdukRoute: typeof ProdukRoute
+  RepairTrackerRoute: typeof RepairTrackerRoute
   ProdukSlugRoute: typeof ProdukSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/repair-tracker': {
+      id: '/repair-tracker'
+      path: '/repair-tracker'
+      fullPath: '/repair-tracker'
+      preLoaderRoute: typeof RepairTrackerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produk': {
       id: '/produk'
       path: '/produk'
@@ -150,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   DashboardRoute: DashboardRoute,
   ProdukRoute: ProdukRoute,
+  RepairTrackerRoute: RepairTrackerRoute,
   ProdukSlugRoute: ProdukSlugRoute,
 }
 export const routeTree = rootRouteImport
