@@ -26,6 +26,7 @@ import {
   Power,
   LogOut,
   Loader2,
+  Wrench,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
@@ -61,7 +62,16 @@ function DashboardPage() {
   const [signedIn, setSignedIn] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"overview" | "produk" | "pesanan" | "toko">("overview");
+  const [tab, setTab] = useState<"overview" | "produk" | "pesanan" | "toko" | "servis">("overview");
+  const [serviceStats, setServiceStats] = useState({
+    total: 0,
+    Masuk: 0,
+    Diagnosa: 0,
+    "Proses Perbaikan": 0,
+    Selesai: 0,
+    Diambil: 0,
+  });
+  const [serviceLoading, setServiceLoading] = useState(false);
 
   // Auth gate
   useEffect(() => {
@@ -99,6 +109,31 @@ function DashboardPage() {
       setProducts(await fetchProducts());
     } catch (e) {
       toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
+    }
+  }
+
+  async function refreshServiceStats() {
+    setServiceLoading(true);
+    try {
+      const { data } = await supabase.from("service_tickets").select("status");
+      const rows = (data ?? []) as Array<{ status: string }>;
+      const next = {
+        total: rows.length,
+        Masuk: 0,
+        Diagnosa: 0,
+        "Proses Perbaikan": 0,
+        Selesai: 0,
+        Diambil: 0,
+      } as Record<string, number>;
+      for (const row of rows) {
+        if (next[row.status] === undefined) continue;
+        next[row.status] += 1;
+      }
+      setServiceStats(next as typeof serviceStats);
+    } catch (e) {
+      toast.error("Gagal memuat statistik servis: " + (e instanceof Error ? e.message : "unknown"));
+    } finally {
+      setServiceLoading(false);
     }
   }
 
@@ -152,7 +187,7 @@ function DashboardPage() {
       </div>
 
       <div className="mt-6 flex gap-1 overflow-x-auto border-b border-border">
-        {(["overview", "produk", "pesanan", "toko"] as const).map((t) => (
+        {(["overview", "produk", "pesanan", "toko", "servis"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -162,7 +197,7 @@ function DashboardPage() {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {t === "overview" ? "Ringkasan" : t === "produk" ? "Manajemen Produk" : t === "pesanan" ? "Pesanan" : "Pengaturan Toko"}
+            {t === "overview" ? "Ringkasan" : t === "produk" ? "Manajemen Produk" : t === "pesanan" ? "Pesanan" : t === "servis" ? "Status Servis" : "Pengaturan Toko"}
           </button>
         ))}
       </div>
@@ -208,6 +243,25 @@ function DashboardPage() {
             <Button className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)] md:col-span-2">Simpan Perubahan</Button>
           </div>
         )}
+
+        {tab === "servis" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold">Statistik Servis</h2>
+              <Button size="sm" onClick={refreshServiceStats} disabled={serviceLoading}>
+                {serviceLoading ? "Memuat..." : "Perbarui"}
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              <StatCard label="Total Tiket" value={serviceStats.total.toString()} icon={Wrench} color="from-gray-600 to-gray-700" />
+              <StatCard label="Masuk" value={serviceStats.Masuk.toString()} icon={Wrench} color="from-gray-500 to-gray-600" />
+              <StatCard label="Diagnosa" value={serviceStats.Diagnosa.toString()} icon={Wrench} color="from-yellow-500 to-yellow-600" />
+              <StatCard label="Proses Perbaikan" value={serviceStats["Proses Perbaikan"].toString()} icon={Wrench} color="from-blue-500 to-blue-600" />
+              <StatCard label="Selesai" value={serviceStats.Selesai.toString()} icon={Wrench} color="from-green-500 to-green-600" />
+              <StatCard label="Diambil" value={serviceStats.Diambil.toString()} icon={Wrench} color="from-emerald-500 to-emerald-600" />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -218,6 +272,16 @@ function Field({ label, defaultValue }: { label: string; defaultValue: string })
     <div className="space-y-1">
       <label className="text-xs font-semibold text-muted-foreground">{label}</label>
       <Input defaultValue={defaultValue} />
+    </div>
+  );
+}
+
+function StatCard({ label, value, icon: Icon, color }: { label: string; value: string; icon: React.ComponentType<{ className?: string }>; color: string }) {
+  return (
+    <div className={`rounded-xl bg-gradient-to-br ${color} p-4 text-white shadow-md`}>
+      <Icon className="h-5 w-5 opacity-80" />
+      <p className="mt-2 text-xs opacity-90">{label}</p>
+      <p className="text-xl font-extrabold">{value}</p>
     </div>
   );
 }

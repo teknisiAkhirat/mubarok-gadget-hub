@@ -107,6 +107,45 @@ export type Database = {
         }
         Relationships: []
       }
+      service_tickets: {
+        Row: {
+          id: string
+          ticket_number: string
+          customer_name: string
+          customer_phone: string | null
+          device_model: string
+          issue_description: string
+          status: string
+          notes: string | null
+          updated_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          ticket_number: string
+          customer_name: string
+          customer_phone?: string | null
+          device_model: string
+          issue_description: string
+          status?: string
+          notes?: string | null
+          updated_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          ticket_number?: string
+          customer_name?: string
+          customer_phone?: string | null
+          device_model?: string
+          issue_description?: string
+          status?: string
+          notes?: string | null
+          updated_at?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

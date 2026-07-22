@@ -12,10 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RepairTrackerRouteImport } from './routes/repair-tracker'
 import { Route as ProdukRouteImport } from './routes/produk'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdukSlugRouteImport } from './routes/produk_.$slug'
+import { Route as RepairTrackerTicketIdInvoiceRouteImport } from './routes/repair-tracker.$ticketId.invoice'
 
 const RepairTrackerRoute = RepairTrackerRouteImport.update({
   id: '/repair-tracker',
@@ -52,6 +52,11 @@ const ProdukSlugRoute = ProdukSlugRouteImport.update({
   path: '/produk/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepairTrackerTicketIdInvoiceRoute = RepairTrackerTicketIdInvoiceRouteImport.update({
+  id: '/repair-tracker/$ticketId/invoice',
+  path: '/repair-tracker/$ticketId/invoice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRoute
   '/produk/$slug': typeof ProdukSlugRoute
+  '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +76,7 @@ export interface FileRoutesByTo {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRoute
   '/produk/$slug': typeof ProdukSlugRoute
+  '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,36 +87,7 @@ export interface FileRoutesById {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRoute
   '/produk_/$slug': typeof ProdukSlugRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/auth'
-    | '/checkout'
-    | '/dashboard'
-    | '/produk'
-    | '/repair-tracker'
-    | '/produk/$slug'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/auth'
-    | '/checkout'
-    | '/dashboard'
-    | '/produk'
-    | '/repair-tracker'
-    | '/produk/$slug'
-  id:
-    | '__root__'
-    | '/'
-    | '/auth'
-    | '/checkout'
-    | '/dashboard'
-    | '/produk'
-    | '/repair-tracker'
-    | '/produk_/$slug'
-  fileRoutesById: FileRoutesById
+  '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
@@ -118,6 +96,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ProdukRoute: typeof ProdukRoute
   RepairTrackerRoute: typeof RepairTrackerRoute
+  RepairTrackerTicketIdInvoiceRoute: typeof RepairTrackerTicketIdInvoiceRoute
   ProdukSlugRoute: typeof ProdukSlugRoute
 }
 
@@ -172,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdukSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/repair-tracker.$ticketId.invoice': {
+      id: '/repair-tracker.$ticketId.invoice'
+      path: '/repair-tracker/$ticketId/invoice'
+      fullPath: '/repair-tracker/$ticketId/invoice'
+      preLoaderRoute: typeof RepairTrackerTicketIdInvoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -182,6 +168,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ProdukRoute: ProdukRoute,
   RepairTrackerRoute: RepairTrackerRoute,
+  RepairTrackerTicketIdInvoiceRoute: RepairTrackerTicketIdInvoiceRoute,
   ProdukSlugRoute: ProdukSlugRoute,
 }
 export const routeTree = rootRouteImport

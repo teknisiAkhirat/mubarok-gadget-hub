@@ -1,38 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Wrench } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Search, Wrench, Printer } from "lucide-react";
+import { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
 
 export const Route = createFileRoute("/repair-tracker")({
   component: RepairTrackerPage,
 });
-
-const STATUS_ORDER = ["Masuk", "Diagnosa", "Proses Perbaikan", "Selesai", "Diambil"] as const;
-
-const STATUS_STEPS: Record<string, { label: string; color: string }> = {
-  Masuk: { label: "Baru Masuk", color: "bg-gray-100 text-gray-700" },
-  Diagnosa: { label: "Sedang Didiagnosa", color: "bg-yellow-100 text-yellow-800" },
-  "Proses Perbaikan": { label: "Proses Perbaikan", color: "bg-blue-100 text-blue-800" },
-  Selesai: { label: "Selesai", color: "bg-green-100 text-green-800" },
-  Diambil: { label: "Sudah Diambil", color: "bg-emerald-100 text-emerald-800" },
-};
-
-type Ticket = {
-  id: string;
-  ticket_number: string;
-  customer_name: string;
-  customer_phone: string | null;
-  device_model: string;
-  issue_description: string;
-  status: string;
-  notes: string | null;
-  updated_at: string;
-  created_at: string;
-};
 
 function RepairTrackerPage() {
   const [query, setQuery] = useState("");
@@ -167,6 +146,17 @@ function RepairTrackerPage() {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button asChild className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)] hover:opacity-90">
+                <Link to={`/repair-tracker/${ticket.id}`}>Lacak Servis</Link>
+              </Button>
+              <Button variant="outline" asChild className="gap-1.5">
+                <Link to={`/repair-tracker.${ticket.id}.invoice`}>
+                  <Printer className="h-4 w-4" /> Nota Servis
+                </Link>
+              </Button>
             </div>
 
             {ticket.notes && (
