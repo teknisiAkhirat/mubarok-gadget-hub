@@ -62,22 +62,29 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="truncate">Blora · {mockSeller.storeName.split(" ").slice(0, 2).join(" ")}</span>
         </div>
         <div className="flex flex-col gap-1.5">
-        <Button
-          size="sm"
-          variant="outline"
-          className="mt-1 border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white"
-          onClick={handleAddToCart}
-        >
-          + Keranjang
-        </Button>
-        <Button
-          size="sm"
-          className="bg-green-500 text-white hover:bg-green-600"
-          onClick={handleWa}
-        >
-          <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
-          Beli via WA
-        </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-1 border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white"
+            onClick={handleAddToCart}
+          >
+            + Keranjang
+          </Button>
+          <Button
+            size="sm"
+            className="bg-emerald-600 text-white hover:bg-emerald-700"
+            asChild
+          >
+            <a
+              href={waLink(`Halo Mubarok Gadget Hub, saya tertarik dengan produk ${product.name} seharga ${formatIDR(product.price)} (Kondisi: ${product.condition ?? "Standard"}). Apakah stoknya masih tersedia?`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              Pesan via WhatsApp
+            </a>
+          </Button>
         </div>
       </div>
     </div>
