@@ -70,9 +70,6 @@ export function Footer() {
             <li><Link to="/produk" className="hover:underline">Semua Produk</Link></li>
             <li><Link to="/produk" search={{ type: "hp-bekas" } as never} className="hover:underline">HP Bekas</Link></li>
             <li><Link to="/produk" search={{ type: "sparepart" } as never} className="hover:underline">Sparepart</Link></li>
-            {isAdmin && authChecked && (
-              <li><Link to="/dashboard" className="hover:underline">Dashboard Penjual</Link></li>
-            )}
           </ul>
         </div>
         <div>

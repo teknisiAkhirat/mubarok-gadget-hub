@@ -38,7 +38,7 @@ export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
     const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session) {
-      throw redirect({ to: "/auth" });
+      throw redirect({ to: "/admin-login" });
     }
     const userId = sessionData.session.user.id;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,12 +78,12 @@ function DashboardPage() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setSignedIn(!!session);
       setAuthChecked(true);
-      if (!session) navigate({ to: "/auth" });
+      if (!session) navigate({ to: "/admin-login" });
     });
     supabase.auth.getSession().then(({ data }) => {
       setSignedIn(!!data.session);
       setAuthChecked(true);
-      if (!data.session) navigate({ to: "/auth" });
+      if (!data.session) navigate({ to: "/admin-login" });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
@@ -139,7 +139,7 @@ function DashboardPage() {
 
   async function logout() {
     await supabase.auth.signOut();
-    navigate({ to: "/auth" });
+    navigate({ to: "/admin-login" });
   }
 
   if (!authChecked || !signedIn) {

@@ -14,6 +14,7 @@ import { Route as ProdukRouteImport } from './routes/produk'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as ProdukSlugRouteImport } from './routes/produk_.$slug'
 import { Route as RepairTrackerTicketIdInvoiceRouteImport } from './routes/repair-tracker.$ticketId.invoice'
 
@@ -47,6 +48,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdukSlugRoute = ProdukSlugRouteImport.update({
   id: '/produk_/$slug',
   path: '/produk/$slug',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
+  '/admin-login': typeof AdminLoginRoute
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRoute
   '/produk/$slug': typeof ProdukSlugRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
+  '/admin-login': typeof AdminLoginRoute
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRoute
   '/produk/$slug': typeof ProdukSlugRoute
@@ -81,6 +89,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
@@ -94,6 +103,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
   DashboardRoute: typeof DashboardRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   ProdukRoute: typeof ProdukRoute
   RepairTrackerRoute: typeof RepairTrackerRoute
   RepairTrackerTicketIdInvoiceRoute: typeof RepairTrackerTicketIdInvoiceRoute
@@ -137,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-login': {
+      id: '/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -166,6 +183,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
   DashboardRoute: DashboardRoute,
+  AdminLoginRoute: AdminLoginRoute,
   ProdukRoute: ProdukRoute,
   RepairTrackerRoute: RepairTrackerRoute,
   RepairTrackerTicketIdInvoiceRoute: RepairTrackerTicketIdInvoiceRoute,
