@@ -9,7 +9,7 @@ import { formatIDR } from "@/lib/format";
 import { Search, Wrench } from "lucide-react";
 import type { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
 
-export const Route = createFileRoute("/repair-tracker.$ticketId.invoice")({
+export const Route = createFileRoute("/repair-tracker/$ticketId/invoice")({
   component: RepairTrackerDetailPage,
 });
 
