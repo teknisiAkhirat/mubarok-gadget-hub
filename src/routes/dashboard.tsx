@@ -40,15 +40,9 @@ export const Route = createFileRoute("/dashboard")({
     if (!sessionData.session) {
       throw redirect({ to: "/admin-login" });
     }
-    const userId = sessionData.session.user.id;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: roleRow, error } = await (supabase as any)
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (error || !roleRow) {
+    const userEmail = sessionData.session.user.email;
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+    if (!adminEmail || userEmail !== adminEmail) {
       throw redirect({ to: "/" });
     }
   },
