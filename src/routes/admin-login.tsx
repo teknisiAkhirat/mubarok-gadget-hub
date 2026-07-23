@@ -15,7 +15,6 @@ function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"login" | "signup">("login");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -30,16 +29,9 @@ function AdminLoginPage() {
     }
     setLoading(true);
     try {
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate({ to: "/dashboard" });
-      } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        toast.success("Akun berhasil dibuat! Silakan login.");
-        setMode("login");
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      navigate({ to: "/dashboard" });
     } catch (err: any) {
       toast.error(err.message || "Terjadi kesalahan");
     } finally {
@@ -51,9 +43,7 @@ function AdminLoginPage() {
     <div className="grid min-h-[60vh] place-items-center px-4">
       <Toaster />
       <div className="w-full max-w-sm space-y-4">
-        <h1 className="text-xl font-semibold text-center">
-          {mode === "login" ? "Login Admin" : "Daftar Akun Admin"}
-        </h1>
+        <h1 className="text-xl font-semibold text-center">Login Admin</h1>
         <Input
           type="email"
           placeholder="Email"
@@ -67,23 +57,8 @@ function AdminLoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button className="w-full" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Memproses..." : mode === "login" ? "Login" : "Daftar"}
+          {loading ? "Memproses..." : "Login"}
         </Button>
-        <p className="text-center text-sm text-muted-foreground">
-          {mode === "login" ? (
-            <span>Belum punya akun?{" "}
-              <button onClick={() => setMode("signup")} className="underline">
-                Daftar di sini
-              </button>
-            </span>
-          ) : (
-            <span>Sudah punya akun?{" "}
-              <button onClick={() => setMode("login")} className="underline">
-                Login
-              </button>
-            </span>
-          )}
-        </p>
       </div>
     </div>
   );
