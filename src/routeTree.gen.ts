@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ServiceNewRouteImport } from './routes/service-new'
 import { Route as RepairTrackerRouteImport } from './routes/repair-tracker'
 import { Route as ProdukRouteImport } from './routes/produk'
+import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -19,6 +21,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdukSlugRouteImport } from './routes/produk_.$slug'
 import { Route as RepairTrackerTicketIdInvoiceRouteImport } from './routes/repair-tracker.$ticketId.invoice'
 
+const ServiceNewRoute = ServiceNewRouteImport.update({
+  id: '/service-new',
+  path: '/service-new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RepairTrackerRoute = RepairTrackerRouteImport.update({
   id: '/repair-tracker',
   path: '/repair-tracker',
@@ -27,6 +34,11 @@ const RepairTrackerRoute = RepairTrackerRouteImport.update({
 const ProdukRoute = ProdukRouteImport.update({
   id: '/produk',
   path: '/produk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryRoute = InventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -72,8 +84,10 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
+  '/inventory': typeof InventoryRoute
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
+  '/service-new': typeof ServiceNewRoute
   '/produk/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
@@ -83,8 +97,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
+  '/inventory': typeof InventoryRoute
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
+  '/service-new': typeof ServiceNewRoute
   '/produk/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
@@ -95,8 +111,10 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
+  '/inventory': typeof InventoryRoute
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
+  '/service-new': typeof ServiceNewRoute
   '/produk_/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
@@ -108,8 +126,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/dashboard'
+    | '/inventory'
     | '/produk'
     | '/repair-tracker'
+    | '/service-new'
     | '/produk/$slug'
     | '/repair-tracker/$ticketId/invoice'
   fileRoutesByTo: FileRoutesByTo
@@ -119,8 +139,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/dashboard'
+    | '/inventory'
     | '/produk'
     | '/repair-tracker'
+    | '/service-new'
     | '/produk/$slug'
     | '/repair-tracker/$ticketId/invoice'
   id:
@@ -130,8 +152,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/dashboard'
+    | '/inventory'
     | '/produk'
     | '/repair-tracker'
+    | '/service-new'
     | '/produk_/$slug'
     | '/repair-tracker/$ticketId/invoice'
   fileRoutesById: FileRoutesById
@@ -142,13 +166,22 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
   DashboardRoute: typeof DashboardRoute
+  InventoryRoute: typeof InventoryRoute
   ProdukRoute: typeof ProdukRoute
   RepairTrackerRoute: typeof RepairTrackerRouteWithChildren
+  ServiceNewRoute: typeof ServiceNewRoute
   ProdukSlugRoute: typeof ProdukSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/service-new': {
+      id: '/service-new'
+      path: '/service-new'
+      fullPath: '/service-new'
+      preLoaderRoute: typeof ServiceNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/repair-tracker': {
       id: '/repair-tracker'
       path: '/repair-tracker'
@@ -161,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/produk'
       fullPath: '/produk'
       preLoaderRoute: typeof ProdukRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory': {
+      id: '/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof InventoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -233,10 +273,22 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
   DashboardRoute: DashboardRoute,
+  InventoryRoute: InventoryRoute,
   ProdukRoute: ProdukRoute,
   RepairTrackerRoute: RepairTrackerRouteWithChildren,
+  ServiceNewRoute: ServiceNewRoute,
   ProdukSlugRoute: ProdukSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
