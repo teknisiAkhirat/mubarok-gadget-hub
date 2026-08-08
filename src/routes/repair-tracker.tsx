@@ -49,11 +49,16 @@ function RepairTrackerPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Lacak Status Servis HP</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Masukkan nomor tiket/nota servismu untuk melihat perkembangan terbaru.
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Lacak Status Servis HP</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Masukkan nomor tiket/nota servismu untuk melihat perkembangan terbaru.
+          </p>
+        </div>
+        <Button asChild className="bg-[var(--color-accent-orange)] text-white hover:bg-[var(--color-accent-orange)]/90">
+          <Link to="/service/new">+ Tiket Baru</Link>
+        </Button>
       </div>
 
       <Card className="mb-6">
