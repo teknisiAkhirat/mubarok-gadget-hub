@@ -11,7 +11,7 @@ export function Header() {
   const [q, setQ] = useState("");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-background md:bg-background/95 md:backdrop-blur">
       <div className="bg-[var(--color-brand)] py-1.5 text-center text-xs font-medium text-[var(--color-brand-foreground)]">
         Smartphone & Sparepart Bekas Bergaransi · Terima Tukar-Tambah · 📍 Blora, Jawa Tengah
       </div>
@@ -33,7 +33,7 @@ export function Header() {
             navigate({ to: "/produk", search: { q } as never });
           }}
         >
-          <div className="flex w-full items-center rounded-lg border border-border bg-muted/40 focus-within:border-[var(--color-accent-orange)] focus-within:bg-background">
+          <div className="flex w-full items-center rounded-lg border border-border bg-muted md:bg-muted/40 focus-within:border-[var(--color-accent-orange)] focus-within:bg-background">
             <Search className="ml-3 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
