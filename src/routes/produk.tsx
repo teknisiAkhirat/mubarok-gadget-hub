@@ -18,12 +18,16 @@ export const Route = createFileRoute("/produk")({
   head: () => ({
     meta: [
       { title: "Produk — HP Bekas & Sparepart · Mubarok SMS&S" },
-      { name: "description", content: "Jelajahi katalog HP bekas bergaransi dan sparepart smartphone di Blora." },
+      {
+        name: "description",
+        content: "Jelajahi katalog HP bekas bergaransi dan sparepart smartphone di Blora.",
+      },
     ],
   }),
   validateSearch: (s: Record<string, unknown>): ProdukSearch => ({
     q: typeof s.q === "string" ? s.q : undefined,
-    type: s.type === "hp-bekas" || s.type === "sparepart" || s.type === "tablet" ? s.type : undefined,
+    type:
+      s.type === "hp-bekas" || s.type === "sparepart" || s.type === "tablet" ? s.type : undefined,
     brand: typeof s.brand === "string" ? s.brand : undefined,
     category: typeof s.category === "string" ? s.category : undefined,
     sort: ["terbaru", "termurah", "termahal", "terlaris"].includes(s.sort as string)
@@ -44,7 +48,11 @@ function ProdukPage() {
     (async () => {
       setLoading(true);
       try {
-        try { await seedIfEmpty(); } catch { /* seed may fail without admin auth; ignore */ }
+        try {
+          await seedIfEmpty();
+        } catch {
+          /* seed may fail without admin auth; ignore */
+        }
         setProducts(await fetchProducts());
       } catch (e) {
         toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
@@ -62,7 +70,7 @@ function ProdukPage() {
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.tags.some((t) => t.toLowerCase().includes(q)) ||
-          p.description.toLowerCase().includes(q)
+          p.description.toLowerCase().includes(q),
       );
     }
     if (search.type) list = list.filter((p) => p.type === search.type);
@@ -76,10 +84,17 @@ function ProdukPage() {
     }
     list = list.filter((p) => p.price <= priceMax);
     switch (search.sort) {
-      case "termurah": list.sort((a, b) => a.price - b.price); break;
-      case "termahal": list.sort((a, b) => b.price - a.price); break;
-      case "terlaris": list.sort((a, b) => b.soldCount - a.soldCount); break;
-      default: list.sort((a, b) => +b.createdAt - +a.createdAt);
+      case "termurah":
+        list.sort((a, b) => a.price - b.price);
+        break;
+      case "termahal":
+        list.sort((a, b) => b.price - a.price);
+        break;
+      case "terlaris":
+        list.sort((a, b) => b.soldCount - a.soldCount);
+        break;
+      default:
+        list.sort((a, b) => +b.createdAt - +a.createdAt);
     }
     return list;
   }, [search, priceMax, products]);
@@ -102,15 +117,15 @@ function ProdukPage() {
 
       {/* Breadcrumb */}
       <nav className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
-        <Link to="/" className="hover:text-foreground">Beranda</Link>
+        <Link to="/" className="hover:text-foreground">
+          Beranda
+        </Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground">Produk</span>
         {search.type && (
           <>
             <ChevronRight className="h-3 w-3" />
-            <span className="text-foreground capitalize">
-              {getTypeLabel(search.type)}
-            </span>
+            <span className="text-foreground capitalize">{getTypeLabel(search.type)}</span>
           </>
         )}
       </nav>
@@ -132,8 +147,7 @@ function ProdukPage() {
               <button
                 key={opt.label}
                 onClick={() => setFilter("type", opt.v)}
-                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition ${search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" : "hover:bg-muted"}`
-              }
+                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition ${search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" : "hover:bg-muted"}`}
               >
                 {opt.label}
               </button>
@@ -142,13 +156,17 @@ function ProdukPage() {
 
           <FilterGroup title="Merek HP">
             <div className="space-y-1">
-              <button onClick={() => setFilter("brand", undefined)} className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.brand ? "bg-muted font-semibold" : "hover:bg-muted"}`}>Semua</button>
+              <button
+                onClick={() => setFilter("brand", undefined)}
+                className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.brand ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+              >
+                Semua
+              </button>
               {mockBrands.map((b) => (
                 <button
                   key={b.id}
                   onClick={() => setFilter("brand", b.slug)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`
-                }
+                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
                 >
                   {b.name}
                 </button>
@@ -158,13 +176,17 @@ function ProdukPage() {
 
           <FilterGroup title="Kategori Sparepart">
             <div className="space-y-1">
-              <button onClick={() => setFilter("category", undefined)} className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.category ? "bg-muted font-semibold" : "hover:bg-muted"}`}>Semua</button>
+              <button
+                onClick={() => setFilter("category", undefined)}
+                className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.category ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+              >
+                Semua
+              </button>
               {mockCategories.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => setFilter("category", c.slug)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`
-                }
+                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
                 >
                   {c.icon} {c.name}
                 </button>
@@ -197,7 +219,12 @@ function ProdukPage() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               Menampilkan <strong className="text-foreground">{filtered.length}</strong> produk
-              {search.q && <> untuk "<strong>{search.q}</strong>"</>}
+              {search.q && (
+                <>
+                  {" "}
+                  untuk "<strong>{search.q}</strong>"
+                </>
+              )}
             </p>
             <select
               value={search.sort}
@@ -218,11 +245,15 @@ function ProdukPage() {
           ) : filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-12 text-center">
               <p className="text-lg font-semibold">Produk tidak ditemukan 😅</p>
-              <p className="mt-1 text-sm text-muted-foreground">Coba ubah filter atau kata kunci pencarian.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Coba ubah filter atau kata kunci pencarian.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-              {filtered.map((p) => <ProductCard key={p.id} product={p} />)}
+              {filtered.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
             </div>
           )}
         </div>
@@ -234,7 +265,9 @@ function ProdukPage() {
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">{title}</h4>
+      <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </h4>
       {children}
     </div>
   );

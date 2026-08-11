@@ -112,8 +112,9 @@ export async function fetchProducts(): Promise<Product[]> {
 }
 
 export async function seedIfEmpty(): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { count, error } = await supabase.from("products" as any).select("id", { count: "exact", head: true });
+  const { count, error } = await supabase
+    .from("products" as any)
+    .select("id", { count: "exact", head: true });
   if (error) throw error;
   if ((count ?? 0) > 0) return;
   const rows = mockProducts.map((p) => productToRow({ ...p, sellerId: mockSeller.id }));
@@ -134,10 +135,17 @@ export async function updateProduct(id: string, patch: Partial<Product>) {
   // Ini menghindari error createdAt undefined karena patch parsial
   // tidak selalu punya semua field Product.
   const map: Record<string, string> = {
-    sellerId: "seller_id", categoryId: "category_id", compatibleWith: "compatible_with",
-    brandId: "brand_id", modelId: "model_id", conditionLabel: "condition_label",
-    conditionNote: "condition_note", compareAtPrice: "compare_at_price",
-    reviewCount: "review_count", soldCount: "sold_count", isFeatured: "is_featured",
+    sellerId: "seller_id",
+    categoryId: "category_id",
+    compatibleWith: "compatible_with",
+    brandId: "brand_id",
+    modelId: "model_id",
+    conditionLabel: "condition_label",
+    conditionNote: "condition_note",
+    compareAtPrice: "compare_at_price",
+    reviewCount: "review_count",
+    soldCount: "sold_count",
+    isFeatured: "is_featured",
     isActive: "is_active",
     // createdAt sengaja TIDAK dimasukkan di sini — tidak boleh diubah dari client.
   };
@@ -153,13 +161,17 @@ export async function updateProduct(id: string, patch: Partial<Product>) {
 
   if (Object.keys(row).length === 0) return; // tidak ada yang berubah, tidak perlu request
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await supabase.from("products" as any).update(row).eq("id", id);
+  const { error } = await supabase
+    .from("products" as any)
+    .update(row)
+    .eq("id", id);
   if (error) throw error;
 }
 export async function deleteProduct(id: string) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await supabase.from("products" as any).delete().eq("id", id);
+  const { error } = await supabase
+    .from("products" as any)
+    .delete()
+    .eq("id", id);
   if (error) throw error;
 }
 

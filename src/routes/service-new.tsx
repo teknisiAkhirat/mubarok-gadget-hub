@@ -65,7 +65,9 @@ function ServiceNewPage() {
       <Toaster richColors position="top-center" />
       <div className="mb-6 flex items-center gap-3">
         <Button variant="outline" size="sm" asChild>
-          <Link to="/repair-tracker"><ArrowLeft className="h-4 w-4" /> Kembali</Link>
+          <Link to="/repair-tracker">
+            <ArrowLeft className="h-4 w-4" /> Kembali
+          </Link>
         </Button>
         <h1 className="text-2xl font-bold">Tiket Servis Baru</h1>
       </div>
@@ -75,52 +77,121 @@ function ServiceNewPage() {
           <form onSubmit={submit} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Nama Pelanggan</label>
-                <Input required value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Nama Pelanggan
+                </label>
+                <Input
+                  required
+                  value={form.customer_name}
+                  onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+                />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">No. HP Pelanggan</label>
-                <Input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  No. HP Pelanggan
+                </label>
+                <Input
+                  value={form.customer_phone}
+                  onChange={(e) => setForm({ ...form, customer_phone: e.target.value })}
+                />
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground">Device / Model</label>
-                <Input required value={form.device_model} onChange={(e) => setForm({ ...form, device_model: e.target.value })} placeholder="Contoh: Realme 9 RMX3521" />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Device / Model
+                </label>
+                <Input
+                  required
+                  value={form.device_model}
+                  onChange={(e) => setForm({ ...form, device_model: e.target.value })}
+                  placeholder="Contoh: Realme 9 RMX3521"
+                />
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground">Keluhan / Kerusakan Awal</label>
-                <textarea className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" rows={3} value={form.issue_description} onChange={(e) => setForm({ ...form, issue_description: e.target.value })} />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Keluhan / Kerusakan Awal
+                </label>
+                <textarea
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  rows={3}
+                  value={form.issue_description}
+                  onChange={(e) => setForm({ ...form, issue_description: e.target.value })}
+                />
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground">Diagnosa IC / Jumper</label>
-                <textarea className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" rows={3} value={form.diagnosis} onChange={(e) => setForm({ ...form, diagnosis: e.target.value })} placeholder="Contoh: IC power rusak, jalankan jumper charge IC" />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Diagnosa IC / Jumper
+                </label>
+                <textarea
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  rows={3}
+                  value={form.diagnosis}
+                  onChange={(e) => setForm({ ...form, diagnosis: e.target.value })}
+                  placeholder="Contoh: IC power rusak, jalankan jumper charge IC"
+                />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Biaya Sparepart (IDR)</label>
-                <Input type="number" value={form.sparepart_cost} onChange={(e) => setForm({ ...form, sparepart_cost: +e.target.value })} />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Biaya Sparepart (IDR)
+                </label>
+                <Input
+                  type="number"
+                  value={form.sparepart_cost}
+                  onChange={(e) => setForm({ ...form, sparepart_cost: +e.target.value })}
+                />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Biaya Jasa (IDR)</label>
-                <Input type="number" value={form.service_cost} onChange={(e) => setForm({ ...form, service_cost: +e.target.value })} />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Biaya Jasa (IDR)
+                </label>
+                <Input
+                  type="number"
+                  value={form.service_cost}
+                  onChange={(e) => setForm({ ...form, service_cost: +e.target.value })}
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Status Awal</label>
-                <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as ServiceStatus })} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value as ServiceStatus })}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                >
                   {STATUS_ORDER.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground">Catatan Teknisi</label>
-                <textarea className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Catatan Teknisi
+                </label>
+                <textarea
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  rows={3}
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                />
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button type="submit" disabled={busy} className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
+              <Button
+                type="submit"
+                disabled={busy}
+                className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]"
+              >
                 {busy ? "Menyimpan..." : "Buat Tiket"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate({ to: "/repair-tracker" })} disabled={busy}>Batal</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate({ to: "/repair-tracker" })}
+                disabled={busy}
+              >
+                Batal
+              </Button>
             </div>
           </form>
         </CardContent>

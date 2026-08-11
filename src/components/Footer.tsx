@@ -59,17 +59,40 @@ export function Footer() {
           <h3 className="text-lg font-bold">{mockSeller.storeName}</h3>
           <p className="mt-2 text-sm opacity-80">{mockSeller.description}</p>
           <div className="mt-4 space-y-1.5 text-sm opacity-90">
-            <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {mockSeller.city}</div>
-            <div className="flex items-center gap-2"><Clock className="h-4 w-4" /> {mockSeller.operationalHours}</div>
-            <div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Toko terverifikasi · Respon {mockSeller.responseTime}</div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" /> {mockSeller.city}
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" /> {mockSeller.operationalHours}
+            </div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" /> Toko terverifikasi · Respon{" "}
+              {mockSeller.responseTime}
+            </div>
           </div>
         </div>
         <div>
           <h4 className="text-sm font-semibold">Jelajahi</h4>
           <ul className="mt-3 space-y-2 text-sm opacity-80">
-            <li><Link to="/produk" className="hover:underline">Semua Produk</Link></li>
-            <li><Link to="/produk" search={{ type: "hp-bekas" } as never} className="hover:underline">HP Bekas</Link></li>
-            <li><Link to="/produk" search={{ type: "sparepart" } as never} className="hover:underline">Sparepart</Link></li>
+            <li>
+              <Link to="/produk" className="hover:underline">
+                Semua Produk
+              </Link>
+            </li>
+            <li>
+              <Link to="/produk" search={{ type: "hp-bekas" } as never} className="hover:underline">
+                HP Bekas
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/produk"
+                search={{ type: "sparepart" } as never}
+                className="hover:underline"
+              >
+                Sparepart
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

@@ -73,11 +73,14 @@ function CheckoutPage() {
             Total: <strong>{formatIDR(grandTotal)}</strong>
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Status: Menunggu Konfirmasi · Silakan hubungi penjual via WhatsApp untuk konfirmasi pembayaran.
+            Status: Menunggu Konfirmasi · Silakan hubungi penjual via WhatsApp untuk konfirmasi
+            pembayaran.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Button asChild className="bg-green-500 hover:bg-green-600">
-              <a href={waLink(waMsg)} target="_blank" rel="noreferrer">Konfirmasi via WhatsApp</a>
+              <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
+                Konfirmasi via WhatsApp
+              </a>
             </Button>
             <Button asChild variant="outline">
               <Link to="/">Kembali ke Beranda</Link>
@@ -96,13 +99,25 @@ function CheckoutPage() {
       <div className="mb-8 flex items-center justify-between">
         {STEPS.map((label, i) => (
           <div key={label} className="flex flex-1 items-center">
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-              i <= step ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" : "bg-muted text-muted-foreground"
-            }`}>
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                i <= step
+                  ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
               {i < step ? <Check className="h-4 w-4" /> : i + 1}
             </div>
-            <span className={`ml-2 hidden text-sm font-medium md:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-            {i < STEPS.length - 1 && <div className={`mx-3 h-0.5 flex-1 ${i < step ? "bg-[var(--color-brand)]" : "bg-border"}`} />}
+            <span
+              className={`ml-2 hidden text-sm font-medium md:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}
+            >
+              {label}
+            </span>
+            {i < STEPS.length - 1 && (
+              <div
+                className={`mx-3 h-0.5 flex-1 ${i < step ? "bg-[var(--color-brand)]" : "bg-border"}`}
+              />
+            )}
           </div>
         ))}
       </div>
@@ -111,32 +126,72 @@ function CheckoutPage() {
         <div className="rounded-xl border border-border bg-card p-6">
           {step === 0 && (
             <div className="space-y-4">
-              <h2 className="flex items-center gap-2 text-lg font-bold"><MapPin className="h-5 w-5" /> Alamat Pengiriman</h2>
+              <h2 className="flex items-center gap-2 text-lg font-bold">
+                <MapPin className="h-5 w-5" /> Alamat Pengiriman
+              </h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Nama Penerima" value={address.name} onChange={(v) => setAddress({ ...address, name: v })} />
-                <Field label="No. WhatsApp" value={address.phone} onChange={(v) => setAddress({ ...address, phone: v })} />
+                <Field
+                  label="Nama Penerima"
+                  value={address.name}
+                  onChange={(v) => setAddress({ ...address, name: v })}
+                />
+                <Field
+                  label="No. WhatsApp"
+                  value={address.phone}
+                  onChange={(v) => setAddress({ ...address, phone: v })}
+                />
                 <div className="sm:col-span-2">
-                  <Field label="Alamat Lengkap" value={address.street} onChange={(v) => setAddress({ ...address, street: v })} />
+                  <Field
+                    label="Alamat Lengkap"
+                    value={address.street}
+                    onChange={(v) => setAddress({ ...address, street: v })}
+                  />
                 </div>
-                <Field label="Kecamatan" value={address.district} onChange={(v) => setAddress({ ...address, district: v })} />
-                <Field label="Kota/Kabupaten" value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
-                <Field label="Provinsi" value={address.province} onChange={(v) => setAddress({ ...address, province: v })} />
-                <Field label="Kode Pos" value={address.postalCode} onChange={(v) => setAddress({ ...address, postalCode: v })} />
+                <Field
+                  label="Kecamatan"
+                  value={address.district}
+                  onChange={(v) => setAddress({ ...address, district: v })}
+                />
+                <Field
+                  label="Kota/Kabupaten"
+                  value={address.city}
+                  onChange={(v) => setAddress({ ...address, city: v })}
+                />
+                <Field
+                  label="Provinsi"
+                  value={address.province}
+                  onChange={(v) => setAddress({ ...address, province: v })}
+                />
+                <Field
+                  label="Kode Pos"
+                  value={address.postalCode}
+                  onChange={(v) => setAddress({ ...address, postalCode: v })}
+                />
               </div>
             </div>
           )}
 
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="flex items-center gap-2 text-lg font-bold"><Truck className="h-5 w-5" /> Metode Pengiriman</h2>
+              <h2 className="flex items-center gap-2 text-lg font-bold">
+                <Truck className="h-5 w-5" /> Metode Pengiriman
+              </h2>
               {[
                 { id: "jne", label: "JNE Reguler", desc: "Estimasi 2-4 hari", cost: 15000 },
                 { id: "sicepat", label: "SiCepat", desc: "Estimasi 1-3 hari", cost: 18000 },
                 { id: "jnt", label: "J&T Express", desc: "Estimasi 2-4 hari", cost: 14000 },
                 { id: "gosend", label: "Gosend (Blora & sekitar)", desc: "Sameday", cost: 25000 },
-                { id: "ambil", label: "Ambil Langsung di Toko (Blora)", desc: "Gratis ongkir", cost: 0 },
+                {
+                  id: "ambil",
+                  label: "Ambil Langsung di Toko (Blora)",
+                  desc: "Gratis ongkir",
+                  cost: 0,
+                },
               ].map((opt) => (
-                <label key={opt.id} className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 ${shipping.method === opt.id ? "border-[var(--color-accent-orange)] bg-orange-50" : "border-border"}`}>
+                <label
+                  key={opt.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 ${shipping.method === opt.id ? "border-[var(--color-accent-orange)] bg-orange-50" : "border-border"}`}
+                >
                   <input
                     type="radio"
                     name="ship"
@@ -156,14 +211,25 @@ function CheckoutPage() {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="flex items-center gap-2 text-lg font-bold"><Wallet className="h-5 w-5" /> Metode Pembayaran</h2>
+              <h2 className="flex items-center gap-2 text-lg font-bold">
+                <Wallet className="h-5 w-5" /> Metode Pembayaran
+              </h2>
               {[
                 { id: "transfer", label: "Transfer Bank", desc: "BCA / BRI / Mandiri" },
                 { id: "qris", label: "QRIS", desc: "Scan QR semua e-wallet" },
                 { id: "cod", label: "COD (khusus Blora)", desc: "Bayar saat barang diterima" },
               ].map((opt) => (
-                <label key={opt.id} className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 ${payment === opt.id ? "border-[var(--color-accent-orange)] bg-orange-50" : "border-border"}`}>
-                  <input type="radio" name="pay" checked={payment === opt.id} onChange={() => setPayment(opt.id)} className="accent-[var(--color-accent-orange)]" />
+                <label
+                  key={opt.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 ${payment === opt.id ? "border-[var(--color-accent-orange)] bg-orange-50" : "border-border"}`}
+                >
+                  <input
+                    type="radio"
+                    name="pay"
+                    checked={payment === opt.id}
+                    onChange={() => setPayment(opt.id)}
+                    className="accent-[var(--color-accent-orange)]"
+                  />
                   <div>
                     <div className="font-semibold">{opt.label}</div>
                     <div className="text-xs text-muted-foreground">{opt.desc}</div>
@@ -176,13 +242,21 @@ function CheckoutPage() {
           {step === 3 && (
             <div className="space-y-4">
               <h2 className="text-lg font-bold">Konfirmasi Pesanan</h2>
-              <Info title="Alamat" body={`${address.name} (${address.phone}) — ${address.street}, ${address.district}, ${address.city}, ${address.province} ${address.postalCode}`} />
-              <Info title="Pengiriman" body={`${shipping.method.toUpperCase()} · ${formatIDR(shipping.cost)}`} />
+              <Info
+                title="Alamat"
+                body={`${address.name} (${address.phone}) — ${address.street}, ${address.district}, ${address.city}, ${address.province} ${address.postalCode}`}
+              />
+              <Info
+                title="Pengiriman"
+                body={`${shipping.method.toUpperCase()} · ${formatIDR(shipping.cost)}`}
+              />
               <Info title="Pembayaran" body={payment.toUpperCase()} />
               <div className="space-y-2 rounded-md border border-border p-3">
                 {details.map((d) => (
                   <div key={d.productId} className="flex justify-between text-sm">
-                    <span>{d.product.name} × {d.quantity}</span>
+                    <span>
+                      {d.product.name} × {d.quantity}
+                    </span>
                     <span className="font-semibold">{formatIDR(d.product.price * d.quantity)}</span>
                   </div>
                 ))}
@@ -191,15 +265,27 @@ function CheckoutPage() {
           )}
 
           <div className="mt-6 flex justify-between">
-            <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>Kembali</Button>
+            <Button
+              variant="outline"
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+              disabled={step === 0}
+            >
+              Kembali
+            </Button>
             {step < 3 ? (
-              <Button className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" onClick={() => setStep((s) => s + 1)}>
+              <Button
+                className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]"
+                onClick={() => setStep((s) => s + 1)}
+              >
                 Lanjut
               </Button>
             ) : (
               <Button
                 className="bg-[var(--color-accent-orange)] text-white hover:bg-[var(--color-accent-orange)]/90"
-                onClick={() => { clear(); setDone(true); }}
+                onClick={() => {
+                  clear();
+                  setDone(true);
+                }}
               >
                 Buat Pesanan
               </Button>
@@ -213,10 +299,16 @@ function CheckoutPage() {
           <ul className="mt-3 space-y-2">
             {details.map((d) => (
               <li key={d.productId} className="flex gap-2 text-sm">
-                <img src={d.product.images[0] ?? ""} className="h-12 w-12 rounded object-cover" alt="" />
+                <img
+                  src={d.product.images[0] ?? ""}
+                  className="h-12 w-12 rounded object-cover"
+                  alt=""
+                />
                 <div className="flex-1">
                   <p className="line-clamp-2 text-xs font-medium">{d.product.name}</p>
-                  <p className="text-xs text-muted-foreground">{d.quantity} × {formatIDR(d.product.price)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {d.quantity} × {formatIDR(d.product.price)}
+                  </p>
                 </div>
               </li>
             ))}
@@ -235,7 +327,15 @@ function CheckoutPage() {
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function Field({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <div className="space-y-1">
       <Label className="text-xs">{label}</Label>

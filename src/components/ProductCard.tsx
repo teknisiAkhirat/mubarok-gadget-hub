@@ -46,7 +46,9 @@ export function ProductCard({ product }: { product: Product }) {
           </h3>
         </Link>
         {product.conditionNote && (
-          <p className="line-clamp-1 text-xs italic text-muted-foreground">{product.conditionNote}</p>
+          <p className="line-clamp-1 text-xs italic text-muted-foreground">
+            {product.conditionNote}
+          </p>
         )}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Star className="h-3 w-3" />
@@ -59,7 +61,9 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="h-3 w-3" />
-          <span className="truncate">Blora · {mockSeller.storeName.split(" ").slice(0, 2).join(" ")}</span>
+          <span className="truncate">
+            Blora · {mockSeller.storeName.split(" ").slice(0, 2).join(" ")}
+          </span>
         </div>
         <div className="flex flex-col gap-1.5">
           <Button
@@ -70,13 +74,11 @@ export function ProductCard({ product }: { product: Product }) {
           >
             + Keranjang
           </Button>
-          <Button
-            size="sm"
-            className="bg-emerald-600 text-white hover:bg-emerald-700"
-            asChild
-          >
+          <Button size="sm" className="bg-emerald-600 text-white hover:bg-emerald-700" asChild>
             <a
-              href={waLink(`Halo Mubarok Gadget Hub, saya tertarik dengan produk ${product.name} seharga ${formatIDR(product.price)} (Kondisi: ${product.condition ?? "Standard"}). Apakah stoknya masih tersedia?`)}
+              href={waLink(
+                `Halo Mubarok Gadget Hub, saya tertarik dengan produk ${product.name} seharga ${formatIDR(product.price)} (Kondisi: ${product.condition ?? "Standard"}). Apakah stoknya masih tersedia?`,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5"

@@ -32,9 +32,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = curr.find((c) => c.productId === productId);
       if (existing) {
         return curr.map((c) =>
-          c.productId === productId
-            ? { ...c, quantity: c.quantity + qty }
-            : c
+          c.productId === productId ? { ...c, quantity: c.quantity + qty } : c,
         );
       }
       return [...curr, { productId, quantity: qty }];
@@ -48,11 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateQty = useCallback((productId: string, qty: number) => {
     setItems((curr) =>
-      curr.map((c) =>
-        c.productId === productId
-          ? { ...c, quantity: Math.max(1, qty) }
-          : c
-      )
+      curr.map((c) => (c.productId === productId ? { ...c, quantity: Math.max(1, qty) } : c)),
     );
   }, []);
 

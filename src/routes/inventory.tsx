@@ -164,7 +164,6 @@ function InventoryPage() {
       };
 
       if (editId) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await supabase
           .from("products" as any)
           .update(payload)
@@ -172,7 +171,6 @@ function InventoryPage() {
         if (error) throw error;
         toast.success("Inventori diperbarui");
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await supabase
           .from("products" as any)
           .insert([{ ...payload, seller_id: "seller-mubarok" }]);

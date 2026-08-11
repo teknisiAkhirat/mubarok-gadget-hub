@@ -44,12 +44,16 @@ export function Header() {
             />
             <select
               className="hidden border-l border-border bg-transparent px-3 py-2 text-sm md:block"
-              onChange={(e) => navigate({ to: "/produk", search: { brand: e.target.value } as never })}
+              onChange={(e) =>
+                navigate({ to: "/produk", search: { brand: e.target.value } as never })
+              }
               defaultValue=""
             >
               <option value="">Semua Merek</option>
               {mockBrands.map((b) => (
-                <option key={b.id} value={b.slug}>{b.name}</option>
+                <option key={b.id} value={b.slug}>
+                  {b.name}
+                </option>
               ))}
             </select>
           </div>

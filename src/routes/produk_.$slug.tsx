@@ -1,12 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  findBrand,
-  findModel,
-  findCategory,
-  mockSeller,
-  type Product,
-} from "@/lib/mock-data";
+import { findBrand, findModel, findCategory, mockSeller, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
@@ -28,9 +22,7 @@ import {
 
 export const Route = createFileRoute("/produk_/$slug")({
   head: () => ({
-    meta: [
-      { title: "Produk · Mubarok SMS&S" },
-    ],
+    meta: [{ title: "Produk · Mubarok SMS&S" }],
   }),
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-7xl px-4 py-20 text-center">
@@ -72,6 +64,7 @@ function PDP() {
   }, [slug]);
 
   const product = useMemo(() => products.find((p) => p.slug === slug), [products, slug]);
+  const { add } = useCart();
 
   const related = useMemo(() => {
     if (!product) return [];
@@ -98,7 +91,10 @@ function PDP() {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 text-center">
         <h2 className="text-2xl font-bold">Produk tidak ditemukan</h2>
-        <Link to="/produk" className="mt-4 inline-block text-[var(--color-accent-orange)] hover:underline">
+        <Link
+          to="/produk"
+          className="mt-4 inline-block text-[var(--color-accent-orange)] hover:underline"
+        >
           ← Kembali ke katalog
         </Link>
       </div>
@@ -113,12 +109,10 @@ function PDP() {
     product.stock === 0
       ? "Stok habis"
       : product.stock <= 2
-      ? `Stok hampir habis (sisa ${product.stock})`
-      : `Tersedia · ${product.stock} unit`;
+        ? `Stok hampir habis (sisa ${product.stock})`
+        : `Tersedia · ${product.stock} unit`;
 
   const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${pageUrl}\n\nApakah masih tersedia?`;
-
-  const { add } = useCart();
 
   const handleAddToCart = () => {
     add(product.id);
@@ -128,17 +122,29 @@ function PDP() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <nav className="mb-4 flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
-        <Link to="/" className="hover:text-foreground">Beranda</Link>
+        <Link to="/" className="hover:text-foreground">
+          Beranda
+        </Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/produk" className="hover:text-foreground">Produk</Link>
+        <Link to="/produk" className="hover:text-foreground">
+          Produk
+        </Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/produk" search={{ type: product.type } as never} className="hover:text-foreground">
+        <Link
+          to="/produk"
+          search={{ type: product.type } as never}
+          className="hover:text-foreground"
+        >
           {product.type === "hp-bekas" ? "HP Bekas" : "Sparepart"}
         </Link>
         {brand && (
           <>
             <ChevronRight className="h-3 w-3" />
-            <Link to="/produk" search={{ brand: brand.slug } as never} className="hover:text-foreground">
+            <Link
+              to="/produk"
+              search={{ brand: brand.slug } as never}
+              className="hover:text-foreground"
+            >
               {brand.name}
             </Link>
           </>
@@ -225,7 +231,10 @@ function PDP() {
             >
               + Keranjang
             </Button>
-            <Button asChild className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600">
+            <Button
+              asChild
+              className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600"
+            >
               <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
                 <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
               </a>
@@ -233,7 +242,9 @@ function PDP() {
           </div>
 
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-green-600" /> {product.warranty}</span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-green-600" /> {product.warranty}
+            </span>
             {category && <span>📦 Kategori: {category.name}</span>}
             <span>⚖️ {product.weight} gr</span>
           </div>
@@ -248,13 +259,21 @@ function PDP() {
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-bold">{mockSeller.storeName}</h3>
                   {mockSeller.isVerified && (
-                    <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">✓ Terverifikasi</span>
+                    <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">
+                      ✓ Terverifikasi
+                    </span>
                   )}
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> {mockSeller.rating}</span>
-                  <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {mockSeller.city}</span>
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Respon {mockSeller.responseTime}</span>
+                  <span className="flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> {mockSeller.rating}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> {mockSeller.city}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> Respon {mockSeller.responseTime}
+                  </span>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">{mockSeller.operationalHours}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{mockSeller.description}</p>
@@ -285,7 +304,10 @@ function PDP() {
           <TabsTrigger value="ulasan">Ulasan</TabsTrigger>
           <TabsTrigger value="diskusi">Diskusi</TabsTrigger>
         </TabsList>
-        <TabsContent value="deskripsi" className="rounded-xl border border-border bg-card p-5 text-sm leading-relaxed">
+        <TabsContent
+          value="deskripsi"
+          className="rounded-xl border border-border bg-card p-5 text-sm leading-relaxed"
+        >
           {product.description}
         </TabsContent>
         <TabsContent value="spesifikasi" className="rounded-xl border border-border bg-card p-5">
@@ -298,10 +320,16 @@ function PDP() {
             ))}
           </dl>
         </TabsContent>
-        <TabsContent value="ulasan" className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        <TabsContent
+          value="ulasan"
+          className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground"
+        >
           Belum ada ulasan untuk produk ini.
         </TabsContent>
-        <TabsContent value="diskusi" className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        <TabsContent
+          value="diskusi"
+          className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground"
+        >
           Belum ada diskusi. Jadi yang pertama bertanya!
         </TabsContent>
       </Tabs>
@@ -311,7 +339,9 @@ function PDP() {
         <section className="mt-12">
           <h2 className="mb-5 text-2xl font-bold">Produk Serupa</h2>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {related.map((p) => <ProductCard key={p.id} product={p} />)}
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
         </section>
       )}

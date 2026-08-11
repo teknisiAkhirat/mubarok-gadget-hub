@@ -147,7 +147,8 @@ function RepairTrackerDetailPage() {
 
         <div className="mt-8 border-t border-border pt-4 text-[11px] text-muted-foreground">
           <p>
-            Nota ini digenerate secara digital. Untuk pertanyaan lebih lanjut, hubungi Mubarok Gadget Hub.
+            Nota ini digenerate secara digital. Untuk pertanyaan lebih lanjut, hubungi Mubarok
+            Gadget Hub.
           </p>
         </div>
       </div>
