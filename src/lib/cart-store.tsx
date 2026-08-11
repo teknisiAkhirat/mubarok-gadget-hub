@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducts } from "@/lib/products-db";
 
 export interface CartItem {
   productId: string;
@@ -56,7 +58,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => setItems([]), []);
 
-  const subtotal = 0; // TODO: hitung setelah fetch product details
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+
+  const subtotal = useMemo(() => {
+    return items.reduce((sum, item) => {
+      const product = products.find((p) => p.id === item.productId);
+      return sum + (product ? product.price * item.quantity : 0);
+    }, 0);
+  }, [items, products]);
   const count = items.reduce((s, i) => s + i.quantity, 0);
 
   return (

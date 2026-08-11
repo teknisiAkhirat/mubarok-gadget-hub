@@ -56,8 +56,11 @@ function RepairTrackerPage() {
             Masukkan nomor tiket/nota servismu untuk melihat perkembangan terbaru.
           </p>
         </div>
-        <Button asChild className="bg-[var(--color-accent-orange)] text-white hover:bg-[var(--color-accent-orange)]/90">
-          <Link to="/service/new">+ Tiket Baru</Link>
+        <Button
+          asChild
+          className="bg-[var(--color-accent-orange)] text-white hover:bg-[var(--color-accent-orange)]/90"
+        >
+          <Link to="/service-new">+ Tiket Baru</Link>
         </Button>
       </div>
 
@@ -154,11 +157,11 @@ function RepairTrackerPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button asChild className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)] hover:opacity-90">
-                <Link to={`/repair-tracker/${ticket.id}`}>Lacak Servis</Link>
-              </Button>
               <Button variant="outline" asChild className="gap-1.5">
-                <Link to={`/repair-tracker.${ticket.id}.invoice`}>
+                <Link
+                  to="/repair-tracker/$ticketId/invoice"
+                  params={{ ticketId: ticket.ticket_number }}
+                >
                   <Printer className="h-4 w-4" /> Nota Servis
                 </Link>
               </Button>
