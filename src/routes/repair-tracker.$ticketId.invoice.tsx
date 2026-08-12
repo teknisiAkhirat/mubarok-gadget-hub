@@ -7,7 +7,7 @@ import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { formatIDR } from "@/lib/format";
 import { Search, Wrench } from "lucide-react";
 import type { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
-import { findTicketByNumber } from "@/lib/ticket-store";
+import { ticketRepository } from "@/lib/repositories";
 
 export const Route = createFileRoute("/repair-tracker/$ticketId/invoice")({
   component: RepairTrackerDetailPage,
@@ -23,7 +23,7 @@ function RepairTrackerDetailPage() {
     let cancelled = false;
     (async () => {
       try {
-        const found = findTicketByNumber(ticketId);
+        const found = ticketRepository.findTicketByNumber(ticketId);
 
         if (cancelled) return;
 

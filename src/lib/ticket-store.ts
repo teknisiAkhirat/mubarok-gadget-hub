@@ -1,38 +1,20 @@
-import { type Ticket, type ServiceStatus } from "@/lib/service-ticket-types";
-
-const STORAGE_KEY = "mubarok_service_tickets";
-
-function loadTickets(): Ticket[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as Ticket[];
-  } catch {
-    return [];
-  }
-}
-
-function saveTickets(tickets: Ticket[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
-  } catch {
-    // localStorage may be full or disabled
-  }
-}
+/**
+ * @deprecated Use "@/lib/repositories" instead.
+ * This file re-exports from the repository for backward compatibility.
+ */
+import { ticketRepository } from "@/lib/repositories";
+import type { Ticket, ServiceStatus } from "@/lib/service-ticket-types";
 
 export function getTickets(): Ticket[] {
-  return loadTickets();
+  return ticketRepository.getTickets();
 }
 
-export function findTicketByNumber(number: string): Ticket | undefined {
-  return loadTickets().find((t) => t.ticket_number === number);
+export function findTicketByNumber(ticketNumber: string): Ticket | undefined {
+  return ticketRepository.findTicketByNumber(ticketNumber);
 }
 
 export function insertTicket(ticket: Ticket): void {
-  const tickets = loadTickets();
-  saveTickets([ticket, ...tickets]);
+  ticketRepository.insertTicket(ticket);
 }
 
 export function updateTicketStatus(
@@ -40,15 +22,5 @@ export function updateTicketStatus(
   status: ServiceStatus,
   notes?: string,
 ): boolean {
-  const tickets = loadTickets();
-  const idx = tickets.findIndex((t) => t.ticket_number === ticketNumber);
-  if (idx === -1) return false;
-  tickets[idx] = {
-    ...tickets[idx],
-    status,
-    notes: notes ?? tickets[idx].notes,
-    updated_at: new Date().toISOString(),
-  };
-  saveTickets(tickets);
-  return true;
+  return ticketRepository.updateTicketStatus(ticketNumber, status, notes);
 }

@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { STATUS_ORDER, type ServiceStatus, type Ticket } from "@/lib/service-ticket-types";
-import { insertTicket } from "@/lib/ticket-store";
+import { ticketRepository } from "@/lib/repositories";
 
 export const Route = createFileRoute("/service-new")({
   ssr: false,
@@ -54,7 +54,7 @@ function ServiceNewPage() {
         created_at: now,
       };
 
-      insertTicket(ticket);
+      ticketRepository.insertTicket(ticket);
       toast.success("Tiket servis dibuat: " + ticket_number);
       navigate({ to: "/repair-tracker" });
     } catch (e) {

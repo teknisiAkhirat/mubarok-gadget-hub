@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, Wrench, Check, X } from "lucide-react";
+import { ArrowLeft, Search, Wrench, Check, X, LogOut, Lock } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import {
   STATUS_ORDER,
@@ -12,7 +12,8 @@ import {
   type Ticket,
   type ServiceStatus,
 } from "@/lib/service-ticket-types";
-import { getTickets, findTicketByNumber, updateTicketStatus } from "@/lib/ticket-store";
+import { ticketRepository } from "@/lib/repositories";
+import { isAdminLoggedIn, adminLogin, adminLogout } from "@/lib/admin-auth";
 
 export const Route = createFileRoute("/admin/servis")({
   ssr: false,
@@ -21,6 +22,94 @@ export const Route = createFileRoute("/admin/servis")({
 });
 
 function AdminServisPage() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [pin, setPin] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  useEffect(() => {
+    setAuthenticated(isAdminLoggedIn());
+    setChecking(false);
+  }, []);
+
+  function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoginError("");
+    if (adminLogin(pin)) {
+      setAuthenticated(true);
+      setPin("");
+    } else {
+      setLoginError("PIN salah. Silakan coba lagi.");
+      setPin("");
+    }
+  }
+
+  function handleLogout() {
+    adminLogout();
+    setAuthenticated(false);
+  }
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-sm text-muted-foreground">Memuat...</p>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <Toaster richColors position="top-center" />
+        <Card className="w-full max-w-sm">
+          <CardContent className="p-6">
+            <div className="mb-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
+                <Lock className="h-6 w-6" />
+              </div>
+              <h1 className="text-xl font-bold">Admin Login</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Masukkan PIN untuk mengakses halaman admin.
+              </p>
+            </div>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground">PIN</label>
+                <Input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  placeholder="Masukkan PIN..."
+                  autoFocus
+                  required
+                />
+                {loginError && <p className="text-xs text-destructive">{loginError}</p>}
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-[var(--color-brand)] text-[var(--color-brand-foreground)]"
+              >
+                Masuk
+              </Button>
+              <Link
+                to="/"
+                className="block text-center text-sm text-muted-foreground hover:underline"
+              >
+                Kembali ke beranda
+              </Link>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return <AdminDashboard onLogout={handleLogout} />;
+}
+
+function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [query, setQuery] = useState("");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -28,7 +117,7 @@ function AdminServisPage() {
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    setTickets(getTickets());
+    setTickets(ticketRepository.getTickets());
   }, []);
 
   const filtered = query.trim()
@@ -41,10 +130,14 @@ function AdminServisPage() {
 
   function handleUpdateStatus() {
     if (!selectedTicket) return;
-    const success = updateTicketStatus(selectedTicket.ticket_number, newStatus, notes || undefined);
+    const success = ticketRepository.updateTicketStatus(
+      selectedTicket.ticket_number,
+      newStatus,
+      notes || undefined,
+    );
     if (success) {
       toast.success(`Status tiket ${selectedTicket.ticket_number} diperbarui ke ${newStatus}`);
-      setTickets(getTickets());
+      setTickets(ticketRepository.getTickets());
       setSelectedTicket(null);
       setNotes("");
     } else {
@@ -55,13 +148,18 @@ function AdminServisPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <Toaster richColors position="top-center" />
-      <div className="mb-6 flex items-center gap-3">
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/">
-            <ArrowLeft className="h-4 w-4" /> Kembali
-          </Link>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/">
+              <ArrowLeft className="h-4 w-4" /> Kembali
+            </Link>
+          </Button>
+          <h1 className="text-2xl font-bold">Admin — Kelola Servis</h1>
+        </div>
+        <Button variant="outline" size="sm" onClick={onLogout}>
+          <LogOut className="mr-1 h-4 w-4" /> Logout
         </Button>
-        <h1 className="text-2xl font-bold">Admin — Kelola Servis</h1>
       </div>
 
       <Card className="mb-6">
