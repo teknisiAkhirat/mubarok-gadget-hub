@@ -1,12 +1,12 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast, Toaster } from "sonner";
+import { formatIDR } from "@/lib/format";
 
 type InventoryItem = {
   id: string;
@@ -62,27 +62,58 @@ const emptyForm: FormState = {
   warranty: "3 hari garansi toko",
 };
 
+let inventoryStore: InventoryItem[] = [
+  {
+    id: "hp-001",
+    seller_id: "seller-mubarok",
+    name: "Samsung Galaxy M52 Bekas",
+    slug: "samsung-galaxy-m52-bekas",
+    type: "hp-bekas",
+    condition: "normal",
+    condition_label: "Normal",
+    condition_note: "Mesin belum pernah servis. Layar non AMOLED.",
+    description: "Samsung Galaxy M52 bekas kondisi normal.",
+    price: 1500000,
+    cost_price: 1200000,
+    imei_or_sn: "354678091234567",
+    merk: "Samsung",
+    tipe: "Galaxy M52",
+    stock: 1,
+    sale_status: "tersedia",
+    images: [],
+    warranty: "3 hari garansi toko",
+    weight: 300,
+    is_active: true,
+    created_at: new Date("2025-06-01").toISOString(),
+  },
+  {
+    id: "sp-001",
+    seller_id: "seller-mubarok",
+    name: "S Pen Samsung Galaxy Note 8 - Original Copotan",
+    slug: "s-pen-samsung-galaxy-note-8-ori-copotan",
+    type: "sparepart",
+    condition: "ori-copotan",
+    condition_label: "Ori Copotan",
+    condition_note: "Kondisi normal, berfungsi baik.",
+    description: "S Pen Samsung Galaxy Note 8 original copotan.",
+    price: 75000,
+    cost_price: 50000,
+    imei_or_sn: null,
+    merk: "Samsung",
+    tipe: "S Pen Note 8",
+    stock: 3,
+    sale_status: "tersedia",
+    images: [],
+    warranty: "3 hari",
+    weight: 20,
+    is_active: true,
+    created_at: new Date("2025-06-01").toISOString(),
+  },
+];
+
 export const Route = createFileRoute("/inventory")({
   ssr: false,
   head: () => ({ meta: [{ title: "Inventori · Mubarok Gadget Hub" }] }),
-  beforeLoad: async () => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session) {
-      throw redirect({ to: "/admin-login" });
-    }
-    const userEmail = sessionData.session.user.email;
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
-    if (!adminEmail || userEmail !== adminEmail) {
-      throw redirect({ to: "/" });
-    }
-    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: sessionData.session.user.id,
-      _role: "admin",
-    });
-    if (roleError || isAdmin !== true) {
-      throw redirect({ to: "/" });
-    }
-  },
   component: InventoryPage,
 });
 
@@ -97,13 +128,7 @@ function InventoryPage() {
   async function load() {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setItems((data ?? []) as InventoryItem[]);
+      setItems([...inventoryStore]);
     } catch (e) {
       toast.error("Gagal memuat inventori: " + (e instanceof Error ? e.message : "unknown"));
     } finally {
@@ -143,40 +168,53 @@ function InventoryPage() {
   async function save() {
     setBusy(true);
     try {
-      const payload: Record<string, unknown> = {
-        name: form.name || "Produk Baru",
-        type: form.type,
-        condition: form.condition,
-        condition_label: form.condition.replace(/^(.)/, (c) => c.toUpperCase()),
-        condition_note: form.condition_note,
-        description: form.description,
-        price: form.price,
-        cost_price: form.cost_price,
-        stock: form.stock,
-        warranty: form.warranty,
-        images: [],
-        weight: 300,
-        is_active: true,
-        sale_status: form.stock > 0 ? "tersedia" : "terjual",
-        imei_or_sn: form.imei_or_sn || null,
-        merk: form.merk || null,
-        tipe: form.tipe || null,
-      };
-
       if (editId) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await supabase
-          .from("products" as any)
-          .update(payload)
-          .eq("id", editId);
-        if (error) throw error;
+        inventoryStore = inventoryStore.map((item) =>
+          item.id === editId
+            ? {
+                ...item,
+                name: form.name || "Produk Baru",
+                type: form.type,
+                condition: form.condition,
+                condition_label: form.condition.replace(/^(.)/, (c) => c.toUpperCase()),
+                condition_note: form.condition_note,
+                description: form.description,
+                price: form.price,
+                cost_price: form.cost_price,
+                stock: form.stock,
+                warranty: form.warranty,
+                imei_or_sn: form.imei_or_sn || null,
+                merk: form.merk || null,
+                tipe: form.tipe || null,
+              }
+            : item
+        );
         toast.success("Inventori diperbarui");
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await supabase
-          .from("products" as any)
-          .insert([{ ...payload, seller_id: "seller-mubarok" }]);
-        if (error) throw error;
+        const newItem: InventoryItem = {
+          id: `inv-${Date.now()}`,
+          seller_id: "seller-mubarok",
+          name: form.name || "Produk Baru",
+          slug: (form.name || "produk-baru").toLowerCase().replace(/\s+/g, "-"),
+          type: form.type,
+          condition: form.condition,
+          condition_label: form.condition.replace(/^(.)/, (c) => c.toUpperCase()),
+          condition_note: form.condition_note,
+          description: form.description,
+          price: form.price,
+          cost_price: form.cost_price,
+          stock: form.stock,
+          warranty: form.warranty,
+          images: [],
+          weight: 300,
+          is_active: true,
+          sale_status: form.stock > 0 ? "tersedia" : "terjual",
+          imei_or_sn: form.imei_or_sn || null,
+          merk: form.merk || null,
+          tipe: form.tipe || null,
+          created_at: new Date().toISOString(),
+        };
+        inventoryStore = [newItem, ...inventoryStore];
         toast.success("Barang masuk ditambahkan");
       }
 
@@ -192,8 +230,7 @@ function InventoryPage() {
   async function remove(id: string) {
     if (!confirm("Hapus item ini?")) return;
     try {
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
+      inventoryStore = inventoryStore.filter((item) => item.id !== id);
       toast.success("Item dihapus");
       await load();
     } catch (e) {
@@ -203,11 +240,11 @@ function InventoryPage() {
 
   async function markSold(id: string) {
     try {
-      const { error } = await supabase
-        .from("products")
-        .update({ stock: 0, sale_status: "terjual", is_active: false })
-        .eq("id", id);
-      if (error) throw error;
+      inventoryStore = inventoryStore.map((item) =>
+        item.id === id
+          ? { ...item, stock: 0, sale_status: "terjual", is_active: false }
+          : item
+      );
       toast.success("Ditandai terjual");
       await load();
     } catch (e) {
@@ -389,20 +426,12 @@ function InventoryPage() {
                 <p className="text-xs text-muted-foreground">Modal</p>
                 <p className="font-semibold">
                   {(item.cost_price ?? 0) > 0
-                    ? new Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                        maximumFractionDigits: 0,
-                      }).format(item.cost_price as number)
+                    ? formatIDR(item.cost_price as number)
                     : "—"}
                 </p>
               </div>
               <div className="text-lg font-bold text-[var(--color-accent-orange)]">
-                {new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  maximumFractionDigits: 0,
-                }).format(item.price)}
+                {formatIDR(item.price)}
               </div>
               <p className="text-xs text-muted-foreground">Stok: {item.stock}</p>
               <div className="mt-2 flex gap-2">
@@ -442,11 +471,7 @@ function InventoryPage() {
                   {item.merk} · {item.tipe}
                 </p>
                 <p className="text-sm font-bold">
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    maximumFractionDigits: 0,
-                  }).format(item.price)}
+                  {formatIDR(item.price)}
                 </p>
                 <Badge className="mt-2 bg-emerald-600 text-white">Terjual</Badge>
               </CardContent>

@@ -1,57 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
 import { MapPin, MessageCircle, Clock, ShieldCheck } from "lucide-react";
 import { mockSeller } from "@/lib/mock-data";
 import { waLink } from "@/lib/format";
-import { supabase } from "@/integrations/supabase/client";
 
 export function Footer() {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const checkAdmin = async () => {
-      try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (!sessionData.session || !mounted) {
-          setIsAdmin(false);
-          setAuthChecked(true);
-          return;
-        }
-
-        const userId = sessionData.session.user.id;
-        const { data: roleRow } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId)
-          .eq("role", "admin")
-          .maybeSingle();
-
-        if (mounted) {
-          setIsAdmin(!!roleRow);
-          setAuthChecked(true);
-        }
-      } catch {
-        if (mounted) {
-          setIsAdmin(false);
-          setAuthChecked(true);
-        }
-      }
-    };
-
-    checkAdmin();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => {
-      checkAdmin();
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
-
   return (
     <footer className="mt-16 border-t border-border bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-4">

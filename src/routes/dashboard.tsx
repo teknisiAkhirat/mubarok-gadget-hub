@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { mockSeller, mockBrands, type Product, PRODUCT_TYPE_LABELS } from "@/lib/mock-data";
 import { formatIDR } from "@/lib/format";
@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
-import { supabase } from "@/integrations/supabase/client";
 import {
   fetchProducts,
-  seedIfEmpty,
   insertProduct,
   updateProduct,
   deleteProduct,
@@ -30,71 +28,21 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
-  // Client-side only: session Supabase disimpan di localStorage, tidak tersedia saat SSR.
   ssr: false,
   head: () => ({ meta: [{ title: "Dashboard Penjual · Mubarok SMS&S" }] }),
-  // Cek session + role admin SEBELUM komponen render. Non-admin di-redirect
-  // langsung ke "/" tanpa pernah melihat isi dashboard.
-  beforeLoad: async () => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session) {
-      throw redirect({ to: "/admin-login" });
-    }
-    const userEmail = sessionData.session.user.email;
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
-    if (!adminEmail || userEmail !== adminEmail) {
-      throw redirect({ to: "/" });
-    }
-    // Verifikasi sekunder: pastikan user benar-benar punya role admin di DB.
-    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: sessionData.session.user.id,
-      _role: "admin",
-    });
-    if (roleError || isAdmin !== true) {
-      throw redirect({ to: "/" });
-    }
-  },
   component: DashboardPage,
 });
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const [authChecked, setAuthChecked] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "produk" | "pesanan" | "toko" | "servis">("overview");
-  const [serviceStats, setServiceStats] = useState({
-    total: 0,
-    Menunggu: 0,
-    Dikerjakan: 0,
-    Selesai: 0,
-    Gagal: 0,
-  });
-  const [serviceLoading, setServiceLoading] = useState(false);
 
-  // Auth gate
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setSignedIn(!!session);
-      setAuthChecked(true);
-      if (!session) navigate({ to: "/admin-login" });
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      setSignedIn(!!data.session);
-      setAuthChecked(true);
-      if (!data.session) navigate({ to: "/admin-login" });
-    });
-    return () => sub.subscription.unsubscribe();
-  }, [navigate]);
-
-  // Load products
-  useEffect(() => {
-    if (!signedIn) return;
     (async () => {
       setLoading(true);
       try {
-        await seedIfEmpty();
         setProducts(await fetchProducts());
       } catch (e) {
         toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
@@ -102,7 +50,7 @@ function DashboardPage() {
         setLoading(false);
       }
     })();
-  }, [signedIn]);
+  }, []);
 
   async function refresh() {
     try {
@@ -110,43 +58,6 @@ function DashboardPage() {
     } catch (e) {
       toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
     }
-  }
-
-  async function refreshServiceStats() {
-    setServiceLoading(true);
-    try {
-      const { data } = await supabase.from("service_tickets").select("status");
-      const rows = (data ?? []) as Array<{ status: string }>;
-      const next = {
-        total: rows.length,
-        Menunggu: 0,
-        Dikerjakan: 0,
-        Selesai: 0,
-        Gagal: 0,
-      } as Record<string, number>;
-      for (const row of rows) {
-        if (next[row.status] === undefined) continue;
-        next[row.status] += 1;
-      }
-      setServiceStats(next as typeof serviceStats);
-    } catch (e) {
-      toast.error("Gagal memuat statistik servis: " + (e instanceof Error ? e.message : "unknown"));
-    } finally {
-      setServiceLoading(false);
-    }
-  }
-
-  async function logout() {
-    await supabase.auth.signOut();
-    navigate({ to: "/admin-login" });
-  }
-
-  if (!authChecked || !signedIn) {
-    return (
-      <div className="grid min-h-[60vh] place-items-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
   }
 
   const stats = [
@@ -185,12 +96,6 @@ function DashboardPage() {
           <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
             ✓ Terverifikasi
           </span>
-          <button
-            onClick={logout}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-          >
-            <LogOut className="h-3.5 w-3.5" /> Logout
-          </button>
         </div>
       </div>
 
@@ -281,38 +186,35 @@ function DashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold">Statistik Servis</h2>
-              <Button size="sm" onClick={refreshServiceStats} disabled={serviceLoading}>
-                {serviceLoading ? "Memuat..." : "Perbarui"}
-              </Button>
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               <StatCard
                 label="Total Tiket"
-                value={serviceStats.total.toString()}
+                value="0"
                 icon={Wrench}
                 color="from-gray-600 to-gray-700"
               />
               <StatCard
                 label="Menunggu"
-                value={serviceStats.Menunggu.toString()}
+                value="0"
                 icon={Wrench}
                 color="from-gray-500 to-gray-600"
               />
               <StatCard
                 label="Dikerjakan"
-                value={serviceStats.Dikerjakan.toString()}
+                value="0"
                 icon={Wrench}
                 color="from-yellow-500 to-yellow-600"
               />
               <StatCard
                 label="Selesai"
-                value={serviceStats.Selesai.toString()}
+                value="0"
                 icon={Wrench}
                 color="from-green-500 to-green-600"
               />
               <StatCard
                 label="Gagal"
-                value={serviceStats.Gagal.toString()}
+                value="0"
                 icon={Wrench}
                 color="from-red-500 to-red-600"
               />

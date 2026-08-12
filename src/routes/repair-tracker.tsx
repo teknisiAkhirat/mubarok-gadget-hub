@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
 import { Search, Wrench, Printer } from "lucide-react";
 import { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
+import { findTicketByNumber } from "@/routes/service-new";
 
 export const Route = createFileRoute("/repair-tracker")({
   component: RepairTrackerPage,
@@ -30,20 +30,9 @@ function RepairTrackerPage() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("service_tickets")
-      .select("*")
-      .eq("ticket_number", trimmed)
-      .maybeSingle();
-
-    if (error) {
-      console.error("Gagal memuat tiket:", error);
-      setLoading(false);
-      return;
-    }
-
-    setTicket(data as Ticket | null);
-    setNotFound(!data);
+    const found = findTicketByNumber(trimmed);
+    setTicket(found ?? null);
+    setNotFound(!found);
     setLoading(false);
   }
 

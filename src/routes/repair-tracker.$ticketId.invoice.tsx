@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { formatIDR } from "@/lib/format";
 import { Search, Wrench } from "lucide-react";
 import type { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
+import { findTicketByNumber } from "@/routes/service-new";
 
 export const Route = createFileRoute("/repair-tracker/$ticketId/invoice")({
   component: RepairTrackerDetailPage,
@@ -23,18 +23,14 @@ function RepairTrackerDetailPage() {
     let cancelled = false;
     (async () => {
       try {
-        const { data, error } = await supabase
-          .from("service_tickets")
-          .select("*")
-          .eq("ticket_number", ticketId)
-          .maybeSingle();
+        const found = findTicketByNumber(ticketId);
 
         if (cancelled) return;
 
-        if (error || !data) {
+        if (!found) {
           setError("Data nota servis tidak ditemukan.");
         } else {
-          setTicket(data as Ticket);
+          setTicket(found);
         }
       } catch (e) {
         if (!cancelled) {
