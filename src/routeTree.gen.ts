@@ -9,6 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TukarTambahRouteImport } from './routes/tukar-tambah'
+import { Route as TentangRouteImport } from './routes/tentang'
+import { Route as SparepartRouteImport } from './routes/sparepart'
+import { Route as ServisRouteImport } from './routes/servis'
 import { Route as ServiceNewRouteImport } from './routes/service-new'
 import { Route as RepairTrackerRouteImport } from './routes/repair-tracker'
 import { Route as ProdukRouteImport } from './routes/produk'
@@ -21,6 +25,26 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdukSlugRouteImport } from './routes/produk_.$slug'
 import { Route as RepairTrackerTicketIdInvoiceRouteImport } from './routes/repair-tracker.$ticketId.invoice'
 
+const TukarTambahRoute = TukarTambahRouteImport.update({
+  id: '/tukar-tambah',
+  path: '/tukar-tambah',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TentangRoute = TentangRouteImport.update({
+  id: '/tentang',
+  path: '/tentang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SparepartRoute = SparepartRouteImport.update({
+  id: '/sparepart',
+  path: '/sparepart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServisRoute = ServisRouteImport.update({
+  id: '/servis',
+  path: '/servis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServiceNewRoute = ServiceNewRouteImport.update({
   id: '/service-new',
   path: '/service-new',
@@ -88,6 +112,10 @@ export interface FileRoutesByFullPath {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
   '/service-new': typeof ServiceNewRoute
+  '/servis': typeof ServisRoute
+  '/sparepart': typeof SparepartRoute
+  '/tentang': typeof TentangRoute
+  '/tukar-tambah': typeof TukarTambahRoute
   '/produk/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
@@ -101,6 +129,10 @@ export interface FileRoutesByTo {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
   '/service-new': typeof ServiceNewRoute
+  '/servis': typeof ServisRoute
+  '/sparepart': typeof SparepartRoute
+  '/tentang': typeof TentangRoute
+  '/tukar-tambah': typeof TukarTambahRoute
   '/produk/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
@@ -115,6 +147,10 @@ export interface FileRoutesById {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
   '/service-new': typeof ServiceNewRoute
+  '/servis': typeof ServisRoute
+  '/sparepart': typeof SparepartRoute
+  '/tentang': typeof TentangRoute
+  '/tukar-tambah': typeof TukarTambahRoute
   '/produk_/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
 }
@@ -130,6 +166,10 @@ export interface FileRouteTypes {
     | '/produk'
     | '/repair-tracker'
     | '/service-new'
+    | '/servis'
+    | '/sparepart'
+    | '/tentang'
+    | '/tukar-tambah'
     | '/produk/$slug'
     | '/repair-tracker/$ticketId/invoice'
   fileRoutesByTo: FileRoutesByTo
@@ -143,6 +183,10 @@ export interface FileRouteTypes {
     | '/produk'
     | '/repair-tracker'
     | '/service-new'
+    | '/servis'
+    | '/sparepart'
+    | '/tentang'
+    | '/tukar-tambah'
     | '/produk/$slug'
     | '/repair-tracker/$ticketId/invoice'
   id:
@@ -156,6 +200,10 @@ export interface FileRouteTypes {
     | '/produk'
     | '/repair-tracker'
     | '/service-new'
+    | '/servis'
+    | '/sparepart'
+    | '/tentang'
+    | '/tukar-tambah'
     | '/produk_/$slug'
     | '/repair-tracker/$ticketId/invoice'
   fileRoutesById: FileRoutesById
@@ -170,11 +218,43 @@ export interface RootRouteChildren {
   ProdukRoute: typeof ProdukRoute
   RepairTrackerRoute: typeof RepairTrackerRouteWithChildren
   ServiceNewRoute: typeof ServiceNewRoute
+  ServisRoute: typeof ServisRoute
+  SparepartRoute: typeof SparepartRoute
+  TentangRoute: typeof TentangRoute
+  TukarTambahRoute: typeof TukarTambahRoute
   ProdukSlugRoute: typeof ProdukSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tukar-tambah': {
+      id: '/tukar-tambah'
+      path: '/tukar-tambah'
+      fullPath: '/tukar-tambah'
+      preLoaderRoute: typeof TukarTambahRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tentang': {
+      id: '/tentang'
+      path: '/tentang'
+      fullPath: '/tentang'
+      preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sparepart': {
+      id: '/sparepart'
+      path: '/sparepart'
+      fullPath: '/sparepart'
+      preLoaderRoute: typeof SparepartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servis': {
+      id: '/servis'
+      path: '/servis'
+      fullPath: '/servis'
+      preLoaderRoute: typeof ServisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/service-new': {
       id: '/service-new'
       path: '/service-new'
@@ -277,6 +357,10 @@ const rootRouteChildren: RootRouteChildren = {
   ProdukRoute: ProdukRoute,
   RepairTrackerRoute: RepairTrackerRouteWithChildren,
   ServiceNewRoute: ServiceNewRoute,
+  ServisRoute: ServisRoute,
+  SparepartRoute: SparepartRoute,
+  TentangRoute: TentangRoute,
+  TukarTambahRoute: TukarTambahRoute,
   ProdukSlugRoute: ProdukSlugRoute,
 }
 export const routeTree = rootRouteImport

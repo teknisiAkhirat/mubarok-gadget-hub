@@ -9,28 +9,10 @@ export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   tablet: "Tablet",
 };
 
-export interface PhoneModel {
-  id: string;
-  brandId: string;
+export interface InspectionItem {
   name: string;
-  slug: string;
-  releaseYear: number;
-}
-
-export interface PhoneBrand {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string;
-  models: PhoneModel[];
-}
-
-export interface SparePartCategory {
-  id: string;
-  name: string;
-  slug: string;
-  icon: string;
-  description: string;
+  status: "Normal" | "Masalah" | "Tidak Dicek";
+  note?: string;
 }
 
 export interface Product {
@@ -61,6 +43,34 @@ export interface Product {
   isActive: boolean;
   tags: string[];
   createdAt: Date;
+  // Trust Layer fields
+  inspection?: InspectionItem[];
+  defects?: string[];
+  grade?: string;
+}
+
+export interface PhoneModel {
+  id: string;
+  brandId: string;
+  name: string;
+  slug: string;
+  releaseYear: number;
+}
+
+export interface PhoneBrand {
+  id: string;
+  name: string;
+  slug: string;
+  logo: string;
+  models: PhoneModel[];
+}
+
+export interface SparePartCategory {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  description: string;
 }
 
 export interface Seller {
@@ -95,7 +105,7 @@ export const mockSeller: Seller = {
   rating: 4.9,
   ratingCount: 0,
   totalSold: 0,
-  productCount: 2,
+  productCount: 8,
   responseRate: 100,
   responseTime: "< 1 jam",
   isVerified: true,
@@ -140,6 +150,13 @@ export const mockBrands: PhoneBrand[] = [
         slug: "galaxy-a53",
         releaseYear: 2022,
       },
+      {
+        id: "sam-s23",
+        brandId: "brand-samsung",
+        name: "Galaxy S23",
+        slug: "galaxy-s23",
+        releaseYear: 2023,
+      },
     ],
   },
   {
@@ -162,6 +179,13 @@ export const mockBrands: PhoneBrand[] = [
         slug: "redmi-10",
         releaseYear: 2021,
       },
+      {
+        id: "xmi-poco-m3",
+        brandId: "brand-xiaomi",
+        name: "POCO M3",
+        slug: "poco-m3",
+        releaseYear: 2020,
+      },
     ],
   },
   {
@@ -171,6 +195,7 @@ export const mockBrands: PhoneBrand[] = [
     logo: "",
     models: [
       { id: "oppo-a54", brandId: "brand-oppo", name: "A54", slug: "a54", releaseYear: 2021 },
+      { id: "oppo-a55", brandId: "brand-oppo", name: "A55", slug: "a55", releaseYear: 2021 },
     ],
   },
   { id: "brand-vivo", name: "Vivo", slug: "vivo", logo: "", models: [] },
@@ -180,7 +205,6 @@ export const mockBrands: PhoneBrand[] = [
   { id: "brand-infinix", name: "Infinix", slug: "infinix", logo: "", models: [] },
   { id: "brand-motorola", name: "Motorola", slug: "motorola", logo: "", models: [] },
   { id: "brand-huawei", name: "Huawei", slug: "huawei", logo: "", models: [] },
-  { id: "brand-oppo", name: "Oppo", slug: "oppo", logo: "", models: [] },
 ];
 
 export const mockCategories: SparePartCategory[] = [
@@ -250,6 +274,7 @@ export const mockCategories: SparePartCategory[] = [
 ];
 
 export const mockProducts: Product[] = [
+  // ── HP Bekas ──────────────────────────────────────────────
   {
     id: "hp-001",
     sellerId: "seller-mubarok",
@@ -263,6 +288,7 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Mesin belum pernah servis. Layar non AMOLED.",
+    grade: "B+",
     description:
       "Samsung Galaxy M52 bekas kondisi normal. Mesin mulus belum pernah servis. Layar non AMOLED. Unit berfungsi sempurna. Garansi toko 3 hari.",
     specifications: {
@@ -275,7 +301,6 @@ export const mockProducts: Product[] = [
       Layar: "6.7 inch FHD+ (non AMOLED)",
       "Kamera Belakang": "64 MP + 12 MP + 5 MP",
       "Kondisi Mesin": "Normal, belum pernah servis",
-      Garansi: "3 hari garansi toko",
     },
     price: 1500000,
     compareAtPrice: null,
@@ -290,7 +315,310 @@ export const mockProducts: Product[] = [
     isActive: true,
     tags: ["samsung", "m52", "galaxy", "hp bekas", "android"],
     createdAt: new Date("2025-06-01"),
+    inspection: [
+      { name: "Layar", status: "Normal" },
+      { name: "Touchscreen", status: "Normal" },
+      { name: "Kamera Depan", status: "Normal" },
+      { name: "Kamera Belakang", status: "Normal" },
+      { name: "Speaker", status: "Normal" },
+      { name: "Microphone", status: "Normal" },
+      { name: "Charging", status: "Normal" },
+      { name: "Wi-Fi", status: "Normal" },
+      { name: "Bluetooth", status: "Normal" },
+      { name: "SIM", status: "Normal" },
+      { name: "Fingerprint", status: "Normal" },
+      { name: "Baterai", status: "Normal", note: "Kapasitas masih bagus" },
+      { name: "Tombol Power", status: "Normal" },
+      { name: "Tombol Volume", status: "Normal" },
+    ],
+    defects: [],
   },
+  {
+    id: "hp-002",
+    sellerId: "seller-mubarok",
+    type: "hp-bekas",
+    name: "Samsung Galaxy A32 Bekas",
+    slug: "samsung-galaxy-a32-bekas",
+    categoryId: null,
+    compatibleWith: [],
+    brandId: "brand-samsung",
+    modelId: "sam-a32",
+    condition: "normal",
+    conditionLabel: "Normal",
+    conditionNote: "Layar AMOLED normal. Body ada lecet ringan di samping.",
+    grade: "B",
+    description:
+      "Samsung Galaxy A32 bekas kondisi normal. Layar AMOLED masih bagus. Body ada lecet ringan di frame samping. Mesin normal, semua fungsi jalan.",
+    specifications: {
+      Merek: "Samsung",
+      Tipe: "Galaxy A32",
+      Chipset: "Helio G80",
+      RAM: "6 GB",
+      Storage: "128 GB",
+      Baterai: "5000 mAh",
+      Layar: "6.4 inch Super AMOLED",
+      "Kamera Belakang": "64 MP + 8 MP + 5 MP + 5 MP",
+    },
+    price: 1200000,
+    compareAtPrice: null,
+    stock: 2,
+    images: [samsungM52],
+    warranty: "7 hari garansi toko",
+    weight: 185,
+    rating: 0,
+    reviewCount: 0,
+    soldCount: 1,
+    isFeatured: false,
+    isActive: true,
+    tags: ["samsung", "a32", "galaxy", "hp bekas", "amoleed"],
+    createdAt: new Date("2025-07-15"),
+    inspection: [
+      { name: "Layar", status: "Normal" },
+      { name: "Touchscreen", status: "Normal" },
+      { name: "Kamera Depan", status: "Normal" },
+      { name: "Kamera Belakang", status: "Normal" },
+      { name: "Speaker", status: "Normal" },
+      { name: "Microphone", status: "Normal" },
+      { name: "Charging", status: "Normal" },
+      { name: "Wi-Fi", status: "Normal" },
+      { name: "Bluetooth", status: "Normal" },
+      { name: "SIM", status: "Normal" },
+      { name: "Fingerprint", status: "Normal" },
+      { name: "Baterai", status: "Normal" },
+      { name: "Tombol Power", status: "Normal" },
+      { name: "Tombol Volume", status: "Normal" },
+    ],
+    defects: ["Frame samping kanan terdapat lecet ringan sepanjang ~2cm"],
+  },
+  {
+    id: "hp-003",
+    sellerId: "seller-mubarok",
+    type: "hp-bekas",
+    name: "Xiaomi Redmi 10 Bekas",
+    slug: "xiaomi-redmi-10-bekas",
+    categoryId: null,
+    compatibleWith: [],
+    brandId: "brand-xiaomi",
+    modelId: "xmi-redmi10",
+    condition: "normal",
+    conditionLabel: "Normal",
+    conditionNote: "Baterai sudah agak drop. Fungsi semua normal.",
+    grade: "B",
+    description:
+      "Xiaomi Redmi 10 bekas. Fungsi semua normal — touchscreen, kamera, speaker, WiFi, Bluetooth. Baterai sudah mulai agak drop (kapasitas ~80%). Cocok untuk daily use.",
+    specifications: {
+      Merek: "Xiaomi",
+      Tipe: "Redmi 10",
+      Chipset: "Helio G88",
+      RAM: "4 GB",
+      Storage: "64 GB",
+      Baterai: "5000 mAh",
+      Layar: "6.5 inch FHD+",
+      "Kamera Belakang": "50 MP + 8 MP + 2 MP + 2 MP",
+    },
+    price: 850000,
+    compareAtPrice: null,
+    stock: 2,
+    images: [samsungM52],
+    warranty: "3 hari garansi toko",
+    weight: 181,
+    rating: 0,
+    reviewCount: 0,
+    soldCount: 0,
+    isFeatured: false,
+    isActive: true,
+    tags: ["xiaomi", "redmi 10", "hp bekas", "android"],
+    createdAt: new Date("2025-08-01"),
+    inspection: [
+      { name: "Layar", status: "Normal" },
+      { name: "Touchscreen", status: "Normal" },
+      { name: "Kamera Depan", status: "Normal" },
+      { name: "Kamera Belakang", status: "Normal" },
+      { name: "Speaker", status: "Normal" },
+      { name: "Microphone", status: "Normal" },
+      { name: "Charging", status: "Normal" },
+      { name: "Wi-Fi", status: "Normal" },
+      { name: "Bluetooth", status: "Normal" },
+      { name: "SIM", status: "Normal" },
+      { name: "Fingerprint", status: "Normal" },
+      { name: "Baterai", status: "Masalah", note: "Kapasitas ~80%, agak drop" },
+      { name: "Tombol Power", status: "Normal" },
+      { name: "Tombol Volume", status: "Normal" },
+    ],
+    defects: ["Baterai sudah mulai agak drop (kapasitas estimasi ~80%)"],
+  },
+  {
+    id: "hp-004",
+    sellerId: "seller-mubarok",
+    type: "hp-bekas",
+    name: "Oppo A55 Bekas",
+    slug: "oppo-a55-bekas",
+    categoryId: null,
+    compatibleWith: [],
+    brandId: "brand-oppo",
+    modelId: "oppo-a55",
+    condition: "mulus",
+    conditionLabel: "Mulus",
+    conditionNote: "Kondisi sangat mulus, jarang dipakai. Fullset.",
+    grade: "A",
+    description:
+      "Oppo A55 bekas kondisi mulus. Pemakaian jarang, tidak ada lecet sama sekali. Fullset dengan kotak dan charger original. Baterai masih normal.",
+    specifications: {
+      Merek: "Oppo",
+      Tipe: "A55",
+      Chipset: "Helio G35",
+      RAM: "4 GB",
+      Storage: "64 GB",
+      Baterai: "5000 mAh",
+      Layar: "6.5 inch HD+",
+      "Kamera Belakang": "50 MP + 2 MP + 2 MP",
+    },
+    price: 950000,
+    compareAtPrice: 1100000,
+    stock: 1,
+    images: [samsungM52],
+    warranty: "14 hari garansi toko",
+    weight: 193,
+    rating: 0,
+    reviewCount: 0,
+    soldCount: 0,
+    isFeatured: true,
+    isActive: true,
+    tags: ["oppo", "a55", "hp bekas", "mulus", "fullset"],
+    createdAt: new Date("2025-08-10"),
+    inspection: [
+      { name: "Layar", status: "Normal" },
+      { name: "Touchscreen", status: "Normal" },
+      { name: "Kamera Depan", status: "Normal" },
+      { name: "Kamera Belakang", status: "Normal" },
+      { name: "Speaker", status: "Normal" },
+      { name: "Microphone", status: "Normal" },
+      { name: "Charging", status: "Normal" },
+      { name: "Wi-Fi", status: "Normal" },
+      { name: "Bluetooth", status: "Normal" },
+      { name: "SIM", status: "Normal" },
+      { name: "Fingerprint", status: "Normal" },
+      { name: "Baterai", status: "Normal" },
+      { name: "Tombol Power", status: "Normal" },
+      { name: "Tombol Volume", status: "Normal" },
+    ],
+    defects: [],
+  },
+  {
+    id: "hp-005",
+    sellerId: "seller-mubarok",
+    type: "hp-bekas",
+    name: "Samsung Galaxy A53 Bekas",
+    slug: "samsung-galaxy-a53-bekas",
+    categoryId: null,
+    compatibleWith: [],
+    brandId: "brand-samsung",
+    modelId: "sam-a53",
+    condition: "normal",
+    conditionLabel: "Normal",
+    conditionNote: "Pernah ganti LCD. Fungsi normal.",
+    grade: "B-",
+    description:
+      "Samsung Galaxy A53 bekas. Pernah ganti LCD (compatible, bukan original Samsung). Fungsi lain normal — kamera, speaker, WiFi, Bluetooth, fingerprint. Cocok untuk yang mencari harga terjangkau.",
+    specifications: {
+      Merek: "Samsung",
+      Tipe: "Galaxy A53",
+      Chipset: "Exynos 1280",
+      RAM: "6 GB",
+      Storage: "128 GB",
+      Baterai: "5000 mAh",
+      Layar: "6.5 inch Super AMOLED",
+      "Kamera Belakang": "64 MP + 12 MP + 5 MP + 5 MP",
+    },
+    price: 1350000,
+    compareAtPrice: null,
+    stock: 1,
+    images: [samsungM52],
+    warranty: "3 hari garansi toko",
+    weight: 189,
+    rating: 0,
+    reviewCount: 0,
+    soldCount: 0,
+    isFeatured: false,
+    isActive: true,
+    tags: ["samsung", "a53", "galaxy", "hp bekas", "amoleed"],
+    createdAt: new Date("2025-07-20"),
+    inspection: [
+      { name: "Layar", status: "Normal", note: "LCD compatible (bukan original)" },
+      { name: "Touchscreen", status: "Normal" },
+      { name: "Kamera Depan", status: "Normal" },
+      { name: "Kamera Belakang", status: "Normal" },
+      { name: "Speaker", status: "Normal" },
+      { name: "Microphone", status: "Normal" },
+      { name: "Charging", status: "Normal" },
+      { name: "Wi-Fi", status: "Normal" },
+      { name: "Bluetooth", status: "Normal" },
+      { name: "SIM", status: "Normal" },
+      { name: "Fingerprint", status: "Normal" },
+      { name: "Baterai", status: "Normal" },
+      { name: "Tombol Power", status: "Normal" },
+      { name: "Tombol Volume", status: "Normal" },
+    ],
+    defects: ["LCD pernah diganti dengan unit compatible (bukan original Samsung)"],
+  },
+  {
+    id: "hp-006",
+    sellerId: "seller-mubarok",
+    type: "hp-bekas",
+    name: "Xiaomi POCO M3 Bekas",
+    slug: "xiaomi-poco-m3-bekas",
+    categoryId: null,
+    compatibleWith: [],
+    brandId: "brand-xiaomi",
+    modelId: "xmi-poco-m3",
+    condition: "normal",
+    conditionLabel: "Normal",
+    conditionNote: "Layar ada gores ringan. Fungsi normal semua.",
+    grade: "B",
+    description:
+      "Xiaomi POCO M3 bekas. Layar ada gores ringan tapi tidak mengganggu tampilan. Fungsi semua normal. Baterai besar 6000 mAh, tahan lama.",
+    specifications: {
+      Merek: "Xiaomi",
+      Tipe: "POCO M3",
+      Chipset: "Snapdragon 662",
+      RAM: "4 GB",
+      Storage: "64 GB",
+      Baterai: "6000 mAh",
+      Layar: "6.53 inch FHD+",
+      "Kamera Belakang": "48 MP + 2 MP + 2 MP",
+    },
+    price: 750000,
+    compareAtPrice: null,
+    stock: 3,
+    images: [samsungM52],
+    warranty: "3 hari garansi toko",
+    weight: 198,
+    rating: 0,
+    reviewCount: 0,
+    soldCount: 2,
+    isFeatured: false,
+    isActive: true,
+    tags: ["xiaomi", "poco", "m3", "hp bekas", "baterai besar"],
+    createdAt: new Date("2025-07-25"),
+    inspection: [
+      { name: "Layar", status: "Normal", note: "Ada gores ringan" },
+      { name: "Touchscreen", status: "Normal" },
+      { name: "Kamera Depan", status: "Normal" },
+      { name: "Kamera Belakang", status: "Normal" },
+      { name: "Speaker", status: "Normal" },
+      { name: "Microphone", status: "Normal" },
+      { name: "Charging", status: "Normal" },
+      { name: "Wi-Fi", status: "Normal" },
+      { name: "Bluetooth", status: "Normal" },
+      { name: "SIM", status: "Normal" },
+      { name: "Fingerprint", status: "Normal" },
+      { name: "Baterai", status: "Normal" },
+      { name: "Tombol Power", status: "Normal" },
+      { name: "Tombol Volume", status: "Normal" },
+    ],
+    defects: ["Layar terdapat gores ringan di pojok kiri atas (tidak mengganggu tampilan)"],
+  },
+  // ── Sparepart ─────────────────────────────────────────────
   {
     id: "sp-001",
     sellerId: "seller-mubarok",
@@ -311,21 +639,55 @@ export const mockProducts: Product[] = [
       Tipe: "S Pen Stylus",
       Kondisi: "Original Copotan — Normal",
       Warna: "Hitam",
-      Garansi: "3 hari",
     },
     price: 75000,
     compareAtPrice: null,
     stock: 1,
     images: [spenNote8],
-    warranty: "3 hari",
+    warranty: "3 hari garansi toko",
     weight: 20,
     rating: 0,
     reviewCount: 0,
     soldCount: 0,
-    isFeatured: true,
+    isFeatured: false,
     isActive: true,
     tags: ["s pen", "stylus", "samsung", "note 8", "aksesori"],
     createdAt: new Date("2025-06-01"),
+  },
+  {
+    id: "sp-002",
+    sellerId: "seller-mubarok",
+    type: "sparepart",
+    name: "Baterai Samsung Galaxy A32 - Compatible",
+    slug: "baterai-samsung-galaxy-a32-compatible",
+    categoryId: "cat-baterai",
+    compatibleWith: ["sam-a32"],
+    brandId: "brand-samsung",
+    modelId: null,
+    condition: "compatible",
+    conditionLabel: "Compatible",
+    conditionNote: "Baterai aftermarket, kapasitas normal.",
+    description:
+      "Baterai Samsung Galaxy A32 compatible. Kapasitas 5000mAh, sudah diuji. Cocok untuk baterai yang sudah drop.",
+    specifications: {
+      Kompatibel: "Samsung Galaxy A32",
+      Tipe: "Li-Po Battery",
+      Kapasitas: "5000 mAh",
+      Kondisi: "Compatible — Sudah Diuji",
+    },
+    price: 85000,
+    compareAtPrice: null,
+    stock: 4,
+    images: [],
+    warranty: "3 hari garansi toko",
+    weight: 70,
+    rating: 0,
+    reviewCount: 0,
+    soldCount: 1,
+    isFeatured: false,
+    isActive: true,
+    tags: ["baterai", "samsung", "a32", "battery"],
+    createdAt: new Date("2025-07-01"),
   },
 ];
 

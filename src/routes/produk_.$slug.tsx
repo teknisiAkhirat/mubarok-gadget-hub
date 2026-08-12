@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { findBrand, findModel, findCategory, mockSeller, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
-import { formatIDR, waLink } from "@/lib/format";
+import { formatIDR } from "@/lib/format";
+import { WA_LINK, STORE } from "@/config/constants";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -18,11 +19,15 @@ import {
   ShieldCheck,
   Star,
   Store,
+  AlertTriangle,
+  CheckCircle2,
+  HelpCircle,
+  BadgeCheck,
 } from "lucide-react";
 
 export const Route = createFileRoute("/produk_/$slug")({
   head: () => ({
-    meta: [{ title: "Produk · Mubarok SMS&S" }],
+    meta: [{ title: "Produk · Mubarok Gadget Hub" }],
   }),
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-7xl px-4 py-20 text-center">
@@ -38,7 +43,6 @@ function PDP() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
-  const [pageUrl, setPageUrl] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -59,7 +63,6 @@ function PDP() {
   }, []);
 
   useEffect(() => {
-    setPageUrl(window.location.origin + window.location.pathname);
     setActiveImg(0);
   }, [slug]);
 
@@ -112,12 +115,16 @@ function PDP() {
         ? `Stok hampir habis (sisa ${product.stock})`
         : `Tersedia · ${product.stock} unit`;
 
-  const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${pageUrl}\n\nApakah masih tersedia?`;
-
   const handleAddToCart = () => {
     add(product.id);
     toast.success(`${product.name} ditambahkan ke keranjang`);
   };
+
+  // Count inspection results
+  const inspection = product.inspection ?? [];
+  const normalCount = inspection.filter((i) => i.status === "Normal").length;
+  const issueCount = inspection.filter((i) => i.status === "Masalah").length;
+  const uncheckCount = inspection.filter((i) => i.status === "Tidak Dicek").length;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
@@ -182,6 +189,11 @@ function PDP() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <BadgeKondisi condition={product.condition} conditionLabel={product.conditionLabel} />
+            {product.grade && (
+              <span className="inline-flex items-center gap-1 rounded-md border border-[var(--color-brand)]/30 bg-[var(--color-brand)]/5 px-2 py-0.5 text-xs font-bold text-[var(--color-brand)]">
+                <BadgeCheck className="h-3 w-3" /> Grade {product.grade}
+              </span>
+            )}
             {product.isFeatured && (
               <span className="rounded-md bg-[var(--color-accent-orange)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--color-accent-orange)]">
                 ⭐ Unggulan
@@ -235,17 +247,18 @@ function PDP() {
               asChild
               className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600"
             >
-              <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
+              <a
+                href={WA_LINK.buy(product.name, formatIDR(product.price))}
+                target="_blank"
+                rel="noreferrer"
+              >
                 <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
               </a>
             </Button>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-green-600" /> {product.warranty}
-            </span>
-            {category && <span>📦 Kategori: {category.name}</span>}
+            {category && <span>📦 {category.name}</span>}
             <span>⚖️ {product.weight} gr</span>
           </div>
 
@@ -279,7 +292,7 @@ function PDP() {
                 <p className="mt-1 text-xs text-muted-foreground">{mockSeller.description}</p>
                 <div className="mt-3 flex gap-2">
                   <a
-                    href={waLink(`Halo ${mockSeller.storeName}, saya ingin bertanya.`)}
+                    href={WA_LINK.general()}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 rounded-md bg-green-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-600"
@@ -295,6 +308,89 @@ function PDP() {
           </div>
         </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════
+          TRUST LAYER — Inspection, Defects, Warranty
+          ═══════════════════════════════════════════════════════════ */}
+
+      {/* Defect Disclosure — prominent, tidak bisa dilewatkan */}
+      {product.defects && product.defects.length > 0 && (
+        <section className="mt-8 rounded-xl border-2 border-orange-300 bg-orange-50 p-5">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+            <div>
+              <h2 className="text-lg font-bold text-orange-900">Kekurangan Unit</h2>
+              <ul className="mt-2 space-y-1.5">
+                {product.defects.map((defect, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-orange-800">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
+                    {defect}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-xs text-orange-700/80">
+                Kekurangan di atas disebutkan secara transparan agar Anda mengetahui kondisi
+                sebenarnya sebelum membeli.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Inspection Summary */}
+      {inspection.length > 0 && (
+        <section className="mt-6 rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold">Hasil Pemeriksaan</h2>
+            <div className="flex gap-3 text-xs">
+              <span className="flex items-center gap-1 text-green-700">
+                <CheckCircle2 className="h-3.5 w-3.5" /> {normalCount} normal
+              </span>
+              {issueCount > 0 && (
+                <span className="flex items-center gap-1 text-orange-600">
+                  <AlertTriangle className="h-3.5 w-3.5" /> {issueCount} masalah
+                </span>
+              )}
+              {uncheckCount > 0 && (
+                <span className="flex items-center gap-1 text-muted-foreground">
+                  <HelpCircle className="h-3.5 w-3.5" /> {uncheckCount} belum dicek
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Pemeriksaan dilakukan secara manual oleh teknisi kami.
+          </p>
+          <div className="mt-4 divide-y divide-border">
+            {inspection.map((item) => (
+              <div key={item.name} className="flex items-center justify-between py-2.5">
+                <span className="text-sm font-medium">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  {item.note && <span className="text-xs text-muted-foreground">{item.note}</span>}
+                  <InspectionBadge status={item.status} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Warranty Section */}
+      <section className="mt-6 rounded-xl border border-border bg-card p-5">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+          <div>
+            <h2 className="text-lg font-bold">Garansi</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {product.warranty || "Garansi toko sesuai ketentuan."}
+            </p>
+            <div className="mt-3 rounded-lg bg-green-50 p-3 text-xs text-green-800">
+              <strong>Perlindungan Garansi:</strong> Jika terjadi kerusakan fungsional yang tidak
+              dijelaskan sebelumnya selama masa garansi, Anda dapat mengajukan klaim via WhatsApp.
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Tabs */}
       <Tabs defaultValue="deskripsi" className="mt-10">
@@ -346,5 +442,27 @@ function PDP() {
         </section>
       )}
     </div>
+  );
+}
+
+function InspectionBadge({ status }: { status: string }) {
+  if (status === "Normal") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+        <CheckCircle2 className="h-3 w-3" /> Normal
+      </span>
+    );
+  }
+  if (status === "Masalah") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
+        <AlertTriangle className="h-3 w-3" /> Masalah
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-500">
+      <HelpCircle className="h-3 w-3" /> Belum Dicek
+    </span>
   );
 }

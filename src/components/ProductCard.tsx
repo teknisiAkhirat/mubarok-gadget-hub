@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { MapPin, MessageCircle, Star } from "lucide-react";
 import type { Product } from "@/lib/mock-data";
 import { mockSeller } from "@/lib/mock-data";
-import { formatIDR, waLink } from "@/lib/format";
+import { formatIDR } from "@/lib/format";
+import { WA_LINK, STORE } from "@/config/constants";
 import { BadgeKondisi } from "./BadgeKondisi";
 import { Button } from "./ui/button";
 import { useCart } from "@/lib/cart-store";
@@ -18,8 +19,8 @@ export function ProductCard({ product }: { product: Product }) {
 
   const handleWa = () => {
     const link = `${window.location.origin}/produk/${product.slug}`;
-    const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${link}\n\nApakah masih tersedia?`;
-    window.open(waLink(waMsg), "_blank");
+    const waMsg = `Halo ${STORE.name}, saya tertarik dengan produk:\n\n${product.name} — ${formatIDR(product.price)}\n\nApakah masih tersedia?`;
+    window.open(WA_LINK.buy(product.name, formatIDR(product.price)), "_blank");
   };
 
   return (
@@ -62,7 +63,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="h-3 w-3" />
           <span className="truncate">
-            Blora · {mockSeller.storeName.split(" ").slice(0, 2).join(" ")}
+            {STORE.city} · {mockSeller.storeName.split(" ").slice(0, 2).join(" ")}
           </span>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -76,9 +77,7 @@ export function ProductCard({ product }: { product: Product }) {
           </Button>
           <Button size="sm" className="bg-emerald-600 text-white hover:bg-emerald-700" asChild>
             <a
-              href={waLink(
-                `Halo Mubarok Gadget Hub, saya tertarik dengan produk ${product.name} seharga ${formatIDR(product.price)} (Kondisi: ${product.condition ?? "Standard"}). Apakah stoknya masih tersedia?`,
-              )}
+              href={WA_LINK.buy(product.name, formatIDR(product.price))}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5"

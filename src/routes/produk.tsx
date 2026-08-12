@@ -12,6 +12,7 @@ type ProdukSearch = {
   brand?: string;
   category?: string;
   sort?: "terbaru" | "termurah" | "termahal" | "terlaris";
+  stock?: "tersedia" | "hampir-habis";
 };
 
 export const Route = createFileRoute("/produk")({
@@ -33,6 +34,10 @@ export const Route = createFileRoute("/produk")({
     sort: ["terbaru", "termurah", "termahal", "terlaris"].includes(s.sort as string)
       ? (s.sort as ProdukSearch["sort"])
       : "terbaru",
+    stock:
+      s.stock === "tersedia" || s.stock === "hampir-habis"
+        ? (s.stock as ProdukSearch["stock"])
+        : undefined,
   }),
   component: ProdukPage,
 });
@@ -83,6 +88,12 @@ function ProdukPage() {
       if (cat) list = list.filter((p) => p.categoryId === cat.id);
     }
     list = list.filter((p) => p.price <= priceMax);
+    // Stock filter
+    if (search.stock === "tersedia") {
+      list = list.filter((p) => p.stock > 2);
+    } else if (search.stock === "hampir-habis") {
+      list = list.filter((p) => p.stock > 0 && p.stock <= 2);
+    }
     switch (search.sort) {
       case "termurah":
         list.sort((a, b) => a.price - b.price);
@@ -209,6 +220,22 @@ function ProdukPage() {
             </div>
           </FilterGroup>
 
+          <FilterGroup title="Status Stok">
+            {[
+              { v: undefined, label: "Semua" },
+              { v: "tersedia", label: "🟢 Tersedia (>2)" },
+              { v: "hampir-habis", label: "🟡 Hampir Habis (1-2)" },
+            ].map((opt) => (
+              <button
+                key={opt.label}
+                onClick={() => setFilter("stock", opt.v)}
+                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition ${search.stock === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" : "hover:bg-muted"}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </FilterGroup>
+
           <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
             📍 Lokasi penjual: <strong className="text-foreground">Blora, Jawa Tengah</strong>
           </div>
@@ -244,10 +271,16 @@ function ProdukPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-12 text-center">
-              <p className="text-lg font-semibold">Produk tidak ditemukan 😅</p>
+              <p className="text-lg font-semibold">Produk tidak ditemukan</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Coba ubah filter atau kata kunci pencarian.
               </p>
+              <Link
+                to="/produk"
+                className="mt-4 inline-block rounded-lg bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-[var(--color-brand-foreground)] hover:opacity-90"
+              >
+                Reset Filter
+              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">

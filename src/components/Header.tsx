@@ -1,28 +1,48 @@
-import { Link } from "@tanstack/react-router";
-import { Bell, Heart, Search, ShoppingCart, Smartphone, User } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Menu, Search, ShoppingCart, Smartphone, X } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { mockBrands } from "@/lib/mock-data";
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+
+const NAV_LINKS = [
+  { to: "/produk", label: "HP Bekas", search: { type: "hp-bekas" } },
+  { to: "/sparepart", label: "Sparepart" },
+  { to: "/tukar-tambah", label: "Tukar Tambah" },
+  { to: "/servis", label: "Servis" },
+  { to: "/tentang", label: "Tentang" },
+] as const;
 
 export function Header() {
   const { count, open } = useCart();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+      {/* Top banner */}
       <div className="bg-[var(--color-brand)] py-1.5 text-center text-xs font-medium text-[var(--color-brand-foreground)]">
-        Smartphone & Sparepart Bekas Bergaransi · Terima Tukar-Tambah · 📍 Blora, Jawa Tengah
+        Smartphone & Sparepart Bekas Bergaransi · Terima Tukar-Tambah · Blora, Jawa Tengah
       </div>
+
+      {/* Main header */}
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+        {/* Mobile menu toggle */}
+        <button
+          className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Menu"
+        >
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
             <Smartphone className="h-5 w-5" />
           </div>
           <div className="hidden flex-col leading-tight sm:flex">
-            <span className="text-sm font-bold text-foreground">Mubarok SMS&S</span>
-            <span className="text-[10px] text-muted-foreground">Smartphone Sales & Service</span>
+            <span className="text-sm font-bold text-foreground">Mubarok Gadget Hub</span>
+            <span className="text-[10px] text-muted-foreground">Blora, Jawa Tengah</span>
           </div>
         </Link>
 
@@ -39,7 +59,7 @@ export function Header() {
               type="text"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari HP bekas atau sparepart... (contoh: Samsung M52, S Pen Note 8)"
+              placeholder="Cari HP atau sparepart..."
               className="w-full bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground/70 focus:outline-none"
             />
             <select
@@ -60,15 +80,6 @@ export function Header() {
         </form>
 
         <nav className="flex items-center gap-1">
-          <button className="hidden rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:block">
-            <User className="h-5 w-5" />
-          </button>
-          <button className="hidden rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:block">
-            <Bell className="h-5 w-5" />
-          </button>
-          <button className="hidden rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:block">
-            <Heart className="h-5 w-5" />
-          </button>
           <button
             onClick={open}
             className="relative rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -83,6 +94,41 @@ export function Header() {
           </button>
         </nav>
       </div>
+
+      {/* Desktop navigation */}
+      <nav className="hidden border-t border-border bg-card/50 md:block">
+        <div className="mx-auto flex max-w-7xl items-center gap-1 px-4 py-1.5">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              search={"search" in link ? link.search : undefined}
+              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </nav>
+
+      {/* Mobile navigation */}
+      {mobileOpen && (
+        <nav className="border-t border-border bg-card md:hidden">
+          <div className="flex flex-col px-4 py-2">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                search={"search" in link ? link.search : undefined}
+                className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
