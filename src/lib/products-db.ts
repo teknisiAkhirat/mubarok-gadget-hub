@@ -113,19 +113,17 @@ export async function fetchProducts(): Promise<Product[]> {
 
 export async function seedIfEmpty(): Promise<void> {
   const { count, error } = await supabase
-    .from("products" as any)
+    .from("products")
     .select("id", { count: "exact", head: true });
   if (error) throw error;
   if ((count ?? 0) > 0) return;
   const rows = mockProducts.map((p) => productToRow({ ...p, sellerId: mockSeller.id }));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: insErr } = await supabase.from("products" as any).insert(rows);
+  const { error: insErr } = await supabase.from("products").insert(rows);
   if (insErr) throw insErr;
 }
 
 export async function insertProduct(p: Product) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await supabase.from("products" as any).insert(productToRow(p));
+  const { error } = await supabase.from("products").insert(productToRow(p));
   if (error) throw error;
 }
 
@@ -161,17 +159,11 @@ export async function updateProduct(id: string, patch: Partial<Product>) {
 
   if (Object.keys(row).length === 0) return; // tidak ada yang berubah, tidak perlu request
 
-  const { error } = await supabase
-    .from("products" as any)
-    .update(row)
-    .eq("id", id);
+  const { error } = await supabase.from("products").update(row).eq("id", id);
   if (error) throw error;
 }
 export async function deleteProduct(id: string) {
-  const { error } = await supabase
-    .from("products" as any)
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw error;
 }
 

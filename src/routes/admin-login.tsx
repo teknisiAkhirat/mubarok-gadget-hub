@@ -32,8 +32,8 @@ function AdminLoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       navigate({ to: "/dashboard" });
-    } catch (err: any) {
-      toast.error(err.message || "Terjadi kesalahan");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Terjadi kesalahan");
     } finally {
       setLoading(false);
     }

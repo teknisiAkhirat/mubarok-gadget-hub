@@ -164,15 +164,12 @@ function InventoryPage() {
       };
 
       if (editId) {
-        const { error } = await supabase
-          .from("products" as any)
-          .update(payload)
-          .eq("id", editId);
+        const { error } = await supabase.from("products").update(payload).eq("id", editId);
         if (error) throw error;
         toast.success("Inventori diperbarui");
       } else {
         const { error } = await supabase
-          .from("products" as any)
+          .from("products")
           .insert([{ ...payload, seller_id: "seller-mubarok" }]);
         if (error) throw error;
         toast.success("Barang masuk ditambahkan");
