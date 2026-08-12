@@ -30,12 +30,7 @@ export function Header() {
     { to: "/produk", search: { type: "sparepart" } as never, label: "Sparepart", icon: Package },
     { to: "/service-new", label: "Servis", icon: Wrench },
     { to: "/repair-tracker", label: "Lacak Servis", icon: Search },
-    {
-      to: "/produk",
-      search: { type: "sparepart" } as never,
-      label: "Tukar Tambah",
-      icon: ArrowLeftRight,
-    },
+    { to: "/tukar-tambah", label: "Tukar Tambah", icon: ArrowLeftRight },
     { to: "/tentang", label: "Tentang", icon: Info },
   ];
 

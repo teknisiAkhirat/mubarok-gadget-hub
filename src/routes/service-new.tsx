@@ -6,16 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { STATUS_ORDER, type ServiceStatus, type Ticket } from "@/lib/service-ticket-types";
-
-let ticketsStore: Ticket[] = [];
-
-export function getTickets(): Ticket[] {
-  return [...ticketsStore];
-}
-
-export function findTicketByNumber(number: string): Ticket | undefined {
-  return ticketsStore.find((t) => t.ticket_number === number);
-}
+import { insertTicket } from "@/lib/ticket-store";
 
 export const Route = createFileRoute("/service-new")({
   ssr: false,
@@ -63,7 +54,7 @@ function ServiceNewPage() {
         created_at: now,
       };
 
-      ticketsStore = [ticket, ...ticketsStore];
+      insertTicket(ticket);
       toast.success("Tiket servis dibuat: " + ticket_number);
       navigate({ to: "/repair-tracker" });
     } catch (e) {

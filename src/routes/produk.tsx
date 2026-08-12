@@ -11,6 +11,7 @@ type ProdukSearch = {
   type?: "hp-bekas" | "sparepart" | "tablet";
   brand?: string;
   category?: string;
+  compatible?: string;
   sort?: "terbaru" | "termurah" | "termahal" | "terlaris";
 };
 
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/produk")({
       s.type === "hp-bekas" || s.type === "sparepart" || s.type === "tablet" ? s.type : undefined,
     brand: typeof s.brand === "string" ? s.brand : undefined,
     category: typeof s.category === "string" ? s.category : undefined,
+    compatible: typeof s.compatible === "string" ? s.compatible : undefined,
     sort: ["terbaru", "termurah", "termahal", "terlaris"].includes(s.sort as string)
       ? (s.sort as ProdukSearch["sort"])
       : "terbaru",
@@ -81,6 +83,15 @@ function ProdukPage() {
     if (search.category) {
       const cat = mockCategories.find((c) => c.slug === search.category);
       if (cat) list = list.filter((p) => p.categoryId === cat.id);
+    }
+    if (search.compatible) {
+      const compatBrand = mockBrands.find((b) => b.slug === search.compatible);
+      if (compatBrand) {
+        const modelIds = compatBrand.models.map((m) => m.id);
+        list = list.filter(
+          (p) => p.type === "sparepart" && p.compatibleWith.some((id) => modelIds.includes(id)),
+        );
+      }
     }
     list = list.filter((p) => p.price <= priceMax);
     switch (search.sort) {
@@ -193,6 +204,30 @@ function ProdukPage() {
               ))}
             </div>
           </FilterGroup>
+
+          {(search.type === "sparepart" || !search.type) && (
+            <FilterGroup title="Kompatibel Dengan">
+              <div className="space-y-1">
+                <button
+                  onClick={() => setFilter("compatible", undefined)}
+                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.compatible ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                >
+                  Semua Merek
+                </button>
+                {mockBrands
+                  .filter((b) => b.models.length > 0)
+                  .map((b) => (
+                    <button
+                      key={b.id}
+                      onClick={() => setFilter("compatible", b.slug)}
+                      className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.compatible === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                    >
+                      {b.name}
+                    </button>
+                  ))}
+              </div>
+            </FilterGroup>
+          )}
 
           <FilterGroup title="Harga Maksimal">
             <input

@@ -236,18 +236,15 @@ function HomePage() {
                 Punya HP lama? Tukar-tambah di sini!
               </h3>
               <p className="mt-2 max-w-xl text-sm opacity-90">
-                Hubungi kami via WhatsApp dengan foto & spesifikasi HP-mu. Dapatkan penawaran harga
-                terbaik dan upgrade ke HP impianmu.
+                Lihat estimasi harga tukar-tambah HP-mu dan konfirmasi via WhatsApp.
               </p>
             </div>
-            <a
-              href={waLink("Halo Mubarok SMS&S, saya mau tukar-tambah HP saya.")}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/tukar-tambah"
               className="shrink-0 rounded-lg bg-[var(--color-accent-orange)] px-6 py-3 font-bold text-white shadow-lg hover:scale-[1.02]"
             >
-              Chat WhatsApp →
-            </a>
+              Lihat Estimasi Harga →
+            </Link>
           </div>
         </div>
       </section>

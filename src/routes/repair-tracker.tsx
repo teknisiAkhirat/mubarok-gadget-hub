@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
 import { Search, Wrench, Printer } from "lucide-react";
 import { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
-import { findTicketByNumber } from "@/routes/service-new";
+import { findTicketByNumber } from "@/lib/ticket-store";
 
 export const Route = createFileRoute("/repair-tracker")({
   component: RepairTrackerPage,
