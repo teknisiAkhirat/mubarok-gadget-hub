@@ -12,6 +12,7 @@
 **Tujuan:** Website katalog + servis tracker untuk toko HP bekas dan sparepart “Mubarok Gadget Hub” (Blora, Jawa Tengah).
 
 Fitur yang sudah ada:
+
 - Katalog produk HP bekas, sparepart, tablet.
 - Inventori barang masuk / stok / status penjualan.
 - Tracker servis: buat tiket, lacak status servis, cetak nota servis.
@@ -29,6 +30,7 @@ Fitur yang sudah ada:
 - **Node:** gunakan Node 20 jika butuh menjalankan tooling lokal (`~/node-v20.11.0-linux-x64/bin`).
 
 Script penting:
+
 - `bun dev` atau `npm run dev` untuk dev server.
 - `npm run build` untuk build produksi.
 - Hasil build statis ada di `.output/public`.
@@ -66,6 +68,7 @@ Catatan: `service-new` dan `inventory` menggunakan `ssr: false` karena form inte
 ### 4.2 Status servis
 
 Pakai enum/value dari `STATUS_ORDER` di `src/lib/service-ticket-types.ts`:
+
 - `Menunggu`
 - `Dikerjakan`
 - `Selesai`
@@ -74,12 +77,14 @@ Pakai enum/value dari `STATUS_ORDER` di `src/lib/service-ticket-types.ts`:
 ### 4.3 RLS
 
 Tabel `service_tickets` sudah RLS dengan kebijakan:
+
 - `anon` + `authenticated` bisa SELECT/INSERT/UPDATE/DELETE untuk kebutuhan internal/operator.
 - Bila ingin bikin auth ketat nanti, bisa diubah sesuai kebutuhan.
 
 ### 4.4 Migrasi
 
 Semua migrasi ada di `supabase/migrations/` dengan format `YYYYMMDD...`. File terbaru untuk service tickets:
+
 - `supabase/migrations/20260722220000_004_create_service_tickets.sql.sql`
 
 ---
@@ -87,6 +92,7 @@ Semua migrasi ada di `supabase/migrations/` dengan format `YYYYMMDD...`. File te
 ## 5. Kode Penting yang Perlu Diketahui
 
 ### Inventori
+
 - `src/routes/inventory.tsx` — CRUD inventori:
   - Tambah/edit barang: `products.insert()` / `products.update()`.
   - Hapus: `products.delete()`.
@@ -96,6 +102,7 @@ Semua migrasi ada di `supabase/migrations/` dengan format `YYYYMMDD...`. File te
   - Perhatian: ada helper `inventoryRowToItem()` yang meng-handle nilai null/unknown.
 
 ### Tracker Servis
+
 - `src/routes/service-new.tsx` — buat tiket servis.
   - `ticket_number` digenerate sendiri: `SRV-${Date.now().toString().slice(-6)}`.
   - `total_cost` dihitung dari `sparepart_cost + service_cost`.
@@ -138,6 +145,7 @@ npm run dev
 ```
 
 Untuk build:
+
 ```bash
 npm run build
 # output static ada di .output/public
@@ -147,18 +155,18 @@ npm run build
 
 ## 9. Referensi File Penting
 
-| File | Fungsi |
-|------|--------|
-| `src/routes/inventory.tsx` | Modul inventori |
-| `src/routes/service-new.tsx` | Form buat tiket servis |
-| `src/routes/repair-tracker.tsx` | Pencarian & status tiket |
-| `src/routes/repair-tracker.$ticketId.invoice.tsx` | Nota servis printable |
-| `src/lib/service-ticket-types.ts` | Tipe + enum status servis |
-| `src/lib/products-db.ts` | Helper mapping produk & inventori |
-| `supabase/migrations/20260722220000_004_create_service_tickets.sql.sql` | Schema service_tickets |
-| `package.json` | Script & dependency |
-| `vite.config.ts` | Config build |
-| `.output/nitro.json` | Metadata build untuk Cloudflare Pages |
+| File                                                                    | Fungsi                                |
+| ----------------------------------------------------------------------- | ------------------------------------- |
+| `src/routes/inventory.tsx`                                              | Modul inventori                       |
+| `src/routes/service-new.tsx`                                            | Form buat tiket servis                |
+| `src/routes/repair-tracker.tsx`                                         | Pencarian & status tiket              |
+| `src/routes/repair-tracker.$ticketId.invoice.tsx`                       | Nota servis printable                 |
+| `src/lib/service-ticket-types.ts`                                       | Tipe + enum status servis             |
+| `src/lib/products-db.ts`                                                | Helper mapping produk & inventori     |
+| `supabase/migrations/20260722220000_004_create_service_tickets.sql.sql` | Schema service_tickets                |
+| `package.json`                                                          | Script & dependency                   |
+| `vite.config.ts`                                                        | Config build                          |
+| `.output/nitro.json`                                                    | Metadata build untuk Cloudflare Pages |
 
 ---
 

@@ -187,7 +187,7 @@ function InventoryPage() {
                 merk: form.merk || null,
                 tipe: form.tipe || null,
               }
-            : item
+            : item,
         );
         toast.success("Inventori diperbarui");
       } else {
@@ -241,9 +241,7 @@ function InventoryPage() {
   async function markSold(id: string) {
     try {
       inventoryStore = inventoryStore.map((item) =>
-        item.id === id
-          ? { ...item, stock: 0, sale_status: "terjual", is_active: false }
-          : item
+        item.id === id ? { ...item, stock: 0, sale_status: "terjual", is_active: false } : item,
       );
       toast.success("Ditandai terjual");
       await load();
@@ -425,9 +423,7 @@ function InventoryPage() {
               <div className="text-sm">
                 <p className="text-xs text-muted-foreground">Modal</p>
                 <p className="font-semibold">
-                  {(item.cost_price ?? 0) > 0
-                    ? formatIDR(item.cost_price as number)
-                    : "—"}
+                  {(item.cost_price ?? 0) > 0 ? formatIDR(item.cost_price as number) : "—"}
                 </p>
               </div>
               <div className="text-lg font-bold text-[var(--color-accent-orange)]">
@@ -470,9 +466,7 @@ function InventoryPage() {
                 <p className="text-xs text-muted-foreground">
                   {item.merk} · {item.tipe}
                 </p>
-                <p className="text-sm font-bold">
-                  {formatIDR(item.price)}
-                </p>
+                <p className="text-sm font-bold">{formatIDR(item.price)}</p>
                 <Badge className="mt-2 bg-emerald-600 text-white">Terjual</Badge>
               </CardContent>
             </Card>

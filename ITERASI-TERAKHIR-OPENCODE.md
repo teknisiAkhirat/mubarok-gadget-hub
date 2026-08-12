@@ -20,16 +20,16 @@ Pekerjaan pada iterasi terakhir dibagi 3 area:
 
 ## 2. Perubahan File
 
-| File | Perubahan |
-|------|-----------|
-| `src/integrations/supabase/types.ts` | Tambah tabel `service_tickets` + kolom inventori `products` (`cost_price`, `imei_or_sn`, `merk`, `tipe`, `sale_status`). |
-| `supabase/migrations/20260722220000_004_create_service_tickets.sql.sql` | Kolom `diagnosis`, `sparepart_cost`, `service_cost`, `total_cost`; status `Menunggu/Dikerjakan/Selesai/Gagal`; RLS update/delete admin-only. |
-| `supabase/migrations/20260811000000_005_sync_service_tickets_and_inventory.sql` | **Baru.** Migrasi idempotent untuk DB live (tambah kolom, ganti CHECK status, ketatkan RLS). |
-| `src/routes/repair-tracker.tsx` | Hapus tombol "Lacak Servis" (route tak ada), perbaiki link "Nota Servis" → `/repair-tracker/{ticket_number}/invoice`. |
-| `src/routes/dashboard.tsx` | `beforeLoad` kini verifikasi `has_role(auth.uid(),'admin')` selain email admin. |
-| `src/routes/inventory.tsx` | Tambah `beforeLoad` gate admin (session + email + `has_role`). |
-| `.gitignore` | Blokir `.env` agar tidak pernah ter-commit. |
-| `.env` | **Dihapus dari tracking git** (`git rm --cached`). |
+| File                                                                            | Perubahan                                                                                                                                    |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/integrations/supabase/types.ts`                                            | Tambah tabel `service_tickets` + kolom inventori `products` (`cost_price`, `imei_or_sn`, `merk`, `tipe`, `sale_status`).                     |
+| `supabase/migrations/20260722220000_004_create_service_tickets.sql.sql`         | Kolom `diagnosis`, `sparepart_cost`, `service_cost`, `total_cost`; status `Menunggu/Dikerjakan/Selesai/Gagal`; RLS update/delete admin-only. |
+| `supabase/migrations/20260811000000_005_sync_service_tickets_and_inventory.sql` | **Baru.** Migrasi idempotent untuk DB live (tambah kolom, ganti CHECK status, ketatkan RLS).                                                 |
+| `src/routes/repair-tracker.tsx`                                                 | Hapus tombol "Lacak Servis" (route tak ada), perbaiki link "Nota Servis" → `/repair-tracker/{ticket_number}/invoice`.                        |
+| `src/routes/dashboard.tsx`                                                      | `beforeLoad` kini verifikasi `has_role(auth.uid(),'admin')` selain email admin.                                                              |
+| `src/routes/inventory.tsx`                                                      | Tambah `beforeLoad` gate admin (session + email + `has_role`).                                                                               |
+| `.gitignore`                                                                    | Blokir `.env` agar tidak pernah ter-commit.                                                                                                  |
+| `.env`                                                                          | **Dihapus dari tracking git** (`git rm --cached`).                                                                                           |
 
 ---
 

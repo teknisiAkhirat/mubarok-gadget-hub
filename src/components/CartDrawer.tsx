@@ -122,9 +122,14 @@ export function CartDrawer() {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-xl font-bold text-[var(--color-accent-orange)]">{formatIDR(subtotal)}</span>
+              <span className="text-xl font-bold text-[var(--color-accent-orange)]">
+                {formatIDR(subtotal)}
+              </span>
             </div>
-            <Button asChild className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600">
+            <Button
+              asChild
+              className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600"
+            >
               <a href={waLink(waMessage)} target="_blank" rel="noreferrer" onClick={close}>
                 <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
               </a>

@@ -48,12 +48,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Ada yang error
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Coba refresh atau kembali ke beranda.
-        </p>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">Ada yang error</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Coba refresh atau kembali ke beranda.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -82,14 +78,40 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Mubarok Smartphone Sales & Service — HP Bekas & Sparepart Bergaransi Blora" },
-      { name: "description", content: "Jual beli HP bekas bergaransi dan sparepart smartphone di Blora, Jawa Tengah. Terima tukar-tambah. Garansi toko." },
-      { property: "og:title", content: "Mubarok Smartphone Sales & Service — HP Bekas & Sparepart Bergaransi Blora" },
-      { property: "og:description", content: "Jual beli HP bekas bergaransi dan sparepart smartphone di Blora, Jawa Tengah. Terima tukar-tambah. Garansi toko." },
+      {
+        name: "description",
+        content:
+          "Jual beli HP bekas bergaransi dan sparepart smartphone di Blora, Jawa Tengah. Terima tukar-tambah. Garansi toko.",
+      },
+      {
+        property: "og:title",
+        content: "Mubarok Smartphone Sales & Service — HP Bekas & Sparepart Bergaransi Blora",
+      },
+      {
+        property: "og:description",
+        content:
+          "Jual beli HP bekas bergaransi dan sparepart smartphone di Blora, Jawa Tengah. Terima tukar-tambah. Garansi toko.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "Mubarok Smartphone Sales & Service — HP Bekas & Sparepart Bergaransi Blora" },
-      { name: "twitter:description", content: "Jual beli HP bekas bergaransi dan sparepart smartphone di Blora, Jawa Tengah. Terima tukar-tambah. Garansi toko." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/292167bc-585a-4f05-b88c-3e62f5071b9c/id-preview-55f659dc--cd7c3697-2559-451f-9b20-58eb507e3b4e.lovable.app-1781538829369.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/292167bc-585a-4f05-b88c-3e62f5071b9c/id-preview-55f659dc--cd7c3697-2559-451f-9b20-58eb507e3b4e.lovable.app-1781538829369.png" },
+      {
+        name: "twitter:title",
+        content: "Mubarok Smartphone Sales & Service — HP Bekas & Sparepart Bergaransi Blora",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Jual beli HP bekas bergaransi dan sparepart smartphone di Blora, Jawa Tengah. Terima tukar-tambah. Garansi toko.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/292167bc-585a-4f05-b88c-3e62f5071b9c/id-preview-55f659dc--cd7c3697-2559-451f-9b20-58eb507e3b4e.lovable.app-1781538829369.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/292167bc-585a-4f05-b88c-3e62f5071b9c/id-preview-55f659dc--cd7c3697-2559-451f-9b20-58eb507e3b4e.lovable.app-1781538829369.png",
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],

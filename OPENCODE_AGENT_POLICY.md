@@ -1,17 +1,21 @@
 # Mubarok Gadget Hub — OpenCode Autonomous Agent Policy
 
 ## MODE
+
 FULL AUTONOMOUS WITH SAFETY RAILS.
 
 Work continuously without asking permission for routine technical decisions. Stop only when a Safety Rail is triggered.
 
 ## PROJECT
+
 Repository: teknisiAkhirat/mubarok-gadget-hub
 Development branch: clean-rebuild
 Target branch: main
 
 ## SOURCE OF TRUTH
+
 Read and follow:
+
 - Blueprint
 - PRD
 - this policy
@@ -19,9 +23,11 @@ Read and follow:
 Do not invent requirements that conflict with project documentation.
 
 ## OBJECTIVE
+
 Perform a CLEAN REBUILD of Mubarok Gadget Hub.
 
 Priorities:
+
 1. Stable application
 2. Mobile-first UI/UX
 3. Mock data
@@ -30,6 +36,7 @@ Priorities:
 6. Prepare for Cloudflare backend
 
 ## TARGET ARCHITECTURE
+
 Cloudflare Pages
 Cloudflare Workers
 Cloudflare D1
@@ -44,7 +51,9 @@ Workers = backend/API boundary.
 Do not connect production D1/R2 during the UI rebuild unless explicitly required.
 
 ## V1 FEATURES
+
 Implement according to Blueprint/PRD:
+
 - Homepage
 - Product catalog
 - Product detail
@@ -64,7 +73,9 @@ Prioritize P0 before P1.
 Do not add unnecessary features.
 
 ## AUTONOMOUS PERMISSIONS
+
 Agent may autonomously:
+
 - read/write project files
 - create/delete obsolete project files
 - refactor code
@@ -84,6 +95,7 @@ Agent may autonomously:
 Do NOT ask for confirmation for routine technical decisions.
 
 ## AUTONOMOUS LOOP
+
 PLAN
 → INSPECT
 → IMPLEMENT
@@ -99,6 +111,7 @@ PLAN
 If build fails, diagnose and fix autonomously.
 
 ## GIT
+
 Work only on clean-rebuild.
 
 Never directly modify main.
@@ -106,6 +119,7 @@ Never force push.
 Never reset --hard to destroy work without a strong reason.
 
 Before commits:
+
 - git status
 - git diff
 
@@ -117,6 +131,7 @@ chore:
 docs:
 
 ## BUILD GATE
+
 Milestone is not complete until:
 
 npm run build
@@ -126,6 +141,7 @@ passes.
 If lint/tests exist, run them and fix relevant failures.
 
 ## CLEAN REBUILD
+
 Do not preserve obsolete architecture merely because it already exists.
 
 Prefer a simpler architecture.
@@ -137,7 +153,9 @@ Do not blindly delete the entire project before auditing it.
 Preserve useful assets and documentation.
 
 ## SAFETY RAILS
+
 STOP AND ASK THE OWNER ONLY IF:
+
 1. New credentials are required.
 2. New secrets are required.
 3. Access outside this repository is required.
@@ -155,7 +173,9 @@ STOP AND ASK THE OWNER ONLY IF:
 Otherwise continue autonomously.
 
 ## SECURITY
+
 Never:
+
 - hard-code secrets
 - commit secrets
 - commit production .env files
@@ -166,15 +186,18 @@ Never:
 - expose secrets in reports
 
 ## WHATSAPP
+
 Use one source of truth for WhatsApp configuration.
 Do not hard-code WhatsApp URLs throughout components.
 
 ## REPORTING
+
 Do not report every small action.
 
 Work in batches.
 
 At major milestones report:
+
 - changes
 - affected modules
 - build/test result
@@ -185,7 +208,9 @@ At major milestones report:
 Do not stop unless a Safety Rail is triggered.
 
 ## DEFINITION OF DONE
+
 V1 must:
+
 - run successfully
 - have no runtime crash
 - be mobile-first
@@ -197,6 +222,7 @@ V1 must:
 - have clean Git commits
 
 ## START NOW
+
 1. Check git status.
 2. Confirm clean-rebuild branch.
 3. Read available Blueprint and PRD documentation.

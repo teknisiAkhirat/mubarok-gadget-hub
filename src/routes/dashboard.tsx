@@ -6,12 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
-import {
-  fetchProducts,
-  insertProduct,
-  updateProduct,
-  deleteProduct,
-} from "@/lib/products-db";
+import { fetchProducts, insertProduct, updateProduct, deleteProduct } from "@/lib/products-db";
 import { toast, Toaster } from "sonner";
 import {
   Package,
@@ -212,12 +207,7 @@ function DashboardPage() {
                 icon={Wrench}
                 color="from-green-500 to-green-600"
               />
-              <StatCard
-                label="Gagal"
-                value="0"
-                icon={Wrench}
-                color="from-red-500 to-red-600"
-              />
+              <StatCard label="Gagal" value="0" icon={Wrench} color="from-red-500 to-red-600" />
             </div>
           </div>
         )}

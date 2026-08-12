@@ -21,9 +21,7 @@ export async function insertProduct(p: Product) {
 }
 
 export async function updateProduct(id: string, patch: Partial<Product>) {
-  productsStore = productsStore.map((p) =>
-    p.id === id ? { ...p, ...patch } : p
-  );
+  productsStore = productsStore.map((p) => (p.id === id ? { ...p, ...patch } : p));
 }
 
 export async function deleteProduct(id: string) {

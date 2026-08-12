@@ -1,21 +1,63 @@
-import { Link } from "@tanstack/react-router";
-import { Bell, Heart, Search, ShoppingCart, Smartphone, User } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import {
+  Bell,
+  Heart,
+  Menu,
+  Search,
+  ShoppingCart,
+  Smartphone,
+  User,
+  X,
+  Home,
+  Package,
+  Wrench,
+  ArrowLeftRight,
+  Info,
+} from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { mockBrands } from "@/lib/mock-data";
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 
 export function Header() {
   const { count, open } = useCart();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { to: "/", label: "Beranda", icon: Home },
+    { to: "/produk", search: { type: "hp-bekas" } as never, label: "HP Bekas", icon: Smartphone },
+    { to: "/produk", search: { type: "sparepart" } as never, label: "Sparepart", icon: Package },
+    { to: "/service-new", label: "Servis", icon: Wrench },
+    { to: "/repair-tracker", label: "Lacak Servis", icon: Search },
+    {
+      to: "/produk",
+      search: { type: "sparepart" } as never,
+      label: "Tukar Tambah",
+      icon: ArrowLeftRight,
+    },
+    { to: "/tentang", label: "Tentang", icon: Info },
+  ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+      {/* Top banner */}
       <div className="bg-[var(--color-brand)] py-1.5 text-center text-xs font-medium text-[var(--color-brand-foreground)]">
         Smartphone & Sparepart Bekas Bergaransi · Terima Tukar-Tambah · 📍 Blora, Jawa Tengah
       </div>
+
+      {/* Main header */}
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+          aria-label="Menu"
+        >
+          {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
             <Smartphone className="h-5 w-5" />
@@ -26,11 +68,13 @@ export function Header() {
           </div>
         </Link>
 
+        {/* Search bar */}
         <form
           className="flex flex-1 items-center"
           onSubmit={(e) => {
             e.preventDefault();
             navigate({ to: "/produk", search: { q } as never });
+            setMobileMenuOpen(false);
           }}
         >
           <div className="flex w-full items-center rounded-lg border border-border bg-muted/40 focus-within:border-[var(--color-accent-orange)] focus-within:bg-background">
@@ -39,22 +83,29 @@ export function Header() {
               type="text"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari HP bekas atau sparepart... (contoh: Samsung M52, S Pen Note 8)"
+              placeholder="Cari HP bekas atau sparepart..."
               className="w-full bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground/70 focus:outline-none"
             />
             <select
               className="hidden border-l border-border bg-transparent px-3 py-2 text-sm md:block"
-              onChange={(e) => navigate({ to: "/produk", search: { brand: e.target.value } as never })}
+              onChange={(e) => {
+                if (e.target.value) {
+                  navigate({ to: "/produk", search: { brand: e.target.value } as never });
+                }
+              }}
               defaultValue=""
             >
               <option value="">Semua Merek</option>
               {mockBrands.map((b) => (
-                <option key={b.id} value={b.slug}>{b.name}</option>
+                <option key={b.id} value={b.slug}>
+                  {b.name}
+                </option>
               ))}
             </select>
           </div>
         </form>
 
+        {/* Desktop nav icons */}
         <nav className="flex items-center gap-1">
           <button className="hidden rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:block">
             <User className="h-5 w-5" />
@@ -79,6 +130,29 @@ export function Header() {
           </button>
         </nav>
       </div>
+
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div className="border-t border-border bg-background md:hidden">
+          <nav className="mx-auto max-w-7xl px-4 py-3">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.to + String(link.search || "")}
+                  to={link.to}
+                  search={link.search}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+                >
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
