@@ -1,20 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { findBrand, findModel, findCategory, mockSeller, type Product } from "@/lib/mock-data";
+import { findBrand, findModel, findCategory, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 import {
+  AlertTriangle,
+  CheckCircle2,
   ChevronRight,
   Clock,
   Loader2,
   MapPin,
   MessageCircle,
+  MinusCircle,
   ShieldCheck,
   Star,
   Store,
@@ -22,7 +24,7 @@ import {
 
 export const Route = createFileRoute("/produk_/$slug")({
   head: () => ({
-    meta: [{ title: "Produk · Mubarok SMS&S" }],
+    meta: [{ title: "Detail Produk · Mubarok Gadget Hub" }],
   }),
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-7xl px-4 py-20 text-center">
@@ -33,13 +35,19 @@ export const Route = createFileRoute("/produk_/$slug")({
   component: PDP,
 });
 
+const GRADE_COLORS: Record<string, string> = {
+  A: "bg-emerald-600 text-white",
+  "B+": "bg-teal-600 text-white",
+  B: "bg-amber-600 text-white",
+  C: "bg-orange-600 text-white",
+};
+
 function PDP() {
   const { slug } = Route.useParams();
   const { add } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
-  const [pageUrl, setPageUrl] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -60,7 +68,6 @@ function PDP() {
   }, []);
 
   useEffect(() => {
-    setPageUrl(window.location.origin + window.location.pathname);
     setActiveImg(0);
   }, [slug]);
 
@@ -112,7 +119,7 @@ function PDP() {
         ? `Stok hampir habis (sisa ${product.stock})`
         : `Tersedia · ${product.stock} unit`;
 
-  const waMsg = `Halo Mubarok SMS&S, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nLink Produk: ${pageUrl}\n\nApakah masih tersedia?`;
+  const waMsg = `Halo Mubarok Gadget Hub, saya tertarik dengan produk berikut:\n\nNama Produk: ${product.name}\nHarga: ${formatIDR(product.price)}\nGrade: ${product.grade ?? "-"}\nLink Produk: ${window.location.origin + window.location.pathname}\n\nApakah masih tersedia?`;
 
   const handleAddToCart = () => {
     add(product.id);
@@ -151,8 +158,8 @@ function PDP() {
         )}
       </nav>
 
-      <div className="grid gap-8 md:grid-cols-[1.1fr_1fr]">
-        {/* Gallery */}
+      <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
+        {/* 1. Gallery */}
         <div>
           <div className="overflow-hidden rounded-xl border border-border bg-muted">
             <img
@@ -176,25 +183,79 @@ function PDP() {
               ))}
             </div>
           )}
+
+          {/* 8. Hasil pemeriksaan — Inspection Summary */}
+          {product.inspection && product.inspection.length > 0 && (
+            <div className="mt-6 rounded-xl border border-border bg-card p-5">
+              <h2 className="text-lg font-bold">Hasil Pemeriksaan</h2>
+              <p className="text-xs text-muted-foreground">
+                Pemeriksaan teknis unit (data mock untuk V1).
+              </p>
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full min-w-[380px] text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <th className="py-2 pr-4 font-semibold">Pemeriksaan</th>
+                      <th className="py-2 font-semibold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {product.inspection.map((row) => (
+                      <tr key={row.label} className="border-b border-border/60 last:border-none">
+                        <td className="py-2 pr-4 font-medium">{row.label}</td>
+                        <td className="py-2">
+                          {row.status === "Normal" ? (
+                            <span className="inline-flex items-center gap-1.5 text-emerald-700">
+                              <CheckCircle2 className="h-4 w-4" /> Normal
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-red-700">
+                              <MinusCircle className="h-4 w-4" /> Minus
+                              {row.note ? ` — ${row.note}` : ""}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Info */}
+        {/* Info column — urutan PRD: Nama → Harga → Stok → Grade → Kondisi → CTA → Garansi */}
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <BadgeKondisi condition={product.condition} conditionLabel={product.conditionLabel} />
-            {product.isFeatured && (
-              <span className="rounded-md bg-[var(--color-accent-orange)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--color-accent-orange)]">
-                ⭐ Unggulan
+            {product.grade && (
+              <span
+                className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ${GRADE_COLORS[product.grade] ?? "bg-[var(--color-brand)] text-white"}`}
+              >
+                Grade {product.grade}
               </span>
             )}
           </div>
+
+          {/* 2. Nama */}
           <h1 className="mt-3 text-2xl font-extrabold md:text-3xl">{product.name}</h1>
+
+          {/* 3. Harga */}
+          <div className="mt-4 text-3xl font-extrabold text-[var(--color-accent-orange)]">
+            {formatIDR(product.price)}
+          </div>
+
+          {/* 4. Stok */}
+          <div className="mt-1 text-sm font-medium text-foreground">{stokLabel}</div>
+
+          {/* 6. Ringkasan kondisi */}
           {product.conditionNote && (
-            <p className="mt-1 text-sm italic text-muted-foreground">{product.conditionNote}</p>
+            <p className="mt-3 text-sm italic text-foreground">{product.conditionNote}</p>
           )}
 
           <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-            <Star className="h-4 w-4" /> {product.rating > 0 ? product.rating.toFixed(1) : "—"}
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span>{product.rating > 0 ? product.rating.toFixed(1) : "—"}</span>
             <span>·</span>
             <span>{product.soldCount} terjual</span>
           </div>
@@ -215,36 +276,73 @@ function PDP() {
             </div>
           )}
 
-          <div className="mt-5 rounded-xl bg-gradient-to-br from-orange-50 to-yellow-50 p-5">
-            <div className="text-3xl font-extrabold text-[var(--color-accent-orange)]">
-              {formatIDR(product.price)}
+          {/* 7. Kekurangan unit — Defect Disclosure (harus menonjol) */}
+          {product.defects && product.defects.length > 0 && (
+            <div className="mt-5 rounded-xl border-2 border-red-300 bg-red-50 p-4">
+              <h2 className="flex items-center gap-2 font-bold text-red-800">
+                <AlertTriangle className="h-5 w-5" /> Kekurangan Unit
+              </h2>
+              <ul className="mt-2 space-y-1 text-sm text-red-900">
+                {product.defects.map((d) => (
+                  <li key={d} className="flex items-start gap-1.5">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                    {d}
+                  </li>
+                ))}
+              </ul>
+              {product.grade && (
+                <p className="mt-2 text-xs text-red-700/80">
+                  Grade {product.grade} — kondisi keseluruhan masih teruji dan berfungsi normal,
+                  dijelaskan apa adanya.
+                </p>
+              )}
             </div>
-            <div className="mt-1 text-sm font-medium text-foreground">{stokLabel}</div>
+          )}
+
+          {/* 9. Kelengkapan */}
+          {product.accessories && product.accessories.length > 0 && (
+            <div className="mt-5 rounded-xl border border-border bg-card p-4">
+              <h2 className="text-sm font-bold">Kelengkapan Unit</h2>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {product.accessories.map((a) => (
+                  <span
+                    key={a}
+                    className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs font-medium"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> {a}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 10. Garansi */}
+          <div className="mt-5 flex items-center gap-1.5 text-sm">
+            <ShieldCheck className="h-4 w-4 text-green-600" /> Garansi: {product.warranty}
           </div>
 
+          {/* 13. CTA WhatsApp */}
           <div className="mt-5 flex flex-col gap-2">
+            <Button
+              asChild
+              className="h-auto min-h-11 w-full whitespace-normal bg-emerald-600 text-white hover:bg-emerald-700"
+            >
+              <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
+                <MessageCircle className="mr-2 h-4 w-4" /> Beli / Tanya via WhatsApp
+              </a>
+            </Button>
             <Button
               size="sm"
               variant="outline"
               className="w-full border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white"
               onClick={handleAddToCart}
+              disabled={product.stock <= 0}
             >
               + Keranjang
-            </Button>
-            <Button
-              asChild
-              className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600"
-            >
-              <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
-                <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA
-              </a>
             </Button>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-green-600" /> {product.warranty}
-            </span>
             {category && <span>📦 Kategori: {category.name}</span>}
             <span>⚖️ {product.weight} gr</span>
           </div>
@@ -256,39 +354,27 @@ function PDP() {
                 <Store className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-bold">{mockSeller.storeName}</h3>
-                  {mockSeller.isVerified && (
-                    <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">
-                      ✓ Terverifikasi
-                    </span>
-                  )}
-                </div>
+                <h3 className="font-bold">Mubarok Gadget Hub</h3>
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> {mockSeller.rating}
+                    <MapPin className="h-3 w-3" /> Blora, Jawa Tengah
                   </span>
                   <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> {mockSeller.city}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> Respon {mockSeller.responseTime}
+                    <Clock className="h-3 w-3" /> Senin–Sabtu 09.00–15.00
                   </span>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">{mockSeller.operationalHours}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{mockSeller.description}</p>
-                <div className="mt-3 flex gap-2">
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Toko HP bekas, sparepart, servis & tukar tambah yang amanah dan transparan.
+                </p>
+                <div className="mt-3">
                   <a
-                    href={waLink(`Halo ${mockSeller.storeName}, saya ingin bertanya.`)}
+                    href={waLink(`Halo Mubarok Gadget Hub, saya ingin bertanya.`)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 rounded-md bg-green-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-600"
                   >
                     <MessageCircle className="h-3 w-3" /> Chat WA
                   </a>
-                  <button className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted">
-                    Kunjungi Toko
-                  </button>
                 </div>
               </div>
             </div>
@@ -296,22 +382,17 @@ function PDP() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="deskripsi" className="mt-10">
-        <TabsList>
-          <TabsTrigger value="deskripsi">Deskripsi</TabsTrigger>
-          <TabsTrigger value="spesifikasi">Spesifikasi</TabsTrigger>
-          <TabsTrigger value="ulasan">Ulasan</TabsTrigger>
-          <TabsTrigger value="diskusi">Diskusi</TabsTrigger>
-        </TabsList>
-        <TabsContent
-          value="deskripsi"
-          className="rounded-xl border border-border bg-card p-5 text-sm leading-relaxed"
-        >
-          {product.description}
-        </TabsContent>
-        <TabsContent value="spesifikasi" className="rounded-xl border border-border bg-card p-5">
-          <dl className="grid gap-2 text-sm sm:grid-cols-2">
+      {/* Deskripsi & Spesifikasi */}
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-lg font-bold">Deskripsi</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {product.description}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-lg font-bold">Spesifikasi</h2>
+          <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
             {Object.entries(product.specifications).map(([k, v]) => (
               <div key={k} className="flex justify-between gap-3 border-b border-border/60 py-2">
                 <dt className="text-muted-foreground">{k}</dt>
@@ -319,20 +400,8 @@ function PDP() {
               </div>
             ))}
           </dl>
-        </TabsContent>
-        <TabsContent
-          value="ulasan"
-          className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground"
-        >
-          Belum ada ulasan untuk produk ini.
-        </TabsContent>
-        <TabsContent
-          value="diskusi"
-          className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground"
-        >
-          Belum ada diskusi. Jadi yang pertama bertanya!
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
 
       {/* Related */}
       {related.length > 0 && (
