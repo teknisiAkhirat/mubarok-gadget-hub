@@ -1,11 +1,18 @@
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, Star } from "lucide-react";
+import { AlertTriangle, MessageCircle, Star } from "lucide-react";
 import type { Product } from "@/lib/mock-data";
 import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "./BadgeKondisi";
 import { Button } from "./ui/button";
 import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
+
+const GRADE_COLORS: Record<string, string> = {
+  A: "bg-emerald-600 text-white",
+  "B+": "bg-teal-600 text-white",
+  B: "bg-amber-600 text-white",
+  C: "bg-orange-600 text-white",
+};
 
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
@@ -14,6 +21,9 @@ export function ProductCard({ product }: { product: Product }) {
     add(product.id);
     toast.success(`${product.name} ditambahkan ke keranjang`);
   };
+
+  const outOfStock = product.stock <= 0;
+  const defect = product.defects && product.defects.length > 0;
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 ease-in-out hover:shadow-md hover:border-[var(--color-accent-orange)]/40">
@@ -28,9 +38,25 @@ export function ProductCard({ product }: { product: Product }) {
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
-        <div className="absolute left-2 top-2">
+        <div className="absolute left-2 top-2 flex flex-col items-start gap-1.5">
           <BadgeKondisi condition={product.condition} conditionLabel={product.conditionLabel} />
+          {product.grade && (
+            <span
+              className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ${
+                GRADE_COLORS[product.grade] ?? "bg-[var(--color-brand)] text-white"
+              }`}
+            >
+              Grade {product.grade}
+            </span>
+          )}
         </div>
+        {outOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+            <span className="rounded-md bg-destructive px-3 py-1 text-xs font-bold text-destructive-foreground">
+              Stok Habis
+            </span>
+          </div>
+        )}
       </Link>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         <Link to="/produk/$slug" params={{ slug: product.slug }}>
@@ -38,15 +64,25 @@ export function ProductCard({ product }: { product: Product }) {
             {product.name}
           </h3>
         </Link>
-        {product.conditionNote && (
-          <p className="line-clamp-1 text-xs italic text-muted-foreground">
-            {product.conditionNote}
+        {defect && product.defects && (
+          <p className="flex items-start gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
+            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span className="line-clamp-2">{product.defects[0]}</span>
           </p>
         )}
+        {!defect && product.conditionNote && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{product.conditionNote.slice(0, 48)}</span>
+          </div>
+        )}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-          <span>{product.rating > 0 ? product.rating.toFixed(1) : "—"}</span>
-          <span>·</span>
+          {product.rating > 0 ? (
+            <>
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <span>{product.rating.toFixed(1)}</span>
+              <span>·</span>
+            </>
+          ) : null}
           <span>Stok: {product.stock}</span>
         </div>
         <div className="mt-1 text-lg font-bold text-[var(--color-accent-orange)]">
@@ -58,6 +94,7 @@ export function ProductCard({ product }: { product: Product }) {
             variant="outline"
             className="border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white transition-colors"
             onClick={handleAddToCart}
+            disabled={outOfStock}
           >
             + Keranjang
           </Button>

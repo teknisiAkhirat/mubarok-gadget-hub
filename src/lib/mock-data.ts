@@ -3,6 +3,14 @@ import spenNote8 from "@/assets/spen-note8.jpg";
 
 export type ProductType = "hp-bekas" | "sparepart" | "tablet";
 
+export type ProductGrade = "A" | "B+" | "B" | "C";
+
+export interface InspectionItem {
+  label: string;
+  status: "Normal" | "Minus";
+  note?: string;
+}
+
 export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   "hp-bekas": "HP Bekas",
   sparepart: "Sparepart",
@@ -46,6 +54,10 @@ export interface Product {
   condition: "mulus" | "normal" | "ori-copotan" | "compatible";
   conditionLabel: string;
   conditionNote: string;
+  grade?: ProductGrade;
+  defects?: string[];
+  inspection?: InspectionItem[];
+  accessories?: string[];
   description: string;
   specifications: Record<string, string>;
   price: number;
@@ -160,6 +172,13 @@ export const mockBrands: PhoneBrand[] = [
         name: "Galaxy S20 FE",
         slug: "galaxy-s20-fe",
         releaseYear: 2020,
+      },
+      {
+        id: "sam-s23",
+        brandId: "brand-samsung",
+        name: "Galaxy S23",
+        slug: "galaxy-s23",
+        releaseYear: 2023,
       },
     ],
   },
@@ -394,6 +413,18 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Mesin mulus, belum pernah servis. Layar non AMOLED.",
+    grade: "B+",
+    defects: ["Frame kanan terdapat gores ringan", "Back cover bekas pemakaian."],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Fingerprint", status: "Normal" },
+      { label: "NFC", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger"],
     description:
       "Samsung Galaxy M52 5G bekas kondisi normal. Mesin mulus belum pernah servis. Layar 6.7 inch Super AMOLED 120Hz. Snapdragon 778G, RAM 6GB, storage 128GB. Baterai 5000mAh. Garansi toko 3 hari.",
     specifications: {
@@ -436,6 +467,17 @@ export const mockProducts: Product[] = [
     condition: "mulus",
     conditionLabel: "Mulus",
     conditionNote: "Seperti baru, fullset dus.",
+    grade: "A",
+    defects: [],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Fingerprint", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger", "Kabel", "Dus Fullset"],
     description:
       "Xiaomi Redmi Note 11 bekas kondisi mulus seperti baru. Fullset dengan dus dan aksesori. Layar AMOLED 90Hz, Snapdragon 680, RAM 6GB, storage 128GB. Baterai 5000mAh fast charging 33W.",
     specifications: {
@@ -646,6 +688,19 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Baterai 85%, normal untuk usia.",
+    grade: "B+",
+    defects: ["Baterai health 85% (masih dalam batas normal untuk usia)."],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Fingerprint", status: "Normal" },
+      { label: "NFC", status: "Normal" },
+      { label: "Baterai", status: "Minus", note: "Health 85%" },
+    ],
+    accessories: ["Unit"],
     description:
       "iPhone SE 2020 bekas kondisi normal. Chipset A13 Bionic, RAM 3GB, storage 64GB. Baterai 85% health. Cocok untuk yang ingin iPhone murah.",
     specifications: {
@@ -1089,6 +1144,60 @@ export const mockProducts: Product[] = [
     createdAt: new Date("2025-08-03"),
   },
 
+  {
+    id: "hp-s23",
+    sellerId: "seller-mubarok",
+    type: "hp-bekas",
+    name: "Samsung Galaxy S23 Bekas",
+    slug: "samsung-galaxy-s23-bekas",
+    categoryId: null,
+    compatibleWith: [],
+    brandId: "brand-samsung",
+    modelId: "sam-s23",
+    condition: "normal",
+    conditionLabel: "Normal",
+    conditionNote: "Layar normal, touch normal, kamera normal. Body ada goresan ringan.",
+    grade: "B+",
+    defects: ["Frame kanan terdapat gores ringan.", "Back cover terdapat bekas pemakaian."],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Fingerprint", status: "Normal" },
+      { label: "NFC", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger"],
+    description:
+      "Samsung Galaxy S23 bekas. Snapdragon 8 Gen 2, 8/256. Layar Super AMOLED 120Hz, kamera 50MP. Body terdapat gores ringan, kelengkapan unit + charger. Garansi toko 30 hari.",
+    specifications: {
+      Merek: "Samsung",
+      Tipe: "Galaxy S23",
+      Chipset: "Snapdragon 8 Gen 2",
+      RAM: "8 GB",
+      Storage: "256 GB",
+      Baterai: "3900 mAh",
+      Layar: "6.1 inch Super AMOLED 120Hz",
+      "Kamera Belakang": "50 MP + 12 MP + 10 MP",
+      "Kamera Depan": "12 MP",
+      "Kondisi Body": "Gores ringan pada frame",
+      Garansi: "30 hari garansi toko",
+    },
+    price: 5900000,
+    compareAtPrice: 6500000,
+    stock: 1,
+    images: [samsungM52],
+    warranty: "30 hari garansi toko",
+    weight: 330,
+    rating: 4.9,
+    reviewCount: 20,
+    soldCount: 35,
+    isFeatured: true,
+    isActive: true,
+    tags: ["samsung", "s23", "galaxy", "hp bekas", "android", "5g"],
+    createdAt: new Date("2025-08-12"),
+  },
   // ========== TABLET ==========
   {
     id: "tb-001",

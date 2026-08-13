@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
-import { ChevronRight, SlidersHorizontal, Loader2 } from "lucide-react";
+import { ChevronRight, SlidersHorizontal, Loader2, X, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 type ProdukSearch = {
@@ -12,8 +12,22 @@ type ProdukSearch = {
   brand?: string;
   category?: string;
   compatible?: string;
+  condition?: "mulus" | "normal" | "ori-copotan" | "compatible";
+  stock?: "tersedia" | "habis";
   sort?: "terbaru" | "termurah" | "termahal" | "terlaris";
 };
+
+const CONDITION_FILTERS: { value: NonNullable<ProdukSearch["condition"]>; label: string }[] = [
+  { value: "mulus", label: "Mulus" },
+  { value: "normal", label: "Normal" },
+  { value: "ori-copotan", label: "Ori Copotan" },
+  { value: "compatible", label: "Compatible" },
+];
+
+const STOCK_FILTERS: { value: NonNullable<ProdukSearch["stock"]>; label: string }[] = [
+  { value: "tersedia", label: "Stok Tersedia" },
+  { value: "habis", label: "Stok Habis" },
+];
 
 export const Route = createFileRoute("/produk")({
   head: () => ({
@@ -32,6 +46,14 @@ export const Route = createFileRoute("/produk")({
     brand: typeof s.brand === "string" ? s.brand : undefined,
     category: typeof s.category === "string" ? s.category : undefined,
     compatible: typeof s.compatible === "string" ? s.compatible : undefined,
+    condition:
+      s.condition === "mulus" ||
+      s.condition === "normal" ||
+      s.condition === "ori-copotan" ||
+      s.condition === "compatible"
+        ? s.condition
+        : undefined,
+    stock: s.stock === "tersedia" || s.stock === "habis" ? s.stock : undefined,
     sort: ["terbaru", "termurah", "termahal", "terlaris"].includes(s.sort as string)
       ? (s.sort as ProdukSearch["sort"])
       : "terbaru",
@@ -46,6 +68,7 @@ function ProdukPage() {
   const [priceMax, setPriceMax] = useState(10000000);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -100,6 +123,16 @@ function ProdukPage() {
       }
     }
 
+    if (search.condition) {
+      list = list.filter((p) => p.condition === search.condition);
+    }
+
+    if (search.stock === "tersedia") {
+      list = list.filter((p) => p.stock > 0);
+    } else if (search.stock === "habis") {
+      list = list.filter((p) => p.stock === 0);
+    }
+
     list = list.filter((p) => p.price >= priceMin && p.price <= priceMax);
 
     switch (search.sort) {
@@ -131,6 +164,210 @@ function ProdukPage() {
 
   const isSparepartActive = search.type === "sparepart";
 
+  const activeFilterCount =
+    (search.brand ? 1 : 0) +
+    (search.category ? 1 : 0) +
+    (search.compatible ? 1 : 0) +
+    (search.condition ? 1 : 0) +
+    (search.stock ? 1 : 0) +
+    (search.type ? 1 : 0) +
+    (priceMin > 0 || priceMax < 10000000 ? 1 : 0);
+
+  const filterPanel = (
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 font-semibold">
+          <SlidersHorizontal className="h-4 w-4 text-[var(--color-accent-orange)]" /> Filter Produk
+        </div>
+        <button
+          onClick={() => setMobileFilterOpen(false)}
+          className="rounded-md p-1 text-muted-foreground hover:bg-muted md:hidden"
+          aria-label="Tutup filter"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <FilterGroup title="Jenis Produk">
+        {[
+          { v: undefined, label: "Semua Katalog" },
+          { v: "hp-bekas", label: "📱 HP Bekas" },
+          { v: "tablet", label: "📱 Tablet" },
+          { v: "sparepart", label: "🔧 Sparepart HP" },
+        ].map((opt) => (
+          <button
+            key={opt.label}
+            onClick={() => setFilter("type", opt.v as ProdukSearch["type"])}
+            className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition-all duration-200 ${search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)] font-medium" : "hover:bg-muted"}`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </FilterGroup>
+
+      {/* Munculkan Merek HP HANYA jika bukan mode sparepart */}
+      {!isSparepartActive && (
+        <FilterGroup title="Merek HP & Tablet">
+          <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+            <button
+              onClick={() => setFilter("brand", undefined)}
+              className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.brand ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+            >
+              Semua Merek
+            </button>
+            {mockBrands.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => setFilter("brand", b.slug)}
+                className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+              >
+                {b.name}
+              </button>
+            ))}
+          </div>
+        </FilterGroup>
+      )}
+
+      {/* Munculkan Kategori & Kompatibilitas HANYA jika mode sparepart aktif */}
+      {isSparepartActive && (
+        <>
+          <FilterGroup title="Kategori Sparepart">
+            <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+              <button
+                onClick={() => setFilter("category", undefined)}
+                className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.category ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+              >
+                Semua Kategori
+              </button>
+              {mockCategories.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setFilter("category", c.slug)}
+                  className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                >
+                  {c.icon} {c.name}
+                </button>
+              ))}
+            </div>
+          </FilterGroup>
+
+          <FilterGroup title="Kompatibel Model">
+            <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+              <button
+                onClick={() => setFilter("compatible", undefined)}
+                className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.compatible ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+              >
+                Semua Kompatibilitas
+              </button>
+              {mockBrands
+                .filter((b) => b.models.length > 0)
+                .map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => setFilter("compatible", b.slug)}
+                    className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.compatible === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                  >
+                    {b.name}
+                  </button>
+                ))}
+            </div>
+          </FilterGroup>
+        </>
+      )}
+
+      {/* Kondisi — untuk HP bekas, tablet, dan sparepart */}
+      <FilterGroup title="Kondisi">
+        <div className="space-y-1">
+          <button
+            onClick={() => setFilter("condition", undefined)}
+            className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.condition ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+          >
+            Semua Kondisi
+          </button>
+          {CONDITION_FILTERS.map((c) => (
+            <button
+              key={c.value}
+              onClick={() => setFilter("condition", c.value)}
+              className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.condition === c.value ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </FilterGroup>
+
+      {/* Stok */}
+      <FilterGroup title="Stok">
+        <div className="space-y-1">
+          <button
+            onClick={() => setFilter("stock", undefined)}
+            className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.stock ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+          >
+            Semua Stok
+          </button>
+          {STOCK_FILTERS.map((s) => (
+            <button
+              key={s.value}
+              onClick={() => setFilter("stock", s.value)}
+              className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.stock === s.value ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </FilterGroup>
+
+      <FilterGroup title="Rentang Harga (IDR)">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              placeholder="Min"
+              value={priceMin || ""}
+              onChange={(e) => setPriceMin(Number(e.target.value))}
+              className="w-full rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:border-[var(--color-accent-orange)]"
+            />
+            <span className="text-xs text-muted-foreground">s/d</span>
+            <input
+              type="number"
+              placeholder="Max"
+              value={priceMax || ""}
+              onChange={(e) => setPriceMax(Number(e.target.value))}
+              className="w-full rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:border-[var(--color-accent-orange)]"
+            />
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={10000000}
+            step={100000}
+            value={priceMax}
+            onChange={(e) => setPriceMax(+e.target.value)}
+            className="w-full accent-[var(--color-accent-orange)]"
+          />
+          <div className="text-right text-[11px] text-muted-foreground">
+            Maks: Rp {priceMax.toLocaleString("id-ID")}
+          </div>
+        </div>
+      </FilterGroup>
+
+      {(activeFilterCount > 0 || priceMin > 0 || priceMax < 10000000) && (
+        <button
+          onClick={() => {
+            setPriceMin(0);
+            setPriceMax(10000000);
+            navigate({
+              search: { sort: search.sort ?? "terbaru" },
+            });
+          }}
+          className="w-full rounded-md border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
+        >
+          Reset Semua Filter
+        </button>
+      )}
+    </>
+  );
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 transition-all duration-300">
       {/* Breadcrumb */}
@@ -151,133 +388,9 @@ function ProdukPage() {
       </nav>
 
       <div className="grid gap-6 md:grid-cols-[260px_1fr]">
-        {/* Sidebar Filter */}
-        <aside className="space-y-5 rounded-xl border border-border bg-card p-4 h-fit md:sticky md:top-24 shadow-sm">
-          <div className="flex items-center gap-2 font-semibold">
-            <SlidersHorizontal className="h-4 w-4 text-[var(--color-accent-orange)]" /> Filter
-            Produk
-          </div>
-
-          <FilterGroup title="Jenis Produk">
-            {[
-              { v: undefined, label: "Semua Katalog" },
-              { v: "hp-bekas", label: "📱 HP Bekas" },
-              { v: "tablet", label: "📱 Tablet" },
-              { v: "sparepart", label: "🔧 Sparepart HP" },
-            ].map((opt) => (
-              <button
-                key={opt.label}
-                onClick={() => setFilter("type", opt.v as ProdukSearch["type"])}
-                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition-all duration-200 ${search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)] font-medium" : "hover:bg-muted"}`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </FilterGroup>
-
-          {/* Munculkan Merek HP HANYA jika bukan mode sparepart */}
-          {!isSparepartActive && (
-            <FilterGroup title="Merek HP & Tablet">
-              <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
-                <button
-                  onClick={() => setFilter("brand", undefined)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.brand ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                >
-                  Semua Merek
-                </button>
-                {mockBrands.map((b) => (
-                  <button
-                    key={b.id}
-                    onClick={() => setFilter("brand", b.slug)}
-                    className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                  >
-                    {b.name}
-                  </button>
-                ))}
-              </div>
-            </FilterGroup>
-          )}
-
-          {/* Munculkan Kategori & Kompatibilitas HANYA jika mode sparepart aktif */}
-          {isSparepartActive && (
-            <>
-              <FilterGroup title="Kategori Sparepart">
-                <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
-                  <button
-                    onClick={() => setFilter("category", undefined)}
-                    className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.category ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                  >
-                    Semua Kategori
-                  </button>
-                  {mockCategories.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => setFilter("category", c.slug)}
-                      className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                    >
-                      {c.icon} {c.name}
-                    </button>
-                  ))}
-                </div>
-              </FilterGroup>
-
-              <FilterGroup title="Kompatibel Model">
-                <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
-                  <button
-                    onClick={() => setFilter("compatible", undefined)}
-                    className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.compatible ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                  >
-                    Semua Kompatibilitas
-                  </button>
-                  {mockBrands
-                    .filter((b) => b.models.length > 0)
-                    .map((b) => (
-                      <button
-                        key={b.id}
-                        onClick={() => setFilter("compatible", b.slug)}
-                        className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.compatible === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                      >
-                        {b.name}
-                      </button>
-                    ))}
-                </div>
-              </FilterGroup>
-            </>
-          )}
-
-          <FilterGroup title="Rentang Harga (IDR)">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={priceMin || ""}
-                  onChange={(e) => setPriceMin(Number(e.target.value))}
-                  className="w-full rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:border-[var(--color-accent-orange)]"
-                />
-                <span className="text-xs text-muted-foreground">s/d</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={priceMax || ""}
-                  onChange={(e) => setPriceMax(Number(e.target.value))}
-                  className="w-full rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:border-[var(--color-accent-orange)]"
-                />
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={10000000}
-                step={100000}
-                value={priceMax}
-                onChange={(e) => setPriceMax(+e.target.value)}
-                className="w-full accent-[var(--color-accent-orange)]"
-              />
-              <div className="text-right text-[11px] text-muted-foreground">
-                Maks: Rp {priceMax.toLocaleString("id-ID")}
-              </div>
-            </div>
-          </FilterGroup>
+        {/* Sidebar Filter (desktop) */}
+        <aside className="hidden h-fit space-y-5 rounded-xl border border-border bg-card p-4 md:sticky md:top-24 md:block shadow-sm">
+          {filterPanel}
         </aside>
 
         {/* Results */}
@@ -292,16 +405,31 @@ function ProdukPage() {
                 </>
               )}
             </p>
-            <select
-              value={search.sort}
-              onChange={(e) => setFilter("sort", e.target.value as ProdukSearch["sort"])}
-              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--color-accent-orange)] transition-colors"
-            >
-              <option value="terbaru">Terbaru</option>
-              <option value="termurah">Harga Termurah</option>
-              <option value="termahal">Harga Termahal</option>
-              <option value="terlaris">Terlaris</option>
-            </select>
+            <div className="flex items-center gap-2">
+              {/* Mobile filter trigger */}
+              <button
+                onClick={() => setMobileFilterOpen(true)}
+                className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium md:hidden"
+                aria-label="Buka filter"
+              >
+                <SlidersHorizontal className="h-4 w-4" /> Filter
+                {activeFilterCount > 0 && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-accent-orange)] px-1 text-[10px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+              <select
+                value={search.sort}
+                onChange={(e) => setFilter("sort", e.target.value as ProdukSearch["sort"])}
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent-orange)] transition-colors"
+              >
+                <option value="terbaru">Terbaru</option>
+                <option value="termurah">Harga Termurah</option>
+                <option value="termahal">Harga Termahal</option>
+                <option value="terlaris">Terlaris</option>
+              </select>
+            </div>
           </div>
 
           {loading ? (
@@ -310,9 +438,10 @@ function ProdukPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-12 text-center transition-all">
-              <p className="text-lg font-semibold">Produk tidak ditemukan 😅</p>
+              <AlertTriangle className="mx-auto h-10 w-10 text-muted-foreground/50" />
+              <p className="mt-3 text-lg font-semibold">Produk tidak ditemukan</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Coba sesuaikan filter kategori atau rentang harga pencarian Anda.
+                Coba sesuaikan filter kategori, kondisi, atau rentang harga pencarian Anda.
               </p>
             </div>
           ) : (
@@ -323,6 +452,31 @@ function ProdukPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Mobile bottom sheet filter */}
+      {mobileFilterOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 md:hidden"
+          onClick={() => setMobileFilterOpen(false)}
+          aria-hidden
+        />
+      )}
+      <div
+        className={`fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-2xl border-t border-border bg-background p-5 shadow-2xl transition-transform duration-300 md:hidden ${
+          mobileFilterOpen ? "translate-y-0" : "translate-y-full"
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filter produk"
+      >
+        {filterPanel}
+        <button
+          onClick={() => setMobileFilterOpen(false)}
+          className="mt-4 w-full rounded-lg bg-[var(--color-brand)] px-4 py-3 text-sm font-bold text-[var(--color-brand-foreground)]"
+        >
+          Terapkan Filter
+        </button>
       </div>
     </div>
   );
