@@ -1,25 +1,117 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Repeat, ShieldCheck, Sparkles, Truck, CheckCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Repeat,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+  CheckCircle,
+  Smartphone,
+  Wrench,
+  Package,
+  Search,
+  MessageCircle,
+  MapPin,
+  Clock,
+  Menu,
+  Bug,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
-import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
+import { mockBrands, mockSeller, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreInfoCard } from "@/components/StoreInfoCard";
+import { waLink } from "@/lib/format";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Mubarok SMS&S — HP Bekas Normal & Sparepart Bergaransi Blora" },
+      { title: "Mubarok Gadget Hub — HP Bekas Apa Adanya, Kondisi Dijelaskan · Blora" },
       {
         name: "description",
         content:
-          "Marketplace HP bekas bergaransi dan sparepart smartphone di Blora. Tukar-tambah, garansi toko, respon cepat.",
+          "Jual HP bekas, sparepart, servis, dan tukar tambah dengan informasi kondisi yang transparan. Blora, Jawa Tengah. Garansi toko.",
       },
     ],
   }),
   component: HomePage,
 });
+
+const QUICK_SERVICES = [
+  {
+    title: "HP Bekas",
+    desc: "Kondisi dan kekurangan dijelaskan apa adanya.",
+    icon: Smartphone,
+    to: "/produk" as const,
+    search: { type: "hp-bekas" },
+    cta: "Lihat HP",
+  },
+  {
+    title: "Tukar Tambah",
+    desc: "HP lama atau rusak dapat diterima.",
+    icon: Repeat,
+    to: "/tukar-tambah" as const,
+    search: {},
+    cta: "Coba Tukar Tambah",
+  },
+  {
+    title: "Servis HP",
+    desc: "Kirim keluhan, kami periksa dulu.",
+    icon: Wrench,
+    to: "/service-new" as const,
+    search: {},
+    cta: "Konsultasi Servis",
+  },
+  {
+    title: "Sparepart",
+    desc: "Original copotan & compatible, tested.",
+    icon: Package,
+    to: "/produk" as const,
+    search: { type: "sparepart" },
+    cta: "Cari Sparepart",
+  },
+];
+
+const TRUST_POINTS = [
+  {
+    icon: Search,
+    title: "Kondisi Dijelaskan Apa Adanya",
+    desc: "Layar, body, baterai — apa adanya, tanpa ditutup-tutupi.",
+  },
+  {
+    icon: CheckCircle,
+    title: "Unit Diperiksa Sebelum Dijual",
+    desc: "Fungsi hardware dicek sebelum unit dipasarkan.",
+  },
+  {
+    icon: Bug,
+    title: "Kekurangan Disebutkan",
+    desc: "Gores, bekas pemakaian, bagian yang tidak sempurna disebut di halaman produk.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Garansi Toko Sesuai Ketentuan",
+    desc: "Ada garansi toko untuk tiap unit yang dijual.",
+  },
+];
+
+const HOW_IT_WORKS = ["Pilih HP", "Cek Kondisi", "Tanya", "Transaksi"];
+
+const TESTIMONIALS = [
+  {
+    name: "Contoh Pembeli A",
+    text: "Kondisi HP sesuai deskripsi, kekurangannya juga disebut. Prosesnya jelas.",
+  },
+  {
+    name: "Contoh Pembeli B",
+    text: "Tukar tambah HP lama saya diproses mudah dan penjelasannya transparan.",
+  },
+  {
+    name: "Contoh Pembeli C",
+    text: "Servis cepat, teknisi menjelaskan sebelum tindakan. Amanah.",
+  },
+];
 
 function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -49,8 +141,8 @@ function HomePage() {
       <section className="relative overflow-hidden bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
         <img
           src={heroBanner}
-          alt="Mubarok smartphone service workshop"
-          className="absolute inset-0 h-full w-full object-cover opacity-30"
+          alt="Mubarok gadget shop service and phone repair"
+          className="absolute inset-0 h-full w-full object-cover opacity-25"
           width={1920}
           height={800}
         />
@@ -60,28 +152,27 @@ function HomePage() {
               <Sparkles className="h-3.5 w-3.5 text-[var(--color-accent-orange)]" /> Blora, Jawa
               Tengah
             </span>
-            <h1 className="mt-4 text-4xl font-extrabold leading-tight md:text-5xl">
-              HP Bekas Normal & Sparepart{" "}
-              <span className="text-[var(--color-accent-orange)]">Bergaransi</span>
+            <h1 className="mt-4 text-3xl font-extrabold leading-tight md:text-5xl">
+              HP Bekas Apa Adanya. <br className="hidden sm:block" />{" "}
+              <span className="text-[var(--color-accent-orange)]">Kondisi Dijelaskan.</span>
             </h1>
-            <p className="mt-4 text-base opacity-90 md:text-lg">
-              Smartphone bekas berkualitas dan sparepart original. Terima tukar-tambah dengan harga
-              terbaik di Blora dan sekitarnya.
+            <p className="mt-4 max-w-xl text-base opacity-90 md:text-lg">
+              HP bekas, sparepart, servis, dan tukar tambah dengan informasi kondisi yang transparan
+              dan garansi toko.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 to="/produk"
                 search={{ type: "hp-bekas" } as never}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent-orange)] px-5 py-3 font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent-orange)] px-5 py-3 font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:brightness-105"
               >
-                📱 Belanja HP Bekas <ArrowRight className="h-4 w-4" />
+                <Smartphone className="h-4 w-4" /> Lihat HP <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/produk"
-                search={{ type: "sparepart" } as never}
+                to="/tukar-tambah"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-5 py-3 font-semibold backdrop-blur hover:bg-white/20"
               >
-                🔧 Cari Sparepart
+                <Repeat className="h-4 w-4" /> Tukar Tambah
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm opacity-90">
@@ -89,105 +180,52 @@ function HomePage() {
                 <ShieldCheck className="h-4 w-4 text-[var(--color-accent-orange)]" /> Garansi Toko
               </div>
               <div className="flex items-center gap-2">
-                <Repeat className="h-4 w-4 text-[var(--color-accent-orange)]" /> Tukar-Tambah
+                <Repeat className="h-4 w-4 text-[var(--color-accent-orange)]" /> Tukar Tambah
               </div>
               <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-[var(--color-accent-orange)]" /> Kirim ke Seluruh
-                Indonesia
+                <Truck className="h-4 w-4 text-[var(--color-accent-orange)]" /> Kirim ke Indonesia
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trust Badges */}
-      <section className="border-b border-border bg-card">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-6 md:grid-cols-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600">
-              <CheckCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold">Barang Teruji</p>
-              <p className="text-xs text-muted-foreground">Sebelum dijual</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold">Garansi Toko</p>
-              <p className="text-xs text-muted-foreground">3-14 hari</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-              <Repeat className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold">Tukar Tambah</p>
-              <p className="text-xs text-muted-foreground">HP lama kamu</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-600">
-              <Truck className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold">Kirim Indonesia</p>
-              <p className="text-xs text-muted-foreground">Aman & cepat</p>
-            </div>
-          </div>
+      {/* Quick Services — 4 kartu */}
+      <section className="mx-auto max-w-7xl px-4 py-10">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          {QUICK_SERVICES.map((svc) => {
+            const Icon = svc.icon;
+            return (
+              <Link
+                key={svc.title}
+                to={svc.to}
+                search={svc.search as never}
+                className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-[var(--color-accent-orange)] hover:shadow-md"
+              >
+                <div>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--color-brand)]/10 text-[var(--color-brand)]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-3 text-sm font-bold md:text-base">{svc.title}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{svc.desc}</p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-[var(--color-accent-orange)]">
+                  {svc.cta}{" "}
+                  <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* Kategori Sparepart */}
-      <section className="mx-auto max-w-7xl px-4 py-10">
+      {/* Produk unggulan */}
+      <section className="mx-auto max-w-7xl px-4 pb-10">
         <div className="mb-5 flex items-end justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Kategori Sparepart</h2>
-            <p className="text-sm text-muted-foreground">
-              Cari komponen sesuai kebutuhan perbaikan HP-mu.
-            </p>
+            <h2 className="text-2xl font-bold">Produk Unggulan</h2>
+            <p className="text-sm text-muted-foreground">HP dan sparepart pilihan yang tersedia.</p>
           </div>
-        </div>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-9">
-          {mockCategories.map((cat) => (
-            <Link
-              key={cat.id}
-              to="/produk"
-              search={{ type: "sparepart", category: cat.slug } as never}
-              className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-4 text-center transition-all hover:-translate-y-0.5 hover:border-[var(--color-accent-orange)] hover:shadow-md"
-            >
-              <span className="text-2xl">{cat.icon}</span>
-              <span className="text-xs font-semibold text-foreground">{cat.name}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Merek HP */}
-      <section className="mx-auto max-w-7xl px-4 py-6">
-        <h2 className="mb-4 text-2xl font-bold">Belanja per Merek HP</h2>
-        <div className="flex flex-wrap gap-2">
-          {mockBrands.map((b) => (
-            <Link
-              key={b.id}
-              to="/produk"
-              search={{ brand: b.slug } as never}
-              className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:border-[var(--color-brand)] hover:bg-[var(--color-brand)] hover:text-[var(--color-brand-foreground)]"
-            >
-              {b.name}
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured */}
-      <section className="mx-auto max-w-7xl px-4 py-10">
-        <div className="mb-5 flex items-end justify-between">
-          <h2 className="text-2xl font-bold">⭐ Produk Unggulan</h2>
           <Link
             to="/produk"
             className="text-sm font-semibold text-[var(--color-accent-orange)] hover:underline"
@@ -202,42 +240,88 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Latest */}
-      <section className="mx-auto max-w-7xl px-4 py-6">
-        <h2 className="mb-5 text-2xl font-bold">🆕 Produk Terbaru</h2>
+      {/* Trust section — Kenapa Beli di Mubarok? */}
+      <section className="border-y border-border bg-card py-12">
+        <div className="mx-auto max-w-7xl px-4">
+          <h2 className="text-2xl font-bold">Kenapa Beli di Mubarok?</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Prinsip kami: amanah, transparan, dan menjelaskan kondisi apa adanya.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {TRUST_POINTS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <div key={t.title} className="rounded-xl border border-border bg-background p-5">
+                  <Icon className="h-6 w-6 text-[var(--color-accent-orange)]" />
+                  <h3 className="mt-3 font-bold">{t.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Produk terbaru */}
+      <section className="mx-auto max-w-7xl px-4 py-10">
+        <h2 className="mb-5 text-2xl font-bold">Produk Terbaru</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {latest.map((p) => (
+          {latest.slice(0, 8).map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </section>
 
-      {/* Tukar tambah banner */}
+      {/* Cara kerja */}
+      <section className="border-y border-border bg-card py-12">
+        <div className="mx-auto max-w-7xl px-4">
+          <h2 className="text-2xl font-bold">Cara Kerja</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Transaksi sederhana dan transparan dari awal hingga akhir.
+          </p>
+          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {HOW_IT_WORKS.map((step, i) => (
+              <div
+                key={step}
+                className="flex items-center gap-3 rounded-xl border border-border bg-background p-4"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand)] text-sm font-bold text-[var(--color-brand-foreground)]">
+                  {i + 1}
+                </span>
+                <span className="text-sm font-semibold">{step}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tukar tambah CTA */}
       <section className="mx-auto max-w-7xl px-4 py-10">
         <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-[var(--color-brand)] to-[#0f2440] p-8 text-[var(--color-brand-foreground)] shadow-lg md:p-12">
           <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <span className="inline-block rounded-full bg-[var(--color-accent-orange)] px-3 py-1 text-xs font-bold uppercase tracking-wide">
-                Tukar-Tambah
+                Tukar Tambah
               </span>
               <h3 className="mt-3 text-2xl font-extrabold md:text-3xl">
-                Punya HP lama? Tukar-tambah di sini!
+                Punya HP lama atau HP rusak?
               </h3>
               <p className="mt-2 max-w-xl text-sm opacity-90">
-                Lihat estimasi harga tukar-tambah HP-mu dan konfirmasi via WhatsApp.
+                Ceritakan kondisi HP-mu dan kirim pengajuan. Penilaian awal dibantu toko, konfirmasi
+                via WhatsApp.
               </p>
             </div>
             <Link
               to="/tukar-tambah"
-              className="shrink-0 rounded-lg bg-[var(--color-accent-orange)] px-6 py-3 font-bold text-white shadow-lg hover:scale-[1.02]"
+              className="shrink-0 rounded-lg bg-[var(--color-accent-orange)] px-6 py-3 font-bold text-white shadow-lg hover:brightness-105"
             >
-              Lihat Estimasi Harga →
+              Coba Tukar Tambah →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Servis HP Banner */}
+      {/* Servis CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-10">
         <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-green-600 to-emerald-700 p-8 text-white shadow-lg md:p-12">
           <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
@@ -245,34 +329,70 @@ function HomePage() {
               <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wide">
                 Servis HP
               </span>
-              <h3 className="mt-3 text-2xl font-extrabold md:text-3xl">
-                Servis HP di Mubarok SMS&S
-              </h3>
+              <h3 className="mt-3 text-2xl font-extrabold md:text-3xl">HP Bermasalah?</h3>
               <p className="mt-2 max-w-xl text-sm opacity-90">
-                Teknisi berpengalaman. Penggantian LCD, baterai, charging port, hingga perbaikan IC
-                dan motherboard.
+                Kirim keluhan dan biarkan kami memeriksanya terlebih dahulu. Harga dan tindakan
+                perbaikan ditentukan setelah pemeriksaan kondisi perangkat.
               </p>
             </div>
-            <div className="flex gap-3">
-              <Link
-                to="/service-new"
-                className="shrink-0 rounded-lg bg-white px-6 py-3 font-bold text-green-700 shadow-lg hover:scale-[1.02]"
-              >
-                Buat Tiket Servis
-              </Link>
-              <Link
-                to="/repair-tracker"
-                className="shrink-0 rounded-lg border border-white/30 bg-white/10 px-6 py-3 font-bold backdrop-blur hover:bg-white/20"
-              >
-                Lacak Status
-              </Link>
-            </div>
+            <Link
+              to="/service-new"
+              className="shrink-0 rounded-lg bg-white px-6 py-3 font-bold text-green-700 shadow-lg hover:bg-green-50"
+            >
+              Konsultasi Servis
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Toko Info */}
+      {/* Testimoni — mock yang jelas terlihat placeholder */}
+      <section className="mx-auto max-w-7xl px-4 py-10">
+        <h2 className="text-2xl font-bold">Kata Mereka</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Contoh ulasan pengembangan — bukan data pelanggan asli.
+        </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {TESTIMONIALS.map((t) => (
+            <div key={t.name} className="rounded-xl border border-border bg-card p-5">
+              <div className="flex text-yellow-400" aria-label="Rating 5 dari 5">
+                {"★★★★★".split("").map((s, i) => (
+                  <span key={i} aria-hidden>
+                    {s}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">"{t.text}"</p>
+              <p className="mt-4 text-sm font-semibold">— {t.name}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Lokasi & kontak */}
       <StoreInfoCard />
+
+      {/* Footer contact strip */}
+      <section className="border-t border-border bg-muted/40 py-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Menu className="h-4 w-4 text-[var(--color-accent-orange)]" />
+            <span className="flex items-center gap-1.5">
+              <MapPin className="h-4 w-4" /> Jl. Jatirogo Gg. Wali Songo No. 40, Jepon, Blora
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4" /> {mockSeller.operationalHours}
+            </span>
+          </div>
+          <a
+            href={waLink("Halo Mubarok Gadget Hub, saya ingin bertanya.")}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+          >
+            <MessageCircle className="h-4 w-4" /> Chat WhatsApp
+          </a>
+        </div>
+      </section>
     </div>
   );
 }
