@@ -117,7 +117,7 @@ export function ProductCard({ product }: { product: Product }) {
           {product.type === "sparepart" ? (
             <Button
               size="sm"
-              className="bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand)]/90 transition-colors"
+              className="h-11 min-h-11 bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand)]/90 transition-colors"
               asChild
             >
               <a
@@ -136,7 +136,7 @@ export function ProductCard({ product }: { product: Product }) {
             <Button
               size="sm"
               variant="outline"
-              className="border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white transition-colors"
+              className="h-11 min-h-11 border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white transition-colors"
               onClick={handleAddToCart}
               disabled={outOfStock}
             >
@@ -146,7 +146,7 @@ export function ProductCard({ product }: { product: Product }) {
           {product.type !== "sparepart" && (
             <Button
               size="sm"
-              className="bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+              className="h-11 min-h-11 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
               asChild
             >
               <a

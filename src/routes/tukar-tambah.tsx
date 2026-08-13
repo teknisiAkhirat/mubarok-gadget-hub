@@ -244,7 +244,7 @@ function TukarTambahPage() {
                 key={opt.v}
                 type="button"
                 onClick={() => update("kondisi", opt.v)}
-                className={`rounded-md border px-4 py-3 text-left text-sm transition ${
+                className={`rounded-md border px-4 py-3 text-left text-sm transition min-h-[44px] ${
                   form.kondisi === opt.v
                     ? "border-[var(--color-accent-orange)] bg-[var(--color-accent-orange)]/10 font-semibold"
                     : "border-border hover:border-[var(--color-accent-orange)]/50"
@@ -272,7 +272,7 @@ function TukarTambahPage() {
                       onClick={() =>
                         update("answers", { ...form.answers, [String(i)]: ans === "Ya" })
                       }
-                      className={`rounded-md border px-3 py-1 text-xs font-medium transition ${
+                      className={`rounded-md border px-3 py-2 text-xs font-medium transition min-h-[44px] ${
                         (form.answers[String(i)] ? "Ya" : "Tidak") === ans
                           ? "border-[var(--color-accent-orange)] bg-[var(--color-accent-orange)]/10"
                           : "border-border"
@@ -317,6 +317,7 @@ function TukarTambahPage() {
                 type="button"
                 variant="outline"
                 size="sm"
+                className="h-11 min-h-11"
                 onClick={() => document.getElementById("tt-upload")?.click()}
               >
                 <Camera className="mr-1 h-4 w-4" /> Pilih Foto

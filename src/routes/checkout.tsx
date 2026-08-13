@@ -17,7 +17,16 @@ import { Check, MapPin, Truck, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({ meta: [{ title: "Checkout · Mubarok SMS&S" }] }),
+  head: () => ({
+    meta: [
+      { title: "Checkout · Mubarok SMS&S" },
+      {
+        name: "description",
+        content:
+          "Selesaikan pembelian HP bekas dan sparepart bergaransi di Mubarok Gadget Hub. Pilih alamat, pengiriman, dan pembayaran dengan aman.",
+      },
+    ],
+  }),
   component: CheckoutPage,
 });
 

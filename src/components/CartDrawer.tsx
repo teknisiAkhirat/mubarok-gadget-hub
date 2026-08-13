@@ -52,7 +52,10 @@ export function CartDrawer() {
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <ShoppingBag className="h-5 w-5" /> Keranjang ({details.length})
           </h2>
-          <button onClick={close} className="rounded-md p-1 hover:bg-muted">
+          <button
+            onClick={close}
+            className="rounded-md p-2 hover:bg-muted min-h-[44px] min-w-[44px] flex items-center justify-center"
+          >
             <X className="h-5 w-5" />
           </button>
         </header>
@@ -81,7 +84,7 @@ export function CartDrawer() {
                           remove(d.productId);
                           toast.success(`${d.product.name} dihapus dari keranjang`);
                         }}
-                        className="text-muted-foreground hover:text-destructive"
+                        className="text-muted-foreground hover:text-destructive min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -91,16 +94,16 @@ export function CartDrawer() {
                       <div className="flex items-center rounded-md border border-border">
                         <button
                           onClick={() => updateQty(d.productId, d.quantity - 1)}
-                          className="px-2 py-1 hover:bg-muted"
+                          className="px-3 py-2 hover:bg-muted min-h-[44px] min-w-[44px] flex items-center justify-center"
                         >
-                          <Minus className="h-3 w-3" />
+                          <Minus className="h-4 w-4" />
                         </button>
                         <span className="w-8 text-center text-sm">{d.quantity}</span>
                         <button
                           onClick={() => updateQty(d.productId, d.quantity + 1)}
-                          className="px-2 py-1 hover:bg-muted"
+                          className="px-3 py-2 hover:bg-muted min-h-[44px] min-w-[44px] flex items-center justify-center"
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="h-4 w-4" />
                         </button>
                       </div>
                       <span className="text-sm font-bold text-[var(--color-accent-orange)]">
@@ -122,7 +125,9 @@ export function CartDrawer() {
                 value={promo}
                 onChange={(e) => setPromo(e.target.value)}
               />
-              <Button variant="outline">Pakai</Button>
+              <Button variant="outline" className="h-11 min-h-11">
+                Pakai
+              </Button>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
@@ -132,7 +137,7 @@ export function CartDrawer() {
             </div>
             <Button
               asChild
-              className="h-auto min-h-9 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600"
+              className="h-11 min-h-11 w-full whitespace-normal bg-green-500 text-white hover:bg-green-600"
             >
               <a href={waLink(waMessage)} target="_blank" rel="noreferrer" onClick={close}>
                 <MessageCircle className="mr-2 h-4 w-4" /> Beli / Hubungi via WA

@@ -395,6 +395,20 @@ function ProdukPage() {
 
         {/* Results */}
         <div className="transition-all duration-300">
+          <div className="mb-4">
+            <h1 className="text-2xl font-extrabold md:text-3xl">
+              {search.type === "sparepart"
+                ? "Katalog Sparepart"
+                : search.type === "tablet"
+                  ? "Katalog Tablet"
+                  : "Katalog HP Bekas"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {search.q
+                ? `Hasil pencarian untuk "${search.q}"`
+                : "Temukan HP bekas, sparepart, dan tablet dengan kondisi transparan dan garansi toko."}
+            </p>
+          </div>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               Menampilkan <strong className="text-foreground">{filtered.length}</strong> produk

@@ -46,7 +46,7 @@ export function Header() {
         {/* Mobile menu button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+          className="rounded-md p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label="Menu"
         >
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -102,18 +102,18 @@ export function Header() {
 
         {/* Desktop nav icons */}
         <nav className="flex items-center gap-1">
-          <button className="hidden rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:block">
+          <button className="hidden rounded-md p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground md:flex items-center justify-center min-h-[44px] min-w-[44px]">
             <User className="h-5 w-5" />
           </button>
-          <button className="hidden rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:block">
+          <button className="hidden rounded-md p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground md:flex items-center justify-center min-h-[44px] min-w-[44px]">
             <Bell className="h-5 w-5" />
           </button>
-          <button className="hidden rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:block">
+          <button className="hidden rounded-md p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground md:flex items-center justify-center min-h-[44px] min-w-[44px]">
             <Heart className="h-5 w-5" />
           </button>
           <button
             onClick={open}
-            className="relative rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="relative rounded-md p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center min-h-[44px] min-w-[44px]"
             aria-label="Keranjang"
           >
             <ShoppingCart className="h-5 w-5" />

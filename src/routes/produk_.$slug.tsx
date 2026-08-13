@@ -24,7 +24,14 @@ import {
 
 export const Route = createFileRoute("/produk_/$slug")({
   head: () => ({
-    meta: [{ title: "Detail Produk · Mubarok Gadget Hub" }],
+    meta: [
+      { title: "Detail Produk · Mubarok Gadget Hub" },
+      {
+        name: "description",
+        content:
+          "Detail produk sparepart dan HP bekas bergaransi di Mubarok Gadget Hub Blora. Informasi kondisi transparan, grade, kelengkapan, dan garansi toko.",
+      },
+    ],
   }),
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-7xl px-4 py-20 text-center">

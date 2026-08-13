@@ -223,7 +223,7 @@ function ServisPage() {
                 key={t}
                 type="button"
                 onClick={() => update("jenisKerusakan", t)}
-                className={`rounded-md border px-3 py-2 text-sm transition ${
+                className={`rounded-md border px-3 py-3 text-sm transition min-h-[44px] ${
                   form.jenisKerusakan === t
                     ? "border-[var(--color-accent-orange)] bg-[var(--color-accent-orange)]/10 font-semibold"
                     : "border-border hover:border-[var(--color-accent-orange)]/50"
@@ -268,6 +268,7 @@ function ServisPage() {
                 type="button"
                 variant="outline"
                 size="sm"
+                className="h-11 min-h-11"
                 onClick={() => document.getElementById("servis-upload")?.click()}
               >
                 <Camera className="mr-1 h-4 w-4" /> Pilih Foto / Video

@@ -10,6 +10,16 @@ import { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
 import { ticketRepository } from "@/lib/repositories";
 
 export const Route = createFileRoute("/repair-tracker")({
+  head: () => ({
+    meta: [
+      { title: "Lacak Servis HP · Mubarok Gadget Hub" },
+      {
+        name: "description",
+        content:
+          "Masukkan nomor tiket servis untuk melihat perkembangan terbaru perbaikan HP Anda di Mubarok Gadget Hub Blora.",
+      },
+    ],
+  }),
   validateSearch: (s: Record<string, unknown>) => ({
     q: typeof s.q === "string" ? s.q : undefined,
   }),
