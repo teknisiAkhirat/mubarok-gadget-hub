@@ -59,6 +59,8 @@ export interface Product {
   inspection?: InspectionItem[];
   accessories?: string[];
   tested?: boolean;
+  isOriginal?: boolean;
+  quality?: string;
   description: string;
   specifications: Record<string, string>;
   price: number;
@@ -946,6 +948,9 @@ export const mockProducts: Product[] = [
     condition: "ori-copotan",
     conditionLabel: "Ori Copotan",
     conditionNote: "LCD original copotan, kondisi mulus.",
+    tested: true,
+    isOriginal: true,
+    quality: "Mulus",
     description:
       "LCD Samsung Galaxy A32 original copotan. Kondisi mulus, berfungsi sempurna. Cocok untuk pengganti LCD yang rusak atau retak.",
     specifications: {
@@ -983,6 +988,9 @@ export const mockProducts: Product[] = [
     condition: "ori-copotan",
     conditionLabel: "Ori Copotan",
     conditionNote: "Baterai original, kapasitas penuh.",
+    tested: true,
+    isOriginal: true,
+    quality: "Bagus",
     description:
       "Baterai Xiaomi Redmi Note 11 original copotan. Kapasitas 5000mAh, kondisi masih bagus. Cocok untuk pengganti baterai soak.",
     specifications: {
@@ -1020,6 +1028,8 @@ export const mockProducts: Product[] = [
     conditionLabel: "Compatible",
     conditionNote: "Kualitas bagus, tested.",
     tested: true,
+    isOriginal: false,
+    quality: "Bagus",
     description:
       "Charging port / konektor charger Samsung Galaxy A12 compatible. Kualitas bagus, sudah tested. Cocok untuk pengganti port charger yang rusak.",
     specifications: {
@@ -1055,6 +1065,9 @@ export const mockProducts: Product[] = [
     condition: "ori-copotan",
     conditionLabel: "Ori Copotan",
     conditionNote: "Back cover original, warna hitam.",
+    tested: true,
+    isOriginal: true,
+    quality: "Mulus",
     description:
       "Back cover / casing belakang Oppo A16 original copotan. Warna hitam, kondisi mulus. Cocok untuk pengganti casing belakang yang pecah.",
     specifications: {
@@ -1091,6 +1104,9 @@ export const mockProducts: Product[] = [
     condition: "ori-copotan",
     conditionLabel: "Ori Copotan",
     conditionNote: "Kondisi normal, berfungsi baik.",
+    tested: true,
+    isOriginal: true,
+    quality: "Normal",
     description:
       "S Pen Samsung Galaxy Note 8 original copotan. Kondisi normal, stylus berfungsi baik. Cocok untuk pengganti S Pen yang hilang atau rusak.",
     specifications: {
@@ -1127,6 +1143,9 @@ export const mockProducts: Product[] = [
     condition: "ori-copotan",
     conditionLabel: "Ori Copotan",
     conditionNote: "Kamera jernih, berfungsi normal.",
+    tested: true,
+    isOriginal: true,
+    quality: "Normal",
     description:
       "Modul kamera depan Vivo Y20 original copotan. Kondisi normal, hasil jernih. Cocok untuk pengganti kamera depan yang rusak.",
     specifications: {
@@ -1164,6 +1183,8 @@ export const mockProducts: Product[] = [
     conditionLabel: "Compatible",
     conditionNote: "Suara jernih, sudah tested.",
     tested: true,
+    isOriginal: false,
+    quality: "Bagus",
     description:
       "Loud speaker / speaker utama Realme C21 compatible. Suara jernih dan keras. Sudah tested sebelum dikirim.",
     specifications: {
@@ -1199,6 +1220,9 @@ export const mockProducts: Product[] = [
     condition: "ori-copotan",
     conditionLabel: "Ori Copotan",
     conditionNote: "Flex kamera original, berfungsi normal.",
+    tested: true,
+    isOriginal: true,
+    quality: "Normal",
     description:
       "Flex cable kamera Samsung Galaxy A22 original copotan. Kondisi normal, berfungsi baik. Cocok untuk pengganti flex yang putus.",
     specifications: {

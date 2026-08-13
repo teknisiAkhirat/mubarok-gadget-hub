@@ -235,6 +235,27 @@ function PDP() {
                 Grade {product.grade}
               </span>
             )}
+            {product.type === "sparepart" && product.isOriginal !== undefined && (
+              <span
+                className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ${
+                  product.isOriginal
+                    ? "bg-emerald-100 text-emerald-700 border border-emerald-300"
+                    : "bg-amber-100 text-amber-700 border border-amber-300"
+                }`}
+              >
+                {product.isOriginal ? "Original" : "Compatible"}
+              </span>
+            )}
+            {product.type === "sparepart" && product.quality && (
+              <span className="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 border border-blue-300">
+                Kualitas: {product.quality}
+              </span>
+            )}
+            {product.type === "sparepart" && product.tested && (
+              <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 border border-purple-300">
+                <CheckCircle2 className="mr-1 h-3 w-3" /> Tested
+              </span>
+            )}
           </div>
 
           {/* 2. Nama */}
@@ -323,23 +344,42 @@ function PDP() {
 
           {/* 13. CTA WhatsApp */}
           <div className="mt-5 flex flex-col gap-2">
-            <Button
-              asChild
-              className="h-auto min-h-11 w-full whitespace-normal bg-emerald-600 text-white hover:bg-emerald-700"
-            >
-              <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
-                <MessageCircle className="mr-2 h-4 w-4" /> Beli / Tanya via WhatsApp
-              </a>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white"
-              onClick={handleAddToCart}
-              disabled={product.stock <= 0}
-            >
-              + Keranjang
-            </Button>
+            {product.type === "sparepart" ? (
+              <Button
+                asChild
+                className="h-auto min-h-11 w-full whitespace-normal bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand)]/90"
+              >
+                <a
+                  href={waLink(
+                    `Halo Mubarok Gadget Hub, saya ingin menanyakan sparepart "${product.name}" (${product.conditionLabel}${product.isOriginal ? ", Original" : ", Compatible"}${product.quality ? `, Kualitas ${product.quality}` : ""}). Apakah tersedia?`,
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" /> Tanya Sparepart
+                </a>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                className="h-auto min-h-11 w-full whitespace-normal bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <a href={waLink(waMsg)} target="_blank" rel="noreferrer">
+                  <MessageCircle className="mr-2 h-4 w-4" /> Beli / Tanya via WhatsApp
+                </a>
+              </Button>
+            )}
+            {product.type !== "sparepart" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white"
+                onClick={handleAddToCart}
+                disabled={product.stock <= 0}
+              >
+                + Keranjang
+              </Button>
+            )}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">

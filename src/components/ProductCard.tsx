@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, MessageCircle, Star } from "lucide-react";
+import { AlertTriangle, CheckCircle2, MessageCircle, Star } from "lucide-react";
 import type { Product } from "@/lib/mock-data";
 import { formatIDR, waLink } from "@/lib/format";
 import { BadgeKondisi } from "./BadgeKondisi";
@@ -49,6 +49,31 @@ export function ProductCard({ product }: { product: Product }) {
               Grade {product.grade}
             </span>
           )}
+          {product.type === "sparepart" && (
+            <>
+              {product.isOriginal !== undefined && (
+                <span
+                  className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ${
+                    product.isOriginal
+                      ? "bg-emerald-100 text-emerald-700 border border-emerald-300"
+                      : "bg-amber-100 text-amber-700 border border-amber-300"
+                  }`}
+                >
+                  {product.isOriginal ? "Original" : "Compatible"}
+                </span>
+              )}
+              {product.quality && (
+                <span className="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 border border-blue-300">
+                  Kualitas: {product.quality}
+                </span>
+              )}
+              {product.tested && (
+                <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 border border-purple-300">
+                  <CheckCircle2 className="mr-1 h-3 w-3" /> Tested
+                </span>
+              )}
+            </>
+          )}
         </div>
         {outOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
@@ -89,32 +114,54 @@ export function ProductCard({ product }: { product: Product }) {
           {formatIDR(product.price)}
         </div>
         <div className="mt-auto flex flex-col gap-1.5 pt-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white transition-colors"
-            onClick={handleAddToCart}
-            disabled={outOfStock}
-          >
-            + Keranjang
-          </Button>
-          <Button
-            size="sm"
-            className="bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
-            asChild
-          >
-            <a
-              href={waLink(
-                `Halo Mubarok Gadget Hub, saya tertarik dengan produk ${product.name} seharga ${formatIDR(product.price)} (Kondisi: ${product.condition ?? "Standard"}). Apakah stoknya masih tersedia?`,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5"
+          {product.type === "sparepart" ? (
+            <Button
+              size="sm"
+              className="bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand)]/90 transition-colors"
+              asChild
             >
-              <MessageCircle className="h-3.5 w-3.5" />
-              Pesan via WhatsApp
-            </a>
-          </Button>
+              <a
+                href={waLink(
+                  `Halo Mubarok Gadget Hub, saya ingin menanyakan sparepart "${product.name}" (${product.conditionLabel}${product.isOriginal ? ", Original" : ", Compatible"}${product.quality ? `, Kualitas ${product.quality}` : ""}). Apakah tersedia?`,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                Tanya Sparepart
+              </a>
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-[var(--color-accent-orange)] text-[var(--color-accent-orange)] hover:bg-[var(--color-accent-orange)] hover:text-white transition-colors"
+              onClick={handleAddToCart}
+              disabled={outOfStock}
+            >
+              + Keranjang
+            </Button>
+          )}
+          {product.type !== "sparepart" && (
+            <Button
+              size="sm"
+              className="bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+              asChild
+            >
+              <a
+                href={waLink(
+                  `Halo Mubarok Gadget Hub, saya tertarik dengan produk ${product.name} seharga ${formatIDR(product.price)} (Kondisi: ${product.condition ?? "Standard"}). Apakah stoknya masih tersedia?`,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                Pesan via WhatsApp
+              </a>
+            </Button>
+          )}
         </div>
       </div>
     </div>

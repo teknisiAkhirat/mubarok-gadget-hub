@@ -33,6 +33,9 @@ function normalizeProduct(raw: unknown): Product {
     defects: Array.isArray(r.defects) ? r.defects.map(String) : undefined,
     inspection: Array.isArray(r.inspection) ? (r.inspection as Product["inspection"]) : undefined,
     accessories: Array.isArray(r.accessories) ? r.accessories.map(String) : undefined,
+    tested: r.tested == null ? undefined : Boolean(r.tested),
+    isOriginal: r.isOriginal == null ? undefined : Boolean(r.isOriginal),
+    quality: r.quality == null ? undefined : String(r.quality),
     description: String(r.description ?? ""),
     specifications:
       r.specifications && typeof r.specifications === "object"
