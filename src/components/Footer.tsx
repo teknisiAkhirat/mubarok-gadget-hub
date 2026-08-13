@@ -1,109 +1,98 @@
 import { Link } from "@tanstack/react-router";
-import {
-  MapPin,
-  MessageCircle,
-  Clock,
-  ShieldCheck,
-  Smartphone,
-  Package,
-  Wrench,
-  ArrowLeftRight,
-  Info,
-} from "lucide-react";
-import { mockSeller } from "@/lib/mock-data";
+import { Smartphone, MapPin, Clock, ShieldCheck, MessageCircle } from "lucide-react";
 import { waLink } from "@/lib/format";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-border bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-4">
-        {/* Brand Info */}
-        <div className="md:col-span-2">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-              <Smartphone className="h-5 w-5" />
+    <footer className="border-t border-border bg-card text-card-foreground">
+      <div className="mx-auto max-w-7xl px-4 py-12">
+        <div className="grid gap-8 md:grid-cols-4">
+          {/* Kolom Info Toko */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
+                <Smartphone className="h-4 w-4" />
+              </div>
+              <span className="font-bold">Mubarok Smartphone Sales & Service</span>
             </div>
-            <div>
-              <h3 className="text-lg font-bold">{mockSeller.storeName}</h3>
-              <span className="text-xs opacity-70">Smartphone Sales & Service</span>
+            <p className="text-sm text-muted-foreground">
+              Pusat jual beli HP bekas bergaransi dan servis smartphone terpercaya. Melayani dengan
+              amanah dan transparan.
+            </p>
+          </div>
+
+          {/* Kolom Alamat & Jam Operasional */}
+          <div className="space-y-3">
+            <h4 className="font-semibold">Informasi Toko</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-accent-orange)]" />
+                <span>Jalan Jatirogo Gang Wali Songo No. 40, Jepon, Blora, Jawa Tengah</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 shrink-0 text-[var(--color-accent-orange)]" />
+                <span>Senin s/d Sabtu: 09.00 – 15.00 WIB</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
+                <span>Toko Amanah & Terverifikasi</span>
+              </div>
             </div>
           </div>
-          <p className="mt-3 text-sm opacity-80">{mockSeller.description}</p>
-          <div className="mt-4 space-y-1.5 text-sm opacity-90">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> {mockSeller.city}
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" /> {mockSeller.operationalHours}
-            </div>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4" /> Toko terverifikasi · Respon{" "}
-              {mockSeller.responseTime}
+
+          {/* Kolom Navigasi */}
+          <div className="space-y-3">
+            <h4 className="font-semibold">Menu Utama</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link to="/produk" search={{ type: "hp-bekas" }} className="hover:text-foreground">
+                  HP Bekas & Tablet
+                </Link>
+              </li>
+              <li>
+                <Link to="/produk" search={{ type: "sparepart" }} className="hover:text-foreground">
+                  Sparepart HP
+                </Link>
+              </li>
+              <li>
+                <Link to="/service-new" className="hover:text-foreground">
+                  Servis Smartphone
+                </Link>
+              </li>
+              <li>
+                <Link to="/tukar-tambah" className="hover:text-foreground">
+                  Tukar Tambah
+                </Link>
+              </li>
+              <li>
+                <Link to="/tentang" className="hover:text-foreground">
+                  Tentang Kami
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Kolom Kontak */}
+          <div className="space-y-3">
+            <h4 className="font-semibold">Hubungi Kami</h4>
+            <div className="flex flex-col items-start gap-3">
+              <a
+                href={waLink("Halo Mubarok SMS&S, saya ingin bertanya.")}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700"
+              >
+                <MessageCircle className="h-4 w-4" /> Chat WhatsApp
+              </a>
+              <p className="text-sm text-muted-foreground">+62 895 6049 0109</p>
             </div>
           </div>
         </div>
 
-        {/* Jelajahi */}
-        <div>
-          <h4 className="text-sm font-semibold">Jelajahi</h4>
-          <ul className="mt-3 space-y-2 text-sm opacity-80">
-            <li>
-              <Link to="/produk" className="flex items-center gap-2 hover:underline">
-                <Package className="h-3 w-3" /> Semua Produk
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/produk"
-                search={{ type: "hp-bekas" } as never}
-                className="flex items-center gap-2 hover:underline"
-              >
-                <Smartphone className="h-3 w-3" /> HP Bekas
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/produk"
-                search={{ type: "sparepart" } as never}
-                className="flex items-center gap-2 hover:underline"
-              >
-                <Package className="h-3 w-3" /> Sparepart
-              </Link>
-            </li>
-            <li>
-              <Link to="/service-new" className="flex items-center gap-2 hover:underline">
-                <Wrench className="h-3 w-3" /> Servis HP
-              </Link>
-            </li>
-            <li>
-              <Link to="/repair-tracker" className="flex items-center gap-2 hover:underline">
-                <ArrowLeftRight className="h-3 w-3" /> Tukar Tambah
-              </Link>
-            </li>
-            <li>
-              <Link to="/tentang" className="flex items-center gap-2 hover:underline">
-                <Info className="h-3 w-3" /> Tentang Kami
-              </Link>
-            </li>
-          </ul>
+        <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
+          © {new Date().getFullYear()} Mubarok Smartphone Sales & Service · Seluruh Hak Cipta
+          Dilindungi.
         </div>
-
-        {/* Hubungi Kami */}
-        <div>
-          <h4 className="text-sm font-semibold">Hubungi Kami</h4>
-          <a
-            href={waLink("Halo Mubarok SMS&S, saya ingin bertanya.")}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-3 inline-flex items-center gap-2 rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white hover:bg-green-600"
-          >
-            <MessageCircle className="h-4 w-4" /> Chat WhatsApp
-          </a>
-          <p className="mt-3 text-xs opacity-70">+{mockSeller.whatsapp}</p>
-        </div>
-      </div>
-      <div className="border-t border-white/10 py-4 text-center text-xs opacity-70">
-        © {new Date().getFullYear()} {mockSeller.storeName} · Blora, Jawa Tengah
       </div>
     </footer>
   );

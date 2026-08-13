@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { mockBrands, mockCategories, type Product, PRODUCT_TYPE_LABELS } from "@/lib/mock-data";
+import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
 import { ChevronRight, SlidersHorizontal, Loader2 } from "lucide-react";
@@ -42,7 +42,8 @@ export const Route = createFileRoute("/produk")({
 function ProdukPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const [priceMax, setPriceMax] = useState(5000000);
+  const [priceMin, setPriceMin] = useState(0);
+  const [priceMax, setPriceMax] = useState(10000000);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +54,7 @@ function ProdukPage() {
         try {
           await seedIfEmpty();
         } catch {
-          /* seed may fail without admin auth; ignore */
+          /* ignore */
         }
         setProducts(await fetchProducts());
       } catch (e) {
@@ -76,15 +77,20 @@ function ProdukPage() {
       );
     }
     if (search.type) list = list.filter((p) => p.type === search.type);
-    if (search.brand) {
+
+    // Filter Brand khusus HP/Tablet atau jika tidak diset sparepart
+    if (search.brand && search.type !== "sparepart") {
       const brand = mockBrands.find((b) => b.slug === search.brand);
       if (brand) list = list.filter((p) => p.brandId === brand.id);
     }
-    if (search.category) {
+
+    // Filter Kategori khusus Sparepart
+    if (search.category && search.type === "sparepart") {
       const cat = mockCategories.find((c) => c.slug === search.category);
       if (cat) list = list.filter((p) => p.categoryId === cat.id);
     }
-    if (search.compatible) {
+
+    if (search.compatible && search.type === "sparepart") {
       const compatBrand = mockBrands.find((b) => b.slug === search.compatible);
       if (compatBrand) {
         const modelIds = compatBrand.models.map((m) => m.id);
@@ -93,7 +99,9 @@ function ProdukPage() {
         );
       }
     }
-    list = list.filter((p) => p.price <= priceMax);
+
+    list = list.filter((p) => p.price >= priceMin && p.price <= priceMax);
+
     switch (search.sort) {
       case "termurah":
         list.sort((a, b) => a.price - b.price);
@@ -108,13 +116,12 @@ function ProdukPage() {
         list.sort((a, b) => +b.createdAt - +a.createdAt);
     }
     return list;
-  }, [search, priceMax, products]);
+  }, [search, priceMin, priceMax, products]);
 
   const setFilter = (key: keyof ProdukSearch, value: string | undefined) => {
     navigate({ search: (prev: ProdukSearch) => ({ ...prev, [key]: value || undefined }) });
   };
 
-  // Helper to get type label
   const getTypeLabel = (type: "hp-bekas" | "sparepart" | "tablet") => {
     if (type === "hp-bekas") return "HP Bekas";
     if (type === "sparepart") return "Sparepart";
@@ -122,17 +129,21 @@ function ProdukPage() {
     return type;
   };
 
+  const isSparepartActive = search.type === "sparepart";
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
+    <div className="mx-auto max-w-7xl px-4 py-6 transition-all duration-300">
       <Toaster richColors position="top-center" />
 
       {/* Breadcrumb */}
       <nav className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
-        <Link to="/" className="hover:text-foreground">
+        <Link to="/" className="hover:text-foreground transition-colors">
           Beranda
         </Link>
         <ChevronRight className="h-3 w-3" />
-        <span className="text-foreground">Produk</span>
+        <Link to="/produk" className="hover:text-foreground transition-colors">
+          Produk
+        </Link>
         {search.type && (
           <>
             <ChevronRight className="h-3 w-3" />
@@ -143,128 +154,150 @@ function ProdukPage() {
 
       <div className="grid gap-6 md:grid-cols-[260px_1fr]">
         {/* Sidebar Filter */}
-        <aside className="space-y-5 rounded-xl border border-border bg-card p-4 h-fit md:sticky md:top-32">
+        <aside className="space-y-5 rounded-xl border border-border bg-card p-4 h-fit md:sticky md:top-24 shadow-sm">
           <div className="flex items-center gap-2 font-semibold">
-            <SlidersHorizontal className="h-4 w-4" /> Filter
+            <SlidersHorizontal className="h-4 w-4 text-[var(--color-accent-orange)]" /> Filter
+            Produk
           </div>
 
           <FilterGroup title="Jenis Produk">
             {[
-              { v: undefined, label: "Semua" },
+              { v: undefined, label: "Semua Katalog" },
               { v: "hp-bekas", label: "📱 HP Bekas" },
-              { v: "sparepart", label: "🔧 Sparepart" },
               { v: "tablet", label: "📱 Tablet" },
+              { v: "sparepart", label: "🔧 Sparepart HP" },
             ].map((opt) => (
               <button
                 key={opt.label}
-                onClick={() => setFilter("type", opt.v)}
-                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition ${search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)]" : "hover:bg-muted"}`}
+                onClick={() => setFilter("type", opt.v as ProdukSearch["type"])}
+                className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition-all duration-200 ${search.type === opt.v ? "bg-[var(--color-brand)] text-[var(--color-brand-foreground)] font-medium" : "hover:bg-muted"}`}
               >
                 {opt.label}
               </button>
             ))}
           </FilterGroup>
 
-          <FilterGroup title="Merek HP">
-            <div className="space-y-1">
-              <button
-                onClick={() => setFilter("brand", undefined)}
-                className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.brand ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-              >
-                Semua
-              </button>
-              {mockBrands.map((b) => (
+          {/* Munculkan Merek HP HANYA jika bukan mode sparepart */}
+          {!isSparepartActive && (
+            <FilterGroup title="Merek HP & Tablet">
+              <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
                 <button
-                  key={b.id}
-                  onClick={() => setFilter("brand", b.slug)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                >
-                  {b.name}
-                </button>
-              ))}
-            </div>
-          </FilterGroup>
-
-          <FilterGroup title="Kategori Sparepart">
-            <div className="space-y-1">
-              <button
-                onClick={() => setFilter("category", undefined)}
-                className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.category ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-              >
-                Semua
-              </button>
-              {mockCategories.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setFilter("category", c.slug)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                >
-                  {c.icon} {c.name}
-                </button>
-              ))}
-            </div>
-          </FilterGroup>
-
-          {(search.type === "sparepart" || !search.type) && (
-            <FilterGroup title="Kompatibel Dengan">
-              <div className="space-y-1">
-                <button
-                  onClick={() => setFilter("compatible", undefined)}
-                  className={`w-full rounded-md px-3 py-1 text-left text-sm ${!search.compatible ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                  onClick={() => setFilter("brand", undefined)}
+                  className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.brand ? "bg-muted font-semibold" : "hover:bg-muted"}`}
                 >
                   Semua Merek
                 </button>
-                {mockBrands
-                  .filter((b) => b.models.length > 0)
-                  .map((b) => (
-                    <button
-                      key={b.id}
-                      onClick={() => setFilter("compatible", b.slug)}
-                      className={`w-full rounded-md px-3 py-1 text-left text-sm ${search.compatible === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
-                    >
-                      {b.name}
-                    </button>
-                  ))}
+                {mockBrands.map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => setFilter("brand", b.slug)}
+                    className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.brand === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                  >
+                    {b.name}
+                  </button>
+                ))}
               </div>
             </FilterGroup>
           )}
 
-          <FilterGroup title="Harga Maksimal">
-            <input
-              type="range"
-              min={50000}
-              max={5000000}
-              step={50000}
-              value={priceMax}
-              onChange={(e) => setPriceMax(+e.target.value)}
-              className="w-full accent-[var(--color-accent-orange)]"
-            />
-            <div className="mt-1 text-xs text-muted-foreground">
-              s/d Rp {priceMax.toLocaleString("id-ID")}
+          {/* Munculkan Kategori & Kompatibilitas HANYA jika mode sparepart aktif */}
+          {isSparepartActive && (
+            <>
+              <FilterGroup title="Kategori Sparepart">
+                <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+                  <button
+                    onClick={() => setFilter("category", undefined)}
+                    className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.category ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                  >
+                    Semua Kategori
+                  </button>
+                  {mockCategories.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setFilter("category", c.slug)}
+                      className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.category === c.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                    >
+                      {c.icon} {c.name}
+                    </button>
+                  ))}
+                </div>
+              </FilterGroup>
+
+              <FilterGroup title="Kompatibel Model">
+                <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+                  <button
+                    onClick={() => setFilter("compatible", undefined)}
+                    className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${!search.compatible ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                  >
+                    Semua Kompatibilitas
+                  </button>
+                  {mockBrands
+                    .filter((b) => b.models.length > 0)
+                    .map((b) => (
+                      <button
+                        key={b.id}
+                        onClick={() => setFilter("compatible", b.slug)}
+                        className={`w-full rounded-md px-3 py-1 text-left text-sm transition-colors ${search.compatible === b.slug ? "bg-muted font-semibold" : "hover:bg-muted"}`}
+                      >
+                        {b.name}
+                      </button>
+                    ))}
+                </div>
+              </FilterGroup>
+            </>
+          )}
+
+          <FilterGroup title="Rentang Harga (IDR)">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={priceMin || ""}
+                  onChange={(e) => setPriceMin(Number(e.target.value))}
+                  className="w-full rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:border-[var(--color-accent-orange)]"
+                />
+                <span className="text-xs text-muted-foreground">s/d</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={priceMax || ""}
+                  onChange={(e) => setPriceMax(Number(e.target.value))}
+                  className="w-full rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:border-[var(--color-accent-orange)]"
+                />
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={10000000}
+                step={100000}
+                value={priceMax}
+                onChange={(e) => setPriceMax(+e.target.value)}
+                className="w-full accent-[var(--color-accent-orange)]"
+              />
+              <div className="text-right text-[11px] text-muted-foreground">
+                Maks: Rp {priceMax.toLocaleString("id-ID")}
+              </div>
             </div>
           </FilterGroup>
-
-          <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
-            📍 Lokasi penjual: <strong className="text-foreground">Blora, Jawa Tengah</strong>
-          </div>
         </aside>
 
         {/* Results */}
-        <div>
+        <div className="transition-all duration-300">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               Menampilkan <strong className="text-foreground">{filtered.length}</strong> produk
               {search.q && (
                 <>
                   {" "}
-                  untuk "<strong>{search.q}</strong>"
+                  untuk keyword "<strong>{search.q}</strong>"
                 </>
               )}
             </p>
             <select
               value={search.sort}
-              onChange={(e) => setFilter("sort", e.target.value)}
-              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+              onChange={(e) => setFilter("sort", e.target.value as ProdukSearch["sort"])}
+              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--color-accent-orange)] transition-colors"
             >
               <option value="terbaru">Terbaru</option>
               <option value="termurah">Harga Termurah</option>
@@ -275,17 +308,17 @@ function ProdukPage() {
 
           {loading ? (
             <div className="grid place-items-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent-orange)]" />
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-12 text-center">
+            <div className="rounded-xl border border-dashed border-border p-12 text-center transition-all">
               <p className="text-lg font-semibold">Produk tidak ditemukan 😅</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Coba ubah filter atau kata kunci pencarian.
+                Coba sesuaikan filter kategori atau rentang harga pencarian Anda.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 transition-all duration-300">
               {filtered.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
@@ -299,7 +332,7 @@ function ProdukPage() {
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="border-b border-border/60 pb-3 last:border-none">
       <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
         {title}
       </h4>

@@ -1,23 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  Repeat,
-  ShieldCheck,
-  Sparkles,
-  Truck,
-  Star,
-  MapPin,
-  Clock,
-  MessageCircle,
-  Award,
-  CheckCircle,
-} from "lucide-react";
+import { ArrowRight, Repeat, ShieldCheck, Sparkles, Truck, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import heroBanner from "@/assets/hero-banner.jpg";
-import { mockBrands, mockCategories, mockSeller, type Product } from "@/lib/mock-data";
+import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
-import { waLink } from "@/lib/format";
+import { StoreInfoCard } from "@/components/StoreInfoCard";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -284,54 +272,7 @@ function HomePage() {
       </section>
 
       {/* Toko Info */}
-      <section className="mx-auto max-w-7xl px-4 pb-10">
-        <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
-          <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand)] text-[var(--color-brand-foreground)]">
-              <Award className="h-8 w-8" />
-            </div>
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-xl font-bold">{mockSeller.storeName}</h3>
-                {mockSeller.isVerified && (
-                  <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">
-                    ✓ Terverifikasi
-                  </span>
-                )}
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> {mockSeller.rating} (
-                  {mockSeller.ratingCount} ulasan)
-                </span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" /> {mockSeller.city}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" /> {mockSeller.operationalHours}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">{mockSeller.description}</p>
-              <div className="mt-4 flex gap-3">
-                <a
-                  href={waLink("Halo Mubarok SMS&S, saya ingin bertanya.")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-600"
-                >
-                  <MessageCircle className="h-4 w-4" /> Chat WhatsApp
-                </a>
-                <Link
-                  to="/tentang"
-                  className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
-                >
-                  Lihat Profil Toko
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <StoreInfoCard />
     </div>
   );
 }
