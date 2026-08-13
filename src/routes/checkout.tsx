@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, MapPin, Truck, Wallet } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout · Mubarok SMS&S" }] }),
@@ -312,6 +313,7 @@ function CheckoutPage() {
                   };
                   insertOrder(order);
                   clear();
+                  toast.success(`Pesanan ${orderNumber} berhasil dibuat`);
                   updateDraft({
                     step: 0,
                     done: true,

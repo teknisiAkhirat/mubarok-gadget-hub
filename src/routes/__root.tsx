@@ -15,6 +15,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/lib/cart-store";
 import { CartDrawer } from "@/components/CartDrawer";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -156,6 +157,7 @@ function RootComponent() {
           <Footer />
         </div>
         <CartDrawer />
+        <Toaster richColors position="top-center" />
       </CartProvider>
     </QueryClientProvider>
   );

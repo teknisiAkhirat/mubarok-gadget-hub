@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
 import { fetchProducts, insertProduct, updateProduct, deleteProduct } from "@/lib/products-db";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import {
   Package,
   Plus,
@@ -134,7 +134,6 @@ function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
-      <Toaster richColors position="top-center" />
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-3xl font-extrabold">Dashboard Penjual</h1>

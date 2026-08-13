@@ -4,7 +4,7 @@ import { mockBrands, mockCategories, type Product } from "@/lib/mock-data";
 import { fetchProducts, seedIfEmpty } from "@/lib/products-db";
 import { ProductCard } from "@/components/ProductCard";
 import { ChevronRight, SlidersHorizontal, Loader2 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 type ProdukSearch = {
   q?: string;
@@ -133,8 +133,6 @@ function ProdukPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 transition-all duration-300">
-      <Toaster richColors position="top-center" />
-
       {/* Breadcrumb */}
       <nav className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
         <Link to="/" className="hover:text-foreground transition-colors">

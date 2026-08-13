@@ -5,6 +5,7 @@ import { formatIDR, waLink } from "@/lib/format";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export function CartDrawer() {
   const { isOpen, close, updateQty, remove } = useCart();
@@ -76,7 +77,10 @@ export function CartDrawer() {
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="line-clamp-2 text-sm font-semibold">{d.product.name}</h3>
                       <button
-                        onClick={() => remove(d.productId)}
+                        onClick={() => {
+                          remove(d.productId);
+                          toast.success(`${d.product.name} dihapus dari keranjang`);
+                        }}
                         className="text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />

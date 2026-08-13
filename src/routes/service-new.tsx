@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { STATUS_ORDER, type ServiceStatus, type Ticket } from "@/lib/service-ticket-types";
 import { ticketRepository } from "@/lib/repositories";
 
@@ -69,7 +69,6 @@ function ServiceNewPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <Toaster richColors position="top-center" />
       <div className="mb-6 flex items-center gap-3">
         <Button variant="outline" size="sm" asChild>
           <Link to="/repair-tracker">

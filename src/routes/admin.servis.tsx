@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Search, Wrench, Check, X, LogOut, Lock } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import {
   STATUS_ORDER,
   STATUS_STEPS,
@@ -60,7 +60,6 @@ function AdminServisPage() {
   if (!authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <Toaster richColors position="top-center" />
         <Card className="w-full max-w-sm">
           <CardContent className="p-6">
             <div className="mb-6 text-center">
@@ -147,7 +146,6 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <Toaster richColors position="top-center" />
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" asChild>

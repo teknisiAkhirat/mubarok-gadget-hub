@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { formatIDR } from "@/lib/format";
 
 type InventoryItem = {
@@ -255,7 +255,6 @@ function InventoryPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
-      <Toaster richColors position="top-center" />
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-extrabold">Inventori</h1>
