@@ -21,6 +21,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdukSlugRouteImport } from './routes/produk_.$slug'
 import { Route as AdminServisRouteImport } from './routes/admin.servis'
+import { Route as AdminKatalogRouteImport } from './routes/admin.katalog'
 import { Route as RepairTrackerTicketIdInvoiceRouteImport } from './routes/repair-tracker.$ticketId.invoice'
 
 const TukarTambahRoute = TukarTambahRouteImport.update({
@@ -83,6 +84,11 @@ const AdminServisRoute = AdminServisRouteImport.update({
   path: '/admin/servis',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminKatalogRoute = AdminKatalogRouteImport.update({
+  id: '/admin/katalog',
+  path: '/admin/katalog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RepairTrackerTicketIdInvoiceRoute =
   RepairTrackerTicketIdInvoiceRouteImport.update({
     id: '/$ticketId/invoice',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/service-new': typeof ServiceNewRoute
   '/tentang': typeof TentangRoute
   '/tukar-tambah': typeof TukarTambahRoute
+  '/admin/katalog': typeof AdminKatalogRoute
   '/admin/servis': typeof AdminServisRoute
   '/produk/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/service-new': typeof ServiceNewRoute
   '/tentang': typeof TentangRoute
   '/tukar-tambah': typeof TukarTambahRoute
+  '/admin/katalog': typeof AdminKatalogRoute
   '/admin/servis': typeof AdminServisRoute
   '/produk/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/service-new': typeof ServiceNewRoute
   '/tentang': typeof TentangRoute
   '/tukar-tambah': typeof TukarTambahRoute
+  '/admin/katalog': typeof AdminKatalogRoute
   '/admin/servis': typeof AdminServisRoute
   '/produk_/$slug': typeof ProdukSlugRoute
   '/repair-tracker/$ticketId/invoice': typeof RepairTrackerTicketIdInvoiceRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
     | '/service-new'
     | '/tentang'
     | '/tukar-tambah'
+    | '/admin/katalog'
     | '/admin/servis'
     | '/produk/$slug'
     | '/repair-tracker/$ticketId/invoice'
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/service-new'
     | '/tentang'
     | '/tukar-tambah'
+    | '/admin/katalog'
     | '/admin/servis'
     | '/produk/$slug'
     | '/repair-tracker/$ticketId/invoice'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/service-new'
     | '/tentang'
     | '/tukar-tambah'
+    | '/admin/katalog'
     | '/admin/servis'
     | '/produk_/$slug'
     | '/repair-tracker/$ticketId/invoice'
@@ -195,6 +207,7 @@ export interface RootRouteChildren {
   ServiceNewRoute: typeof ServiceNewRoute
   TentangRoute: typeof TentangRoute
   TukarTambahRoute: typeof TukarTambahRoute
+  AdminKatalogRoute: typeof AdminKatalogRoute
   AdminServisRoute: typeof AdminServisRoute
   ProdukSlugRoute: typeof ProdukSlugRoute
 }
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminServisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/katalog': {
+      id: '/admin/katalog'
+      path: '/admin/katalog'
+      fullPath: '/admin/katalog'
+      preLoaderRoute: typeof AdminKatalogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/repair-tracker/$ticketId/invoice': {
       id: '/repair-tracker/$ticketId/invoice'
       path: '/$ticketId/invoice'
@@ -318,6 +338,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServiceNewRoute: ServiceNewRoute,
   TentangRoute: TentangRoute,
   TukarTambahRoute: TukarTambahRoute,
+  AdminKatalogRoute: AdminKatalogRoute,
   AdminServisRoute: AdminServisRoute,
   ProdukSlugRoute: ProdukSlugRoute,
 }

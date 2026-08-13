@@ -1,31 +1,24 @@
-import { mockProducts, mockSeller, type Product } from "@/lib/mock-data";
-
-let productsStore: Product[] = [...mockProducts];
-
-function toArr(v: unknown): string[] {
-  if (Array.isArray(v)) return v as string[];
-  return [];
-}
+import type { Product } from "@/lib/mock-data";
+import { productRepository } from "@/lib/repositories";
 
 export async function fetchProducts(): Promise<Product[]> {
-  return [...productsStore];
+  return productRepository.list();
 }
 
 export async function seedIfEmpty(): Promise<void> {
-  if (productsStore.length > 0) return;
-  productsStore = [...mockProducts];
+  productRepository.seedIfEmpty();
 }
 
-export async function insertProduct(p: Product) {
-  productsStore = [p, ...productsStore];
+export async function insertProduct(p: Product): Promise<void> {
+  productRepository.insert(p);
 }
 
-export async function updateProduct(id: string, patch: Partial<Product>) {
-  productsStore = productsStore.map((p) => (p.id === id ? { ...p, ...patch } : p));
+export async function updateProduct(id: string, patch: Partial<Product>): Promise<boolean> {
+  return productRepository.update(id, patch);
 }
 
-export async function deleteProduct(id: string) {
-  productsStore = productsStore.filter((p) => p.id !== id);
+export async function deleteProduct(id: string): Promise<boolean> {
+  return productRepository.remove(id);
 }
 
 export type InventoryItem = {

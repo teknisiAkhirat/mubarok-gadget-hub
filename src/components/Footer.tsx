@@ -91,7 +91,10 @@ export function Footer() {
 
         <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} Mubarok Smartphone Sales & Service · Seluruh Hak Cipta
-          Dilindungi.
+          Dilindungi. ·{" "}
+          <Link to="/admin/katalog" className="hover:text-foreground hover:underline">
+            Admin
+          </Link>
         </div>
       </div>
     </footer>

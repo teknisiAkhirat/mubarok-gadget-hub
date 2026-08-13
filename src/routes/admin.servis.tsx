@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, Wrench, Check, X, LogOut, Lock } from "lucide-react";
+import { ArrowLeft, Search, Wrench, Check, X, LogOut, Lock, Package } from "lucide-react";
 import { toast } from "sonner";
 import {
   STATUS_ORDER,
@@ -147,13 +147,18 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button variant="outline" size="sm" asChild>
             <Link to="/">
               <ArrowLeft className="h-4 w-4" /> Kembali
             </Link>
           </Button>
           <h1 className="text-2xl font-bold">Admin — Kelola Servis</h1>
+          <Button variant="outline" size="sm" asChild className="ml-1">
+            <Link to="/admin/katalog">
+              <Package className="h-4 w-4" /> Kelola Katalog
+            </Link>
+          </Button>
         </div>
         <Button variant="outline" size="sm" onClick={onLogout}>
           <LogOut className="mr-1 h-4 w-4" /> Logout
