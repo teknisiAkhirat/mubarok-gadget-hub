@@ -28,7 +28,7 @@ export function Header() {
     { to: "/", label: "Beranda", icon: Home },
     { to: "/produk", search: { type: "hp-bekas" } as never, label: "HP Bekas", icon: Smartphone },
     { to: "/produk", search: { type: "sparepart" } as never, label: "Sparepart", icon: Package },
-    { to: "/service-new", label: "Servis", icon: Wrench },
+    { to: "/servis", label: "Servis", icon: Wrench },
     { to: "/repair-tracker", label: "Lacak Servis", icon: Search },
     { to: "/tukar-tambah", label: "Tukar Tambah", icon: ArrowLeftRight },
     { to: "/tentang", label: "Tentang", icon: Info },

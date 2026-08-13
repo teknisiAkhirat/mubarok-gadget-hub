@@ -59,7 +59,7 @@ const QUICK_SERVICES = [
     title: "Servis HP",
     desc: "Kirim keluhan, kami periksa dulu.",
     icon: Wrench,
-    to: "/service-new" as const,
+    to: "/servis" as const,
     search: {},
     cta: "Konsultasi Servis",
   },
@@ -336,7 +336,7 @@ function HomePage() {
               </p>
             </div>
             <Link
-              to="/service-new"
+              to="/servis"
               className="shrink-0 rounded-lg bg-white px-6 py-3 font-bold text-green-700 shadow-lg hover:bg-green-50"
             >
               Konsultasi Servis

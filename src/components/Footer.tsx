@@ -55,7 +55,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/service-new" className="hover:text-foreground">
+                <Link to="/servis" className="hover:text-foreground">
                   Servis Smartphone
                 </Link>
               </li>

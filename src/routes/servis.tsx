@@ -1,34 +1,37 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { ArrowLeft, Camera, CheckCircle2, Loader2, MessageCircle, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Camera, CheckCircle2, Loader2, Upload, X } from "lucide-react";
 import { mockBrands } from "@/lib/mock-data";
 import { waLink } from "@/lib/format";
 
-export const Route = createFileRoute("/tukar-tambah")({
+export const Route = createFileRoute("/servis")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Tukar Tambah HP · Mubarok Gadget Hub" },
+      { title: "Servis HP — Ajukan Pemeriksaan · Mubarok Gadget Hub" },
       {
         name: "description",
         content:
-          "Ajukan tukar tambah HP lama atau rusak. Ceritakan kondisi HP Anda, kirim foto, dan dapatkan penilaian awal dari Mubarok Gadget Hub Blora.",
+          "Kirim keluhan dan biarkan kami memeriksanya terlebih dahulu. Harga dan tindakan perbaikan ditentukan setelah pemeriksaan kondisi perangkat.",
       },
     ],
   }),
-  component: TukarTambahPage,
+  component: ServisPage,
 });
 
-const CONDITION_QUESTIONS = [
-  "Apakah HP menyala?",
-  "Apakah layar normal?",
-  "Apakah touchscreen normal?",
-  "Apakah ada kerusakan fisik (retak/penyok)?",
-  "Apakah pernah diperbaiki?",
+const DAMAGE_TYPES = [
+  "Layar",
+  "Battery",
+  "Charging",
+  "Kamera",
+  "Speaker/Mic",
+  "Software",
+  "Motherboard/IC",
+  "Lainnya",
 ];
 
 interface FormState {
@@ -36,11 +39,10 @@ interface FormState {
   wa: string;
   merek: string;
   model: string;
-  kondisi: string;
-  kerusakan: string;
+  keluhan: string;
+  jenisKerusakan: string;
   catatan: string;
   files: File[];
-  answers: Record<string, boolean>;
 }
 
 const EMPTY_FORM: FormState = {
@@ -48,34 +50,30 @@ const EMPTY_FORM: FormState = {
   wa: "",
   merek: "",
   model: "",
-  kondisi: "",
-  kerusakan: "",
+  keluhan: "",
+  jenisKerusakan: "",
   catatan: "",
   files: [],
-  answers: { "0": true, "1": true, "2": true, "3": false, "4": false },
 };
 
-function TukarTambahPage() {
+function ServisPage() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const update = (
-    key: keyof FormState,
-    value: string | boolean | File[] | Record<string, boolean>,
-  ) => setForm((f) => ({ ...f, [key]: value }));
-
-  const selectedBrand = mockBrands.find((b) => b.name === form.merek);
+  const update = (key: keyof FormState, value: string | File[]) =>
+    setForm((f) => ({ ...f, [key]: value }));
 
   function validate(): boolean {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (!form.nama.trim()) e.nama = "Nama wajib diisi.";
     if (!/^(\+?62|08)\d{8,12}$/.test(form.wa.replace(/[\s-]/g, "")))
       e.wa = "Nomor WhatsApp tidak valid (contoh: 081234567890).";
-    if (!form.merek) e.merek = "Pilih merek HP.";
-    if (!form.model.trim()) e.model = "Model HP wajib diisi.";
-    if (!form.kondisi) e.kondisi = "Pilih kondisi HP.";
+    if (!form.merek) e.merek = "Pilih merek perangkat.";
+    if (!form.model.trim()) e.model = "Model perangkat wajib diisi.";
+    if (!form.keluhan.trim()) e.keluhan = "Keluhan/kerusakan wajib diisi.";
+    if (!form.jenisKerusakan) e.jenisKerusakan = "Pilih jenis kerusakan.";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -84,22 +82,19 @@ function TukarTambahPage() {
     e.preventDefault();
     if (!validate()) return;
     setBusy(true);
-
-    const answerText = CONDITION_QUESTIONS.map(
-      (q, i) => `${q} ${form.answers[String(i)] ? "Ya" : "Tidak"}`,
-    ).join("\n");
-
+    // Simulasi submit — arahkan ke WhatsApp dengan ringkasan keluhan.
     const msg =
-      `Halo Mubarok Gadget Hub, saya ingin tukar tambah HP.\n\n` +
+      `Halo Mubarok Gadget Hub, saya ingin mengajukan pemeriksaan servis.\n\n` +
       `Nama: ${form.nama}\n` +
       `WhatsApp: ${form.wa}\n` +
-      `HP: ${form.merek} ${form.model}\n` +
-      `Kondisi: ${form.kondisi}\n` +
-      `Kerusakan: ${form.kerusakan || "-"}\n` +
-      `\nChecklist kondisi:\n${answerText}\n` +
-      (form.catatan ? `\nCatatan: ${form.catatan}` : "") +
-      (form.files.length ? `\nFoto terlampir: ${form.files.length} file (dikirim manual).` : "");
-
+      `Perangkat: ${form.merek} ${form.model}\n` +
+      `Jenis Kerusakan: ${form.jenisKerusakan}\n` +
+      `Keluhan: ${form.keluhan}\n` +
+      (form.catatan ? `Catatan: ${form.catatan}\n` : "") +
+      (form.files.length
+        ? `Foto/video terlampir: ${form.files.length} file (dikirim manual).\n`
+        : "") +
+      `\nMohon konfirmasi jadwal pemeriksaan.`;
     setTimeout(() => {
       setBusy(false);
       setSubmitted(true);
@@ -113,14 +108,16 @@ function TukarTambahPage() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
           <CheckCircle2 className="h-8 w-8" />
         </div>
-        <h1 className="mt-5 text-2xl font-extrabold">Pengajuan Tukar Tambah Terkirim</h1>
+        <h1 className="mt-5 text-2xl font-extrabold">Permintaan Pemeriksaan Terkirim</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Terima kasih, {form.nama}. Pengajuan tukar tambah Anda sudah kami terima. Kami akan
-          menghubungi Anda via WhatsApp untuk penilaian manual dan konfirmasi.
+          Terima kasih, {form.nama}. Kami sudah menerima keluhan Anda dan akan memeriksa perangkat
+          setelah dikonfirmasi. Jangan lupa kirim foto/video perangkat via WhatsApp untuk
+          mempercepat penilaian.
         </p>
         <p className="mt-4 rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">
-          Foto di aplikasi masih mock — mohon kirim foto HP via WhatsApp untuk mempercepat
-          penilaian.
+          <strong>
+            Harga dan tindakan perbaikan ditentukan setelah pemeriksaan kondisi perangkat.
+          </strong>
         </p>
         <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
           <Button asChild variant="outline">
@@ -134,7 +131,7 @@ function TukarTambahPage() {
               setSubmitted(false);
             }}
           >
-            Ajukan Lagi
+            Ajukan Pemeriksaan Lain
           </Button>
         </div>
       </div>
@@ -149,12 +146,14 @@ function TukarTambahPage() {
             <ArrowLeft className="h-4 w-4" /> Kembali
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold">Tukar Tambah HP</h1>
+        <h1 className="text-2xl font-bold">Servis HP</h1>
       </div>
 
       <p className="mb-6 text-sm text-muted-foreground">
-        Punya HP lama atau HP rusak? Ceritakan kondisi HP Anda, kirim pengajuan, dan kami akan
-        memberikan penilaian awal via WhatsApp.
+        HP bermasalah? Kirim keluhan dan biarkan kami memeriksanya terlebih dahulu.{" "}
+        <strong>
+          Harga dan tindakan perbaikan ditentukan setelah pemeriksaan kondisi perangkat.
+        </strong>
       </p>
 
       <form
@@ -163,9 +162,9 @@ function TukarTambahPage() {
       >
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="tt-nama">Nama</Label>
+            <Label htmlFor="servis-nama">Nama</Label>
             <Input
-              id="tt-nama"
+              id="servis-nama"
               value={form.nama}
               onChange={(e) => update("nama", e.target.value)}
               placeholder="Nama lengkap"
@@ -174,9 +173,9 @@ function TukarTambahPage() {
             {errors.nama && <p className="text-xs text-red-600">{errors.nama}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="tt-wa">Nomor WhatsApp</Label>
+            <Label htmlFor="servis-wa">Nomor WhatsApp</Label>
             <Input
-              id="tt-wa"
+              id="servis-wa"
               value={form.wa}
               onChange={(e) => update("wa", e.target.value)}
               placeholder="081234567890"
@@ -186,145 +185,97 @@ function TukarTambahPage() {
             {errors.wa && <p className="text-xs text-red-600">{errors.wa}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="tt-merek">Merek HP</Label>
+            <Label htmlFor="servis-merek">Merek</Label>
             <select
-              id="tt-merek"
+              id="servis-merek"
               value={form.merek}
-              onChange={(e) => {
-                update("merek", e.target.value);
-                update("model", "");
-              }}
+              onChange={(e) => update("merek", e.target.value)}
               className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               aria-invalid={!!errors.merek}
             >
               <option value="">Pilih merek...</option>
-              {mockBrands
-                .filter((b) => b.models.length > 0)
-                .map((b) => (
-                  <option key={b.id} value={b.name}>
-                    {b.name}
-                  </option>
-                ))}
+              {mockBrands.map((b) => (
+                <option key={b.id} value={b.name}>
+                  {b.name}
+                </option>
+              ))}
             </select>
             {errors.merek && <p className="text-xs text-red-600">{errors.merek}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="tt-model">Tipe / Model</Label>
-            <select
-              id="tt-model"
+            <Label htmlFor="servis-model">Model</Label>
+            <Input
+              id="servis-model"
               value={form.model}
               onChange={(e) => update("model", e.target.value)}
-              disabled={!selectedBrand}
-              className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
+              placeholder="Contoh: Galaxy A32 / Redmi Note 11"
               aria-invalid={!!errors.model}
-            >
-              <option value="">
-                {selectedBrand ? "Pilih tipe..." : "Pilih merek terlebih dahulu"}
-              </option>
-              {selectedBrand?.models.map((m) => (
-                <option key={m.id} value={m.name}>
-                  {m.name} ({m.releaseYear})
-                </option>
-              ))}
-            </select>
+            />
             {errors.model && <p className="text-xs text-red-600">{errors.model}</p>}
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label>Kondisi HP</Label>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {[
-              { v: "Mulus (seperti baru)", d: "Bodi dan layar mulus" },
-              { v: "Normal (ada minor)", d: "Pemakaian wajar, gores halus" },
-              { v: "Rusak Ringan", d: "Retak / lecet / fungsi sebagian" },
-              { v: "Rusak Berat", d: "Mati / IC / kerusakan besar" },
-            ].map((opt) => (
+          <Label>Jenis Kerusakan</Label>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {DAMAGE_TYPES.map((t) => (
               <button
-                key={opt.v}
+                key={t}
                 type="button"
-                onClick={() => update("kondisi", opt.v)}
-                className={`rounded-md border px-4 py-3 text-left text-sm transition ${
-                  form.kondisi === opt.v
+                onClick={() => update("jenisKerusakan", t)}
+                className={`rounded-md border px-3 py-2 text-sm transition ${
+                  form.jenisKerusakan === t
                     ? "border-[var(--color-accent-orange)] bg-[var(--color-accent-orange)]/10 font-semibold"
                     : "border-border hover:border-[var(--color-accent-orange)]/50"
                 }`}
               >
-                <span className="font-semibold">{opt.v}</span>
-                <span className="block text-xs text-muted-foreground">{opt.d}</span>
+                {t}
               </button>
             ))}
           </div>
-          {errors.kondisi && <p className="text-xs text-red-600">{errors.kondisi}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Checklist Kondisi</Label>
-          <div className="space-y-2 rounded-md border border-border p-4">
-            {CONDITION_QUESTIONS.map((q, i) => (
-              <div key={q} className="flex items-center justify-between gap-3">
-                <span className="text-sm">{q}</span>
-                <div className="flex gap-2">
-                  {(["Ya", "Tidak"] as const).map((ans) => (
-                    <button
-                      key={ans}
-                      type="button"
-                      onClick={() =>
-                        update("answers", { ...form.answers, [String(i)]: ans === "Ya" })
-                      }
-                      className={`rounded-md border px-3 py-1 text-xs font-medium transition ${
-                        (form.answers[String(i)] ? "Ya" : "Tidak") === ans
-                          ? "border-[var(--color-accent-orange)] bg-[var(--color-accent-orange)]/10"
-                          : "border-border"
-                      }`}
-                    >
-                      {ans}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          {errors.jenisKerusakan && <p className="text-xs text-red-600">{errors.jenisKerusakan}</p>}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="tt-kerusakan">Kerusakan yang diketahui (opsional)</Label>
+          <Label htmlFor="servis-keluhan">Keluhan / Kerusakan</Label>
           <Textarea
-            id="tt-kerusakan"
-            rows={2}
-            value={form.kerusakan}
-            onChange={(e) => update("kerusakan", e.target.value)}
-            placeholder="Contoh: layar retak, tidak bisa charging"
+            id="servis-keluhan"
+            rows={3}
+            value={form.keluhan}
+            onChange={(e) => update("keluhan", e.target.value)}
+            placeholder="Ceritakan masalah pada HP Anda..."
+            aria-invalid={!!errors.keluhan}
           />
+          {errors.keluhan && <p className="text-xs text-red-600">{errors.keluhan}</p>}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="tt-catatan">Catatan (opsional)</Label>
+          <Label htmlFor="servis-catatan">Catatan (opsional)</Label>
           <Textarea
-            id="tt-catatan"
+            id="servis-catatan"
             rows={2}
             value={form.catatan}
             onChange={(e) => update("catatan", e.target.value)}
-            placeholder="Kelengkapan, riwayat servis, dll."
+            placeholder="Riwayat servis, kelengkapan, dll."
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label>Foto HP</Label>
+          <Label>Foto / Video Perangkat</Label>
           <div className="flex flex-col gap-2 rounded-md border border-dashed border-border p-4">
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => document.getElementById("tt-upload")?.click()}
+                onClick={() => document.getElementById("servis-upload")?.click()}
               >
-                <Camera className="mr-1 h-4 w-4" /> Pilih Foto
+                <Camera className="mr-1 h-4 w-4" /> Pilih Foto / Video
               </Button>
               <input
-                id="tt-upload"
+                id="servis-upload"
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
                 className="hidden"
                 onChange={(e) => {
@@ -334,7 +285,7 @@ function TukarTambahPage() {
                 }}
               />
               <span className="text-xs text-muted-foreground">
-                {form.files.length} foto dipilih (mock, belum diunggah)
+                {form.files.length} file dipilih (mock, belum diunggah)
               </span>
             </div>
             {form.files.length > 0 && (
@@ -375,11 +326,11 @@ function TukarTambahPage() {
               <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Mengirim...
             </>
           ) : (
-            "Kirim Pengajuan"
+            "Ajukan Pemeriksaan"
           )}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Pengajuan akan dikirim ke WhatsApp toko untuk penilaian manual.
+          Pengajuan akan dikirim ke WhatsApp toko untuk dikonfirmasi.
         </p>
       </form>
     </div>
