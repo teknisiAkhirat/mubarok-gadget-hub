@@ -29,7 +29,9 @@ export class LocalStorageTicketRepository implements TicketRepository {
   }
 
   findTicketByNumber(ticketNumber: string): Ticket | undefined {
-    return loadTickets().find((t) => t.ticket_number === ticketNumber);
+    const normalized = ticketNumber.trim().toLowerCase();
+    if (!normalized) return undefined;
+    return loadTickets().find((t) => t.ticket_number.trim().toLowerCase() === normalized);
   }
 
   insertTicket(ticket: Ticket): void {

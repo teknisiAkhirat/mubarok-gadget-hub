@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,30 +10,48 @@ import { Ticket, STATUS_ORDER, STATUS_STEPS } from "@/lib/service-ticket-types";
 import { ticketRepository } from "@/lib/repositories";
 
 export const Route = createFileRoute("/repair-tracker")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    q: typeof s.q === "string" ? s.q : undefined,
+  }),
   component: RepairTrackerPage,
 });
 
 function RepairTrackerPage() {
-  const [query, setQuery] = useState("");
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [query, setQuery] = useState(search.q ?? "");
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  async function handleSearch() {
+  useEffect(() => {
+    if (search.q) {
+      setQuery(search.q);
+      handleSearch(search.q);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.q]);
+
+  async function handleSearch(q?: string) {
+    const needle = (q ?? query).trim();
     setLoading(true);
     setNotFound(false);
     setTicket(null);
 
-    const trimmed = query.trim();
-    if (!trimmed) {
+    if (!needle) {
       setLoading(false);
       return;
     }
 
-    const found = ticketRepository.findTicketByNumber(trimmed);
+    const found = ticketRepository.findTicketByNumber(needle);
     setTicket(found ?? null);
     setNotFound(!found);
     setLoading(false);
+
+    navigate({
+      search: (prev: { q?: string }) => ({ ...prev, q: needle || undefined }),
+      replace: true,
+    });
   }
 
   return (
@@ -67,7 +85,7 @@ function RepairTrackerPage() {
               }}
             />
           </div>
-          <Button onClick={handleSearch} disabled={loading}>
+          <Button onClick={() => handleSearch()} disabled={loading}>
             {loading ? "Mencari..." : "Cari Tiket"}
           </Button>
         </CardContent>

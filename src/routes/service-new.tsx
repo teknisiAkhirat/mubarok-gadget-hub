@@ -56,7 +56,10 @@ function ServiceNewPage() {
 
       ticketRepository.insertTicket(ticket);
       toast.success("Tiket servis dibuat: " + ticket_number);
-      navigate({ to: "/repair-tracker" });
+      navigate({
+        to: "/repair-tracker",
+        search: { q: ticket_number },
+      });
     } catch (e) {
       toast.error("Gagal membuat tiket: " + (e instanceof Error ? e.message : "unknown"));
     } finally {
