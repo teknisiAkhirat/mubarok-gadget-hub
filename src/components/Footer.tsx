@@ -84,7 +84,6 @@ export function Footer() {
               >
                 <MessageCircle className="h-4 w-4" /> Chat WhatsApp
               </a>
-              <p className="text-sm text-muted-foreground">+62 895 6049 0109</p>
             </div>
           </div>
         </div>
