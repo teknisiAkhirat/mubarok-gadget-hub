@@ -26,6 +26,13 @@ function normalizeProduct(raw: unknown): Product {
       : "normal",
     conditionLabel: String(r.conditionLabel ?? ""),
     conditionNote: String(r.conditionNote ?? ""),
+    grade:
+      r.grade === "A" || r.grade === "B+" || r.grade === "B" || r.grade === "C"
+        ? (r.grade as Product["grade"])
+        : undefined,
+    defects: Array.isArray(r.defects) ? r.defects.map(String) : undefined,
+    inspection: Array.isArray(r.inspection) ? (r.inspection as Product["inspection"]) : undefined,
+    accessories: Array.isArray(r.accessories) ? r.accessories.map(String) : undefined,
     description: String(r.description ?? ""),
     specifications:
       r.specifications && typeof r.specifications === "object"
