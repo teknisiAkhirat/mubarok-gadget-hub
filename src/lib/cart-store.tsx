@@ -1,9 +1,47 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { mockProducts, type Product } from "@/lib/mock-data";
 
 export interface CartItem {
   productId: string;
   quantity: number;
+}
+
+const STORAGE_KEY = "mubarok_cart";
+
+function loadItems(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as CartItem[];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (c): c is CartItem =>
+        typeof c === "object" &&
+        c !== null &&
+        typeof (c as CartItem).productId === "string" &&
+        typeof (c as CartItem).quantity === "number",
+    );
+  } catch {
+    return [];
+  }
+}
+
+function saveItems(items: CartItem[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // localStorage may be full or disabled
+  }
 }
 
 interface CartContextValue {
@@ -23,8 +61,12 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(loadItems);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    saveItems(items);
+  }, [items]);
 
   const add = useCallback((productId: string, qty = 1) => {
     setItems((curr) => {

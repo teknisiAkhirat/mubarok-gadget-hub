@@ -1,8 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart-store";
 import { useCartDetails } from "@/hooks/use-cart-details";
 import { formatIDR, waLink } from "@/lib/format";
+import { insertOrder, type Order } from "@/lib/order-store";
+import {
+  generateOrderNumber,
+  loadCheckoutDraft,
+  saveCheckoutDraft,
+  type CheckoutDraft,
+} from "@/lib/checkout-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,20 +25,20 @@ const STEPS = ["Alamat", "Pengiriman", "Pembayaran", "Konfirmasi"];
 function CheckoutPage() {
   const { clear } = useCart();
   const { details, subtotal, isLoading } = useCartDetails();
-  const [step, setStep] = useState(0);
-  const [done, setDone] = useState(false);
+  const [draft, setDraft] = useState<CheckoutDraft>(loadCheckoutDraft);
+  const done = draft.done;
+  const step = draft.step;
+  const address = draft.address;
+  const shipping = draft.shipping;
+  const payment = draft.payment;
 
-  const [address, setAddress] = useState({
-    name: "",
-    phone: "",
-    street: "",
-    district: "",
-    city: "",
-    province: "Jawa Tengah",
-    postalCode: "",
-  });
-  const [shipping, setShipping] = useState({ method: "jne", cost: 15000 });
-  const [payment, setPayment] = useState("transfer");
+  useEffect(() => {
+    saveCheckoutDraft(draft);
+  }, [draft]);
+
+  function updateDraft(patch: Partial<CheckoutDraft>) {
+    setDraft((d) => ({ ...d, ...patch }));
+  }
 
   const grandTotal = subtotal + shipping.cost;
 
@@ -57,9 +64,9 @@ function CheckoutPage() {
     );
   }
 
-  if (done) {
-    const orderNumber = `MUB-${Date.now().toString().slice(-8)}`;
-    const waMsg = `Halo Mubarok SMS&S, saya baru saja melakukan pemesanan:\n\nNo. Order: ${orderNumber}\nTotal: ${formatIDR(grandTotal)}\nMetode bayar: ${payment}\n\nMohon konfirmasi.`;
+  if (done && details.length === 0) {
+    const orderNumber = draft.lastOrderNumber ?? generateOrderNumber();
+    const waMsg = `Halo Mubarok SMS&S, saya baru saja melakukan pemesanan:\n\nNo. Order: ${orderNumber}\nTotal: ${formatIDR(draft.lastOrderTotal || grandTotal)}\nMetode bayar: ${draft.lastOrderPayment || payment}\n\nMohon konfirmasi.`;
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
         <div className="rounded-2xl border border-green-200 bg-green-50 p-8 text-center">
@@ -70,7 +77,7 @@ function CheckoutPage() {
           <p className="mt-2 text-sm text-muted-foreground">No. Pesanan</p>
           <p className="text-lg font-bold">{orderNumber}</p>
           <p className="mt-4 text-sm">
-            Total: <strong>{formatIDR(grandTotal)}</strong>
+            Total: <strong>{formatIDR(draft.lastOrderTotal || grandTotal)}</strong>
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
             Status: Menunggu Konfirmasi · Silakan hubungi penjual via WhatsApp untuk konfirmasi
@@ -133,39 +140,39 @@ function CheckoutPage() {
                 <Field
                   label="Nama Penerima"
                   value={address.name}
-                  onChange={(v) => setAddress({ ...address, name: v })}
+                  onChange={(v) => updateDraft({ address: { ...address, name: v } })}
                 />
                 <Field
                   label="No. WhatsApp"
                   value={address.phone}
-                  onChange={(v) => setAddress({ ...address, phone: v })}
+                  onChange={(v) => updateDraft({ address: { ...address, phone: v } })}
                 />
                 <div className="sm:col-span-2">
                   <Field
                     label="Alamat Lengkap"
                     value={address.street}
-                    onChange={(v) => setAddress({ ...address, street: v })}
+                    onChange={(v) => updateDraft({ address: { ...address, street: v } })}
                   />
                 </div>
                 <Field
                   label="Kecamatan"
                   value={address.district}
-                  onChange={(v) => setAddress({ ...address, district: v })}
+                  onChange={(v) => updateDraft({ address: { ...address, district: v } })}
                 />
                 <Field
                   label="Kota/Kabupaten"
                   value={address.city}
-                  onChange={(v) => setAddress({ ...address, city: v })}
+                  onChange={(v) => updateDraft({ address: { ...address, city: v } })}
                 />
                 <Field
                   label="Provinsi"
                   value={address.province}
-                  onChange={(v) => setAddress({ ...address, province: v })}
+                  onChange={(v) => updateDraft({ address: { ...address, province: v } })}
                 />
                 <Field
                   label="Kode Pos"
                   value={address.postalCode}
-                  onChange={(v) => setAddress({ ...address, postalCode: v })}
+                  onChange={(v) => updateDraft({ address: { ...address, postalCode: v } })}
                 />
               </div>
             </div>
@@ -196,7 +203,7 @@ function CheckoutPage() {
                     type="radio"
                     name="ship"
                     checked={shipping.method === opt.id}
-                    onChange={() => setShipping({ method: opt.id, cost: opt.cost })}
+                    onChange={() => updateDraft({ shipping: { method: opt.id, cost: opt.cost } })}
                     className="accent-[var(--color-accent-orange)]"
                   />
                   <div className="flex-1">
@@ -227,7 +234,7 @@ function CheckoutPage() {
                     type="radio"
                     name="pay"
                     checked={payment === opt.id}
-                    onChange={() => setPayment(opt.id)}
+                    onChange={() => updateDraft({ payment: opt.id })}
                     className="accent-[var(--color-accent-orange)]"
                   />
                   <div>
@@ -267,7 +274,7 @@ function CheckoutPage() {
           <div className="mt-6 flex justify-between">
             <Button
               variant="outline"
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
+              onClick={() => updateDraft({ step: Math.max(0, step - 1) })}
               disabled={step === 0}
             >
               Kembali
@@ -275,7 +282,7 @@ function CheckoutPage() {
             {step < 3 ? (
               <Button
                 className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]"
-                onClick={() => setStep((s) => s + 1)}
+                onClick={() => updateDraft({ step: step + 1 })}
               >
                 Lanjut
               </Button>
@@ -283,8 +290,35 @@ function CheckoutPage() {
               <Button
                 className="bg-[var(--color-accent-orange)] text-white hover:bg-[var(--color-accent-orange)]/90"
                 onClick={() => {
+                  const orderNumber = generateOrderNumber();
+                  const order: Order = {
+                    id: `ord-${Date.now()}`,
+                    orderNumber,
+                    items: details.map((d) => ({
+                      productId: d.productId,
+                      slug: d.product.slug,
+                      name: d.product.name,
+                      price: d.product.price,
+                      quantity: d.quantity,
+                    })),
+                    subtotal,
+                    shippingMethod: shipping.method,
+                    shippingCost: shipping.cost,
+                    payment,
+                    address: { ...address },
+                    total: grandTotal,
+                    status: "Menunggu Konfirmasi",
+                    createdAt: new Date().toISOString(),
+                  };
+                  insertOrder(order);
                   clear();
-                  setDone(true);
+                  updateDraft({
+                    step: 0,
+                    done: true,
+                    lastOrderNumber: orderNumber,
+                    lastOrderTotal: grandTotal,
+                    lastOrderPayment: payment,
+                  });
                 }}
               >
                 Buat Pesanan

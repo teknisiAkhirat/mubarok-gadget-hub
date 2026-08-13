@@ -2,6 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { mockSeller, mockBrands, type Product, PRODUCT_TYPE_LABELS } from "@/lib/mock-data";
 import { formatIDR } from "@/lib/format";
+import { getOrders, seedOrdersIfEmpty, updateOrderStatus, type Order } from "@/lib/order-store";
+import { ticketRepository } from "@/lib/repositories";
+import type { Ticket } from "@/lib/service-ticket-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,9 +31,18 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
+const ORDER_STATUS_COLORS: Record<Order["status"], string> = {
+  "Menunggu Konfirmasi": "bg-yellow-100 text-yellow-700",
+  Diproses: "bg-blue-100 text-blue-700",
+  Dikirim: "bg-purple-100 text-purple-700",
+  Selesai: "bg-green-100 text-green-700",
+};
+
 function DashboardPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "produk" | "pesanan" | "toko" | "servis">("overview");
 
@@ -39,8 +51,11 @@ function DashboardPage() {
       setLoading(true);
       try {
         setProducts(await fetchProducts());
+        seedOrdersIfEmpty();
+        setOrders(getOrders());
+        setTickets(ticketRepository.getTickets());
       } catch (e) {
-        toast.error("Gagal memuat produk: " + (e instanceof Error ? e.message : "unknown"));
+        toast.error("Gagal memuat data: " + (e instanceof Error ? e.message : "unknown"));
       } finally {
         setLoading(false);
       }
@@ -55,10 +70,12 @@ function DashboardPage() {
     }
   }
 
+  const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+
   const stats = [
     {
       label: "Total Penjualan",
-      value: formatIDR(0),
+      value: formatIDR(totalRevenue),
       icon: TrendingUp,
       color: "from-orange-500 to-red-500",
     },
@@ -68,12 +85,50 @@ function DashboardPage() {
       icon: Package,
       color: "from-blue-500 to-indigo-500",
     },
-    { label: "Pesanan Masuk", value: 0, icon: ShoppingBag, color: "from-green-500 to-emerald-500" },
+    {
+      label: "Pesanan Masuk",
+      value: orders.length,
+      icon: ShoppingBag,
+      color: "from-green-500 to-emerald-500",
+    },
     {
       label: "Rating Toko",
       value: mockSeller.rating,
       icon: Star,
       color: "from-yellow-400 to-orange-400",
+    },
+  ];
+
+  const ticketStats = [
+    {
+      label: "Total Tiket",
+      value: tickets.length,
+      icon: Wrench,
+      color: "from-gray-600 to-gray-700",
+    },
+    {
+      label: "Menunggu",
+      value: tickets.filter((t) => t.status === "Menunggu").length,
+      icon: Wrench,
+      color: "from-gray-500 to-gray-600",
+    },
+    {
+      label: "Dikerjakan",
+      value: tickets.filter((t) => t.status === "Dikerjakan").length,
+      icon: Wrench,
+      color: "from-yellow-500 to-yellow-600",
+    },
+    {
+      label: "Selesai",
+      value: tickets.filter((t) => t.status === "Selesai").length,
+      icon: Wrench,
+      color: "from-green-500 to-green-600",
+    },
+    {
+      label: "Gagal",
+      value: tickets.filter((t) => t.status === "Gagal").length,
+      icon: Wrench,
+      color: "from-red-500 to-red-600",
     },
   ];
 
@@ -153,11 +208,7 @@ function DashboardPage() {
         )}
 
         {tab === "pesanan" && (
-          <div className="rounded-xl border border-dashed border-border p-12 text-center">
-            <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
-            <p className="mt-3 font-semibold">Belum ada pesanan masuk</p>
-            <p className="text-sm text-muted-foreground">Pesanan baru akan muncul di sini.</p>
-          </div>
+          <OrdersPanel orders={orders} refresh={() => setOrders(getOrders())} />
         )}
 
         {tab === "toko" && (
@@ -183,35 +234,132 @@ function DashboardPage() {
               <h2 className="text-lg font-bold">Statistik Servis</h2>
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              <StatCard
-                label="Total Tiket"
-                value="0"
-                icon={Wrench}
-                color="from-gray-600 to-gray-700"
-              />
-              <StatCard
-                label="Menunggu"
-                value="0"
-                icon={Wrench}
-                color="from-gray-500 to-gray-600"
-              />
-              <StatCard
-                label="Dikerjakan"
-                value="0"
-                icon={Wrench}
-                color="from-yellow-500 to-yellow-600"
-              />
-              <StatCard
-                label="Selesai"
-                value="0"
-                icon={Wrench}
-                color="from-green-500 to-green-600"
-              />
-              <StatCard label="Gagal" value="0" icon={Wrench} color="from-red-500 to-red-600" />
+              {ticketStats.map((s) => (
+                <StatCard
+                  key={s.label}
+                  label={s.label}
+                  value={s.value}
+                  icon={s.icon}
+                  color={s.color}
+                />
+              ))}
             </div>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function OrdersPanel({ orders, refresh }: { orders: Order[]; refresh: () => void }) {
+  const [statusDrafts, setStatusDrafts] = useState<Record<string, Order["status"]>>({});
+  const [busyOrder, setBusyOrder] = useState<string | null>(null);
+
+  if (orders.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-border p-12 text-center">
+        <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+        <p className="mt-3 font-semibold">Belum ada pesanan masuk</p>
+        <p className="text-sm text-muted-foreground">Pesanan baru akan muncul di sini.</p>
+      </div>
+    );
+  }
+
+  function handleUpdateStatus(order: Order) {
+    setBusyOrder(order.orderNumber);
+    try {
+      const next = statusDrafts[order.orderNumber] ?? order.status;
+      updateOrderStatus(order.orderNumber, next);
+      toast.success(`Pesanan ${order.orderNumber} diubah ke ${next}`);
+      refresh();
+    } catch (e) {
+      toast.error("Gagal ubah status: " + (e instanceof Error ? e.message : "unknown"));
+    } finally {
+      setBusyOrder(null);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      {orders.map((order) => {
+        const currentStatus = statusDrafts[order.orderNumber] ?? order.status;
+        return (
+          <div key={order.id} className="rounded-xl border border-border bg-card p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-bold">
+                  {order.orderNumber}
+                  {order.status === "Menunggu Konfirmasi" && (
+                    <span className="ml-2 rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold text-yellow-700">
+                      BARU
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(order.createdAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}{" "}
+                  · {order.address.name} · {order.address.city}
+                </p>
+              </div>
+              <span className="text-lg font-extrabold text-[var(--color-accent-orange)]">
+                {formatIDR(order.total)}
+              </span>
+            </div>
+
+            <ul className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
+              {order.items.map((item) => (
+                <li key={item.productId} className="flex justify-between gap-2">
+                  <span>
+                    {item.name} × {item.quantity}
+                  </span>
+                  <span className="font-semibold">{formatIDR(item.price * item.quantity)}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 text-xs">
+              <span className="text-muted-foreground">
+                {order.payment.toUpperCase()} · {order.shippingMethod.toUpperCase()}
+                {order.shippingCost > 0 ? ` · ${formatIDR(order.shippingCost)}` : " · Gratis"}
+              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-2.5 py-1 font-bold ${ORDER_STATUS_COLORS[order.status]}`}
+                >
+                  {order.status}
+                </span>
+                <select
+                  value={currentStatus}
+                  onChange={(e) =>
+                    setStatusDrafts((d) => ({
+                      ...d,
+                      [order.orderNumber]: e.target.value as Order["status"],
+                    }))
+                  }
+                  className="rounded-md border border-border bg-background px-2 py-1 text-xs font-medium"
+                >
+                  {(["Menunggu Konfirmasi", "Diproses", "Dikirim", "Selesai"] as const).map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  disabled={busyOrder === order.orderNumber || currentStatus === order.status}
+                  onClick={() => handleUpdateStatus(order)}
+                  className="bg-[var(--color-brand)] text-[var(--color-brand-foreground)]"
+                >
+                  {busyOrder === order.orderNumber ? "Menyimpan..." : "Simpan"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -232,7 +380,7 @@ function StatCard({
   color,
 }: {
   label: string;
-  value: string;
+  value: number | string;
   icon: React.ComponentType<{ className?: string }>;
   color: string;
 }) {
