@@ -2,16 +2,12 @@
 
 > Milestone 0 — Audit status repo terhadap checklist PRD-V1.md Section 20 & SPRINT_1_UIUX_TASK.md.
 > Branch: `clean-rebuild` · Tanggal audit: 13 Agustus 2026
+> Tanggal selesai: 13 Agustus 2026
 
 ## Ringkasan Temuan
 
 React 19 + TanStack Router/Start + Tailwind v4 + shadcn-style sudah kokoh.
-Sebagian besar item PRD sudah ada (>60%). Gaps utama:
-- Homepage: copy hero belum sesuai positioning, quick services belum berbentuk 4 kartu layanan, belum ada trust section "Kenapa Beli di Mubarok?", belum ada cara kerja, belum ada testimoni (mock).
-- Katalog: belum ada filter kondisi & stok, filter mobile masih sidebar penuh (belum bottom sheet/drawer).
-- Detail produk: belum ada grade, defect disclosure, inspection summary, kelengkapan.
-- Servis & tukar tambah: form masih sebagian, belum ada upload foto/video, belum ada checklist kondisi & success state penuh.
-- Form validation & states, aksesibilitas pointer target, dan beberapa item SEO perlu diselesaikan.
+Semua item PRD Section 20 sudah terpenuhi. Semua milestone M1-M10 selesai.
 
 ---
 
@@ -24,31 +20,33 @@ Sebagian besar item PRD sudah ada (>60%). Gaps utama:
 | Pertahankan stack yang ada | ✅ Sudah | React 19, TanStack, Tailwind v4, shadcn-style dipertahankan |
 | Tentukan design tokens | ✅ Sudah | `src/styles.css` — brand navy + accent orange + radius + font |
 | Rapikan global layout | ✅ Sudah | `__root.tsx`: Header + `<Outlet />` + Footer + Toaster |
-| Mobile-first breakpoints | 🔶 Partial | Grid 2 kolom mobile sudah; beberapa target kecil perlu QC |
+| Mobile-first breakpoints | ✅ Sudah | Grid 2 kolom mobile, responsive di semua halaman |
 
 ### Homepage
 | Item | Status | Catatan |
 |---|---|---|
 | Header | ✅ Sudah | Logo, search, brand select, menu mobile dropdown, cart |
-| Hero | 🔶 Partial | Ada, tetapi copy belum "HP Bekas Apa Adanya. Kondisi Dijelaskan." |
-| CTA | 🔶 Partial | Ada CTA ke katalog; perlu CTA Tukar Tambah di hero |
-| Quick services | ❌ Belum | Saat ini kategori sparepart + brand chips; PRD: 4 kartu layanan |
+| Hero | ✅ Sudah | Copy "HP Bekas Apa Adanya. Kondisi Dijelaskan." |
+| CTA | ✅ Sudah | CTA ke katalog + CTA Tukar Tambah di hero |
+| Quick services | ✅ Sudah | 4 kartu layanan: HP Bekas, Tukar Tambah, Servis, Sparepart |
 | Product section | ✅ Sudah | Produk Unggulan + Produk Terbaru |
-| Trust section | 🔶 Partial | Ada badge; belum articulasi "Kenapa Beli di Mubarok?" |
-| How it works / Cara kerja | ❌ Belum | Belum ada "Pilih HP → Cek Kondisi → Tanya → Transaksi" |
+| Trust section | ✅ Sudah | "Kenapa Beli di Mubarok?" dengan badge dan value prop |
+| How it works / Cara kerja | ✅ Sudah | "Pilih HP → Cek Kondisi → Tanya → Transaksi" |
 | Trade-in CTA | ✅ Sudah | Banner tukar tambah ada |
 | Service CTA | ✅ Sudah | Banner servis ada |
 | Contact | ✅ Sudah | `StoreInfoCard` alamat/jam/WA |
 | Footer | ✅ Sudah | Informasi toko, alamat, menu, kontak WA |
+| Testimoni | ✅ Sudah | Mock testimoni (tidak terlihat seperti data asli) |
 
 ### Catalog
 | Item | Status | Catatan |
 |---|---|---|
 | Search | ✅ Sudah | Header + hasil produk |
-| Filter UI | 🔶 Partial | Merek + harga + kategori; belum kondisi/stok |
+| Filter UI | ✅ Sudah | Merek + harga + kondisi + stok + kategori sparepart + kompatibilitas |
 | Sort UI | ✅ Sudah | Terbaru/Termurah/Termahal/Terlaris |
 | Product grid | ✅ Sudah | 2 kolom mobile |
-| Product card | 🔶 Partial | Ada kondisi; indikator cacat belum eksplisit |
+| Product card | ✅ Sudah | Kondisi, grade, cacat eksplisit, original/quality, tested, stok, harga |
+| Mobile filter | ✅ Sudah | Bottom sheet/drawer untuk mobile |
 | Empty state | ✅ Sudah | "Produk tidak ditemukan" |
 
 ### Product detail
@@ -57,48 +55,64 @@ Sebagian besar item PRD sudah ada (>60%). Gaps utama:
 | Gallery | ✅ Sudah | Gambar + thumbnail |
 | Price | ✅ Sudah | Harga jelas |
 | Stock | ✅ Sudah | Label stok |
-| Grade | ❌ Belum | Belum ada sistem grade (A/B+/B/C) |
+| Grade | ✅ Sudah | Sistem grade (A/B+/B/C) |
 | Condition | ✅ Sudah | `conditionNote` + badge kondisi |
-| Defect disclosure | ❌ Belum | Belum ada box "Kekurangan Unit" yang menonjol |
-| Inspection | ❌ Belum | Belum ada tabel ringkasan pemeriksaan |
+| Defect disclosure | ✅ Sudah | Box "Kekurangan Unit" menonjol |
+| Inspection | ✅ Sudah | Tabel ringkasan pemeriksaan |
 | Warranty | ✅ Sudah | `product.warranty` |
-| CTA | ✅ Sudah | Keranjang + WA |
+| Kelengkapan | ✅ Sudah | Daftar aksesoris |
+| CTA | ✅ Sudah | Keranjang + Beli/Tanya via WhatsApp |
 
 ### Service
 | Item | Status | Catatan |
 |---|---|---|
-| Landing UI | 🔶 Partial | `service-new` fokus admin tiket |
-| Form | 🔶 Partial | Belum ada jenis kerusakan & upload foto/video |
-| Error state | ❌ Belum | Belum lengkap |
-| Success state | 🔶 Partial | Toast + redirect ke tracker |
+| Landing UI | ✅ Sudah | Halaman servis dengan form lengkap |
+| Form | ✅ Sudah | Nama, WA, merek, model, keluhan, jenis kerusakan, catatan |
+| Upload UI | ✅ Sudah | Foto/video upload (mock) |
+| Error state | ✅ Sudah | Validasi form dengan pesan error per field |
+| Success state | ✅ Sudah | Layar sukses dengan ringkasan dan CTA ajukan lagi |
+| Loading state | ✅ Sudah | Spinner + disabled button saat submit |
+| Copy wajib | ✅ Sudah | "Harga dan tindakan perbaikan ditentukan setelah pemeriksaan kondisi perangkat." |
 
 ### Trade-in
 | Item | Status | Catatan |
 |---|---|---|
-| Landing UI | 🔶 Partial | Estimator ada; belum form pengajuan penuh |
-| Form | 🔶 Partial | Belum nama/WA/kerusakan/foto/catatan |
-| Upload UI | ❌ Belum | Belum ada |
-| Success state | ❌ Belum | Belum ada |
+| Landing UI | ✅ Sudah | Halaman tukar tambah dengan form lengkap |
+| Form | ✅ Sudah | Nama, WA, merek, model, kondisi, kerusakan, foto, catatan |
+| Checklist kondisi | ✅ Sudah | 5 pertanyaan kondisi (Ya/Tidak) |
+| Upload UI | ✅ Sudah | Foto upload (mock) |
+| Error state | ✅ Sudah | Validasi form dengan pesan error per field |
+| Success state | ✅ Sudah | Layar sukses dengan ringkasan dan CTA ajukan lagi |
+| Loading state | ✅ Sudah | Spinner + disabled button saat submit |
 
 ### Sparepart
 | Item | Status | Catatan |
 |---|---|---|
 | Catalog | ✅ Sudah | Mode sparepart di `/produk` |
-| Product card | 🔶 Partial | Kompatibilitas terlihat; status original/quality perlu eksplisit |
-| Detail | 🔶 Partial | PDP bersama, cocok untuk sparepart |
-| CTA | ✅ Sudah | "Pesan via WhatsApp" |
+| Product card | ✅ Sudah | Nama, kompatibilitas, kondisi, original/quality, tested, harga, stok |
+| Detail | ✅ Sudah | PDP bersama dengan badges original/quality/tested |
+| CTA | ✅ Sudah | "Tanya Sparepart" via WhatsApp |
 
 ---
 
-## Rencana Milestone Berdasarkan Audit
+## Milestone Selesai
 
-1. **M1 Foundation**: design tokens sudah konsisten → verifikasi & rapikan; pertahankan stack. *(skip besar, verifikasi saja)*
-2. **M2 Homepage**: hero copy, 4 kartu quick services, trust section, cara kerja, testimoni mock.
-3. **M3 Katalog**: filter kondisi/stok, mobile filter drawer/bottom sheet, indikator cacat eksplisit di product card.
-4. **M4 Detail Produk**: grade, defect disclosure, inspection summary, kelengkapan, urutan ulang per PRD.
-5. **M5 Servis & Tukar Tambah**: kelengkapan form + upload foto/video mock + copy wajib + checklist kondisi.
-6. **M6 Sparepart**: status original/quality eksplisit, CTA "Tanya Sparepart".
-7. **M7 Form validation & states**: error/success state semua form, loading state.
-8. **M8 Responsive & accessibility**: QC 360/390/412, target ≥44px, label, alt text.
-9. **M9 SEO**: title/meta tiap halaman, heading semantic.
-10. **M10 Final review & build**: `npm run build` + `npm run lint` bersih, status final.
+| Milestone | Deskripsi | Status |
+|---|---|---|
+| M0 | Audit & status repo | ✅ Selesai |
+| M1 | Foundation & design tokens | ✅ Selesai |
+| M2 | Homepage (hero, services, trust, cara kerja, testimoni) | ✅ Selesai |
+| M3 | Katalog (filter, sort, product card, mobile bottom sheet) | ✅ Selesai |
+| M4 | Detail produk (grade, defect, inspection, kelengkapan) | ✅ Selesai |
+| M5 | Servis & Tukar Tambah (form, upload, checklist, success state) | ✅ Selesai |
+| M6 | Sparepart (original/quality, tested, CTA Tanya Sparepart) | ✅ Selesai |
+| M7 | Form validation & states | ✅ Selesai |
+| M8 | Responsive & accessibility (touch target ≥44px, label, alt text) | ✅ Selesai |
+| M9 | SEO (title, meta description, heading semantic) | ✅ Selesai |
+| M10 | Final review & build | ✅ Selesai |
+
+## Catatan M10
+- `npm run build` sukses
+- `npm run lint` 0 warning
+- Tidak ada credential/secret masuk source code
+- Semua CTA berfungsi di level UI (WhatsApp link, form submit, add to cart)
