@@ -58,6 +58,7 @@ export interface Product {
   defects?: string[];
   inspection?: InspectionItem[];
   accessories?: string[];
+  tested?: boolean;
   description: string;
   specifications: Record<string, string>;
   price: number;
@@ -1018,6 +1019,7 @@ export const mockProducts: Product[] = [
     condition: "compatible",
     conditionLabel: "Compatible",
     conditionNote: "Kualitas bagus, tested.",
+    tested: true,
     description:
       "Charging port / konektor charger Samsung Galaxy A12 compatible. Kualitas bagus, sudah tested. Cocok untuk pengganti port charger yang rusak.",
     specifications: {
@@ -1161,6 +1163,7 @@ export const mockProducts: Product[] = [
     condition: "compatible",
     conditionLabel: "Compatible",
     conditionNote: "Suara jernih, sudah tested.",
+    tested: true,
     description:
       "Loud speaker / speaker utama Realme C21 compatible. Suara jernih dan keras. Sudah tested sebelum dikirim.",
     specifications: {
