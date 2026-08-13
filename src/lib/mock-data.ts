@@ -521,6 +521,17 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Layar AMOLED, mesin normal.",
+    grade: "B",
+    defects: ["Bekas pemakaian normal di body", "Baterai health ±90%"],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Baterai", status: "Minus", note: "Health ±90%" },
+    ],
+    accessories: ["Unit", "Charger"],
     description:
       "Samsung Galaxy A32 bekas kondisi normal. Layar Super AMOLED 90Hz. Kamera 64MP, baterai 5000mAh. Cocok untuk sehari-hari.",
     specifications: {
@@ -562,6 +573,16 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Baterai awet, mesin stabil.",
+    grade: "B",
+    defects: ["Gores halus di bagian belakang"],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger"],
     description:
       "Oppo A76 bekas kondisi normal. Baterai besar 5000mAh, RAM 6GB, storage 128GB. Kamera 13MP. Cocok untuk penggunaan normal.",
     specifications: {
@@ -604,6 +625,16 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Ringan dan tipis, baterai awet.",
+    grade: "B",
+    defects: ["Bekas pemakaian normal di sisi frame"],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger"],
     description:
       "Vivo Y21 bekas kondisi normal. Desain tipis dan ringan. Baterai 5000mAh, RAM 4GB, storage 64GB. Cocok untuk penggunaan ringan.",
     specifications: {
@@ -645,6 +676,17 @@ export const mockProducts: Product[] = [
     condition: "mulus",
     conditionLabel: "Mulus",
     conditionNote: "Seperti baru, garansi masih ada.",
+    grade: "A",
+    defects: [],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Baterai", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger", "Kabel"],
     description:
       "Realme 8i bekas kondisi mulus. Layar 120Hz, Helio G96, RAM 6GB, storage 128GB. Baterai 5000mAh. Garansi resmi masih berlaku.",
     specifications: {
@@ -743,6 +785,17 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Baterai jumbo, gaming entry.",
+    grade: "B",
+    defects: ["Gores halus di bagian samping", "Bekas pemakaian normal"],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Baterai", status: "Minus", note: "Health ±88%" },
+    ],
+    accessories: ["Unit", "Charger"],
     description:
       "Tecno Pova 2 bekas kondisi normal. Baterai jumbo 7000mAh, layar 6.9 inch. Helio G85, RAM 6GB, storage 128GB. Cocok untuk gaming ringan.",
     specifications: {
@@ -784,6 +837,18 @@ export const mockProducts: Product[] = [
     condition: "mulus",
     conditionLabel: "Mulus",
     conditionNote: "Mulus fullset, garansi resmi.",
+    grade: "A",
+    defects: [],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+      { label: "Baterai", status: "Normal" },
+      { label: "Fingerprint", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger", "Kabel", "Dus Fullset"],
     description:
       "Samsung Galaxy A53 5G bekas kondisi mulus fullset. Layar Super AMOLED 120Hz, Exynos 1280, RAM 8GB, storage 256GB. IP67 tahan air.",
     specifications: {
@@ -827,6 +892,16 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Layar besar, baterai awet.",
+    grade: "B",
+    defects: ["Gores halus di layar bagian pojok"],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger"],
     description:
       "Infinix Hot 11 bekas kondisi normal. Layar besar 6.78 inch FHD+, Helio G88, RAM 4GB, storage 64GB. Baterai 5200mAh.",
     specifications: {
@@ -1212,6 +1287,16 @@ export const mockProducts: Product[] = [
     condition: "normal",
     conditionLabel: "Normal",
     conditionNote: "Layar 8.7 inch, ringan.",
+    grade: "B+",
+    defects: ["Bekas pemakaian normal di back cover"],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger", "Kabel"],
     description:
       "Samsung Galaxy Tab A7 Lite bekas kondisi normal. Layar 8.7 inch, Helio P22T, RAM 3GB, storage 32GB. Cocok untuk media consumption.",
     specifications: {
@@ -1253,6 +1338,16 @@ export const mockProducts: Product[] = [
     condition: "mulus",
     conditionLabel: "Mulus",
     conditionNote: "Mulus, fullset aksesoris.",
+    grade: "A",
+    defects: [],
+    inspection: [
+      { label: "Layar", status: "Normal" },
+      { label: "Touchscreen", status: "Normal" },
+      { label: "Kamera", status: "Normal" },
+      { label: "Speaker", status: "Normal" },
+      { label: "Charging", status: "Normal" },
+    ],
+    accessories: ["Unit", "Charger", "Kabel", "Dus Fullset"],
     description:
       "Xiaomi Redmi Pad SE bekas kondisi mulus. Layar 11 inch 90Hz, Snapdragon 680, RAM 4GB, storage 128GB. Fullset dengan aksesoris.",
     specifications: {
