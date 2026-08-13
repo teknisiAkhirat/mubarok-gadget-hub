@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TukarTambahRouteImport } from './routes/tukar-tambah'
 import { Route as TentangRouteImport } from './routes/tentang'
+import { Route as ServisRouteImport } from './routes/servis'
 import { Route as ServiceNewRouteImport } from './routes/service-new'
 import { Route as RepairTrackerRouteImport } from './routes/repair-tracker'
 import { Route as ProdukRouteImport } from './routes/produk'
@@ -32,6 +33,11 @@ const TukarTambahRoute = TukarTambahRouteImport.update({
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
   path: '/tentang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServisRoute = ServisRouteImport.update({
+  id: '/servis',
+  path: '/servis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServiceNewRoute = ServiceNewRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
   '/service-new': typeof ServiceNewRoute
+  '/servis': typeof ServisRoute
   '/tentang': typeof TentangRoute
   '/tukar-tambah': typeof TukarTambahRoute
   '/admin/katalog': typeof AdminKatalogRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
   '/service-new': typeof ServiceNewRoute
+  '/servis': typeof ServisRoute
   '/tentang': typeof TentangRoute
   '/tukar-tambah': typeof TukarTambahRoute
   '/admin/katalog': typeof AdminKatalogRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/produk': typeof ProdukRoute
   '/repair-tracker': typeof RepairTrackerRouteWithChildren
   '/service-new': typeof ServiceNewRoute
+  '/servis': typeof ServisRoute
   '/tentang': typeof TentangRoute
   '/tukar-tambah': typeof TukarTambahRoute
   '/admin/katalog': typeof AdminKatalogRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/produk'
     | '/repair-tracker'
     | '/service-new'
+    | '/servis'
     | '/tentang'
     | '/tukar-tambah'
     | '/admin/katalog'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/produk'
     | '/repair-tracker'
     | '/service-new'
+    | '/servis'
     | '/tentang'
     | '/tukar-tambah'
     | '/admin/katalog'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/produk'
     | '/repair-tracker'
     | '/service-new'
+    | '/servis'
     | '/tentang'
     | '/tukar-tambah'
     | '/admin/katalog'
@@ -205,6 +217,7 @@ export interface RootRouteChildren {
   ProdukRoute: typeof ProdukRoute
   RepairTrackerRoute: typeof RepairTrackerRouteWithChildren
   ServiceNewRoute: typeof ServiceNewRoute
+  ServisRoute: typeof ServisRoute
   TentangRoute: typeof TentangRoute
   TukarTambahRoute: typeof TukarTambahRoute
   AdminKatalogRoute: typeof AdminKatalogRoute
@@ -226,6 +239,13 @@ declare module '@tanstack/react-router' {
       path: '/tentang'
       fullPath: '/tentang'
       preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servis': {
+      id: '/servis'
+      path: '/servis'
+      fullPath: '/servis'
+      preLoaderRoute: typeof ServisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/service-new': {
@@ -336,6 +356,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdukRoute: ProdukRoute,
   RepairTrackerRoute: RepairTrackerRouteWithChildren,
   ServiceNewRoute: ServiceNewRoute,
+  ServisRoute: ServisRoute,
   TentangRoute: TentangRoute,
   TukarTambahRoute: TukarTambahRoute,
   AdminKatalogRoute: AdminKatalogRoute,
