@@ -58,7 +58,7 @@ function normalizeProduct(raw: unknown): Product {
 }
 
 function loadProducts(): Product[] {
-  if (typeof window === "undefined") return [];
+  if (typeof globalThis.localStorage === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -71,7 +71,7 @@ function loadProducts(): Product[] {
 }
 
 function saveProducts(products: Product[]): void {
-  if (typeof window === "undefined") return;
+  if (typeof globalThis.localStorage === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
   } catch {
@@ -106,7 +106,7 @@ export class LocalStorageProductRepository implements ProductRepository {
   }
 
   seedIfEmpty(): void {
-    if (typeof window === "undefined") return;
+    if (typeof globalThis.localStorage === "undefined") return;
     try {
       if (localStorage.getItem(STORAGE_KEY) || localStorage.getItem(SEEDED_FLAG_KEY)) return;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(mockProducts));
