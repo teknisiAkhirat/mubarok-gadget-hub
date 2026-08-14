@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
+import { ProductPhotoUpload } from "@/components/ProductPhotoUpload";
 import {
   ArrowLeft,
   Wrench,
@@ -125,6 +126,7 @@ function KatalogManager({ onLogout }: { onLogout: () => void }) {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [busy, setBusy] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
 
   function load() {
     productRepository.seedIfEmpty();
@@ -147,6 +149,7 @@ function KatalogManager({ onLogout }: { onLogout: () => void }) {
   function startAdd() {
     setEditId(null);
     setForm(emptyForm);
+    setImages([]);
     setShowForm(true);
   }
 
@@ -166,6 +169,7 @@ function KatalogManager({ onLogout }: { onLogout: () => void }) {
       imageUrl: p.images[0] ?? "",
       isFeatured: p.isFeatured,
     });
+    setImages(p.images ?? []);
     setShowForm(true);
   }
 
@@ -187,7 +191,8 @@ function KatalogManager({ onLogout }: { onLogout: () => void }) {
         brandId: form.brandId,
         warranty: form.warranty.trim() || "3 hari garansi toko",
         description: form.description.trim(),
-        images: form.imageUrl.trim() ? [form.imageUrl.trim()] : [samsungM52],
+        images:
+          images.length > 0 ? images : form.imageUrl.trim() ? [form.imageUrl.trim()] : [samsungM52],
         isFeatured: form.isFeatured,
       };
 
@@ -402,6 +407,12 @@ function KatalogManager({ onLogout }: { onLogout: () => void }) {
                   onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
                   placeholder="https://... (opsional)"
                 />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Foto Produk (Upload)
+                </label>
+                <ProductPhotoUpload value={images} onChange={setImages} />
               </div>
               <div className="flex items-center gap-2 rounded-md border border-border px-3 py-2">
                 <input
