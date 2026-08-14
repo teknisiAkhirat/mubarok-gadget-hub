@@ -47,7 +47,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link to="/produk" search={{ type: "hp-bekas" }} className="hover:text-foreground">
-                  HP Bekas & Tablet
+                  HP Bekas & Tablet Bekas
                 </Link>
               </li>
               <li>

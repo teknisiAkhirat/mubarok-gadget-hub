@@ -14,7 +14,7 @@ export interface InspectionItem {
 export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   "hp-bekas": "HP Bekas",
   sparepart: "Sparepart",
-  tablet: "Tablet",
+  tablet: "Tablet Bekas",
 };
 
 export interface PhoneModel {

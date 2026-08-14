@@ -271,7 +271,7 @@ function KatalogManager({ onLogout }: { onLogout: () => void }) {
         <StatCard label="Total Produk" value={products.length} />
         <StatCard label="Aktif" value={activeCount} />
         <StatCard
-          label="HP Bekas & Tablet"
+          label="HP Bekas & Tablet Bekas"
           value={products.filter((p) => p.type !== "sparepart").length}
         />
         <StatCard label="Sparepart" value={products.filter((p) => p.type === "sparepart").length} />
@@ -318,7 +318,7 @@ function KatalogManager({ onLogout }: { onLogout: () => void }) {
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                 >
                   <option value="hp-bekas">HP Bekas</option>
-                  <option value="tablet">Tablet</option>
+                  <option value="tablet">Tablet Bekas</option>
                   <option value="sparepart">Sparepart</option>
                 </select>
               </div>

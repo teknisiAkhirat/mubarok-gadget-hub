@@ -158,7 +158,7 @@ function ProdukPage() {
   const getTypeLabel = (type: "hp-bekas" | "sparepart" | "tablet") => {
     if (type === "hp-bekas") return "HP Bekas";
     if (type === "sparepart") return "Sparepart";
-    if (type === "tablet") return "Tablet";
+    if (type === "tablet") return "Tablet Bekas";
     return type;
   };
 
@@ -192,7 +192,7 @@ function ProdukPage() {
         {[
           { v: undefined, label: "Semua Katalog" },
           { v: "hp-bekas", label: "📱 HP Bekas" },
-          { v: "tablet", label: "📱 Tablet" },
+          { v: "tablet", label: "📱 Tablet Bekas" },
           { v: "sparepart", label: "🔧 Sparepart HP" },
         ].map((opt) => (
           <button
@@ -207,7 +207,7 @@ function ProdukPage() {
 
       {/* Munculkan Merek HP HANYA jika bukan mode sparepart */}
       {!isSparepartActive && (
-        <FilterGroup title="Merek HP & Tablet">
+        <FilterGroup title="Merek HP & Tablet Bekas">
           <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
             <button
               onClick={() => setFilter("brand", undefined)}
@@ -400,7 +400,7 @@ function ProdukPage() {
               {search.type === "sparepart"
                 ? "Katalog Sparepart"
                 : search.type === "tablet"
-                  ? "Katalog Tablet"
+                  ? "Katalog Tablet Bekas"
                   : "Katalog HP Bekas"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">

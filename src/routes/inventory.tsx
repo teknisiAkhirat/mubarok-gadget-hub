@@ -373,7 +373,7 @@ function InventoryPage() {
                 >
                   <option value="hp-bekas">HP Bekas</option>
                   <option value="sparepart">Sparepart</option>
-                  <option value="tablet">Tablet</option>
+                  <option value="tablet">Tablet Bekas</option>
                 </select>
               </div>
               <div className="space-y-1">
