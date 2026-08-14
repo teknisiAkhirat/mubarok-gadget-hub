@@ -6,22 +6,22 @@ Dokumentasi ini mendefinisikan struktur tabel yang akan dipakai ketika aplikasi 
 
 ## Tabel `tickets`
 
-| Kolom | Tipe | Nullable | Default | Keterangan |
-|-------|------|----------|---------|------------|
-| `id` | `TEXT PRIMARY KEY` | — | — | ID unik tiket (misal: `tkt-1723456789`) |
-| `ticket_number` | `TEXT UNIQUE NOT NULL` | — | — | Nomor tiket yang ditampilkan ke user (misal: `SRV-001234`) |
-| `customer_name` | `TEXT NOT NULL` | — | — | Nama pelanggan |
-| `customer_phone` | `TEXT` | YES | `NULL` | Nomor HP pelanggan |
-| `device_model` | `TEXT NOT NULL` | — | — | Model/device yang diservis |
-| `issue_description` | `TEXT NOT NULL` | — | — | Keluhan awal dari pelanggan |
-| `diagnosis` | `TEXT` | YES | `NULL` | Diagnosis teknisi (IC, jumper, dll) |
-| `sparepart_cost` | `INTEGER NOT NULL` | — | `0` | Biaya sparepart dalam Rupiah |
-| `service_cost` | `INTEGER NOT NULL` | — | `0` | Biaya jasa servis dalam Rupiah |
-| `total_cost` | `INTEGER NOT NULL` | — | `0` | Total biaya (`sparepart_cost + service_cost`) |
-| `status` | `TEXT NOT NULL` | — | `'Menunggu'` | Status servis (lihat enum di bawah) |
-| `notes` | `TEXT` | YES | `NULL` | Catatan teknisi |
-| `created_at` | `TEXT NOT NULL` | — | `CURRENT_TIMESTAMP` | Waktu pembuatan tiket (ISO 8601) |
-| `updated_at` | `TEXT NOT NULL` | — | `CURRENT_TIMESTAMP` | Waktu terakhir update (ISO 8601) |
+| Kolom               | Tipe                   | Nullable | Default             | Keterangan                                                 |
+| ------------------- | ---------------------- | -------- | ------------------- | ---------------------------------------------------------- |
+| `id`                | `TEXT PRIMARY KEY`     | —        | —                   | ID unik tiket (misal: `tkt-1723456789`)                    |
+| `ticket_number`     | `TEXT UNIQUE NOT NULL` | —        | —                   | Nomor tiket yang ditampilkan ke user (misal: `SRV-001234`) |
+| `customer_name`     | `TEXT NOT NULL`        | —        | —                   | Nama pelanggan                                             |
+| `customer_phone`    | `TEXT`                 | YES      | `NULL`              | Nomor HP pelanggan                                         |
+| `device_model`      | `TEXT NOT NULL`        | —        | —                   | Model/device yang diservis                                 |
+| `issue_description` | `TEXT NOT NULL`        | —        | —                   | Keluhan awal dari pelanggan                                |
+| `diagnosis`         | `TEXT`                 | YES      | `NULL`              | Diagnosis teknisi (IC, jumper, dll)                        |
+| `sparepart_cost`    | `INTEGER NOT NULL`     | —        | `0`                 | Biaya sparepart dalam Rupiah                               |
+| `service_cost`      | `INTEGER NOT NULL`     | —        | `0`                 | Biaya jasa servis dalam Rupiah                             |
+| `total_cost`        | `INTEGER NOT NULL`     | —        | `0`                 | Total biaya (`sparepart_cost + service_cost`)              |
+| `status`            | `TEXT NOT NULL`        | —        | `'Menunggu'`        | Status servis (lihat enum di bawah)                        |
+| `notes`             | `TEXT`                 | YES      | `NULL`              | Catatan teknisi                                            |
+| `created_at`        | `TEXT NOT NULL`        | —        | `CURRENT_TIMESTAMP` | Waktu pembuatan tiket (ISO 8601)                           |
+| `updated_at`        | `TEXT NOT NULL`        | —        | `CURRENT_TIMESTAMP` | Waktu terakhir update (ISO 8601)                           |
 
 ---
 
@@ -29,12 +29,12 @@ Dokumentasi ini mendefinisikan struktur tabel yang akan dipakai ketika aplikasi 
 
 Nilai yang valid untuk kolom `status`:
 
-| Value | Keterangan |
-|-------|------------|
-| `Menunggu` | Tiket baru dibuat, menunggu antrean |
-| `Dikerjakan` | Sedang dalam proses perbaikan |
-| `Selesai` | Perbaikan selesai, siap diambil |
-| `Gagal` | Perbaikan tidak berhasil / unit tidak bisa diperbaiki |
+| Value        | Keterangan                                            |
+| ------------ | ----------------------------------------------------- |
+| `Menunggu`   | Tiket baru dibuat, menunggu antrean                   |
+| `Dikerjakan` | Sedang dalam proses perbaikan                         |
+| `Selesai`    | Perbaikan selesai, siap diambil                       |
+| `Gagal`      | Perbaikan tidak berhasil / unit tidak bisa diperbaiki |
 
 ---
 

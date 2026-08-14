@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { STATUS_ORDER, type ServiceStatus, type Ticket } from "@/lib/service-ticket-types";
 import { ticketRepository } from "@/lib/repositories";
+import { serviceTicketSchema, type ServiceTicketForm } from "@/lib/schemas";
 
 export const Route = createFileRoute("/service-new")({
   ssr: false,
@@ -17,7 +18,8 @@ export const Route = createFileRoute("/service-new")({
 function ServiceNewPage() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [form, setForm] = useState<ServiceTicketForm>({
     customer_name: "",
     customer_phone: "",
     device_model: "",
@@ -25,7 +27,7 @@ function ServiceNewPage() {
     diagnosis: "",
     sparepart_cost: 0,
     service_cost: 0,
-    status: "Menunggu" as ServiceStatus,
+    status: "Menunggu",
     notes: "",
   });
 
@@ -33,23 +35,47 @@ function ServiceNewPage() {
     e.preventDefault();
     setBusy(true);
     try {
+      // Validasi form dengan Zod sebelum buat tiket
+      const raw: Record<string, unknown> = {
+        customer_name: form.customer_name,
+        customer_phone: form.customer_phone || undefined,
+        device_model: form.device_model,
+        issue_description: form.issue_description,
+        diagnosis: form.diagnosis || undefined,
+        sparepart_cost: form.sparepart_cost,
+        service_cost: form.service_cost,
+        status: form.status,
+        notes: form.notes || undefined,
+      };
+      const result = serviceTicketSchema.safeParse(raw);
+      if (!result.success) {
+        const fieldErrors: Record<string, string> = {};
+        for (const issue of result.error.errors) {
+          const path = issue.path.join(".");
+          fieldErrors[path] = issue.message;
+        }
+        setErrors(fieldErrors);
+        toast.error("Perbaiki data berikut sebelum membuat tiket.");
+        return;
+      }
+
       const ticket_number = `SRV-${Date.now().toString().slice(-6)}`;
-      const total_cost = form.sparepart_cost + form.service_cost;
+      const total_cost = result.data.sparepart_cost + result.data.service_cost;
       const now = new Date().toISOString();
 
       const ticket: Ticket = {
         id: `tkt-${Date.now()}`,
         ticket_number,
-        customer_name: form.customer_name,
-        customer_phone: form.customer_phone || null,
-        device_model: form.device_model,
-        issue_description: form.issue_description,
-        diagnosis: form.diagnosis || null,
-        sparepart_cost: form.sparepart_cost,
-        service_cost: form.service_cost,
+        customer_name: result.data.customer_name,
+        customer_phone: result.data.customer_phone || null,
+        device_model: result.data.device_model,
+        issue_description: result.data.issue_description,
+        diagnosis: result.data.diagnosis || null,
+        sparepart_cost: result.data.sparepart_cost,
+        service_cost: result.data.service_cost,
         total_cost,
-        status: form.status,
-        notes: form.notes || null,
+        status: result.data.status,
+        notes: result.data.notes || null,
         updated_at: now,
         created_at: now,
       };
@@ -71,7 +97,7 @@ function ServiceNewPage() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="mb-6 flex items-center gap-3">
         <Button variant="outline" size="sm" asChild>
-          <Link to="/repair-tracker">
+          <Link to="/repair-tracker" search={{ q: undefined }}>
             <ArrowLeft className="h-4 w-4" /> Kembali
           </Link>
         </Button>
@@ -193,7 +219,7 @@ function ServiceNewPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate({ to: "/repair-tracker" })}
+                onClick={() => navigate({ to: "/repair-tracker", search: { q: undefined } })}
                 disabled={busy}
               >
                 Batal

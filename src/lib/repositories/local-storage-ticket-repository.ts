@@ -4,7 +4,7 @@ import type { TicketRepository } from "./ticket-repository";
 const STORAGE_KEY = "mubarok_service_tickets";
 
 function loadTickets(): Ticket[] {
-  if (typeof window === "undefined") return [];
+  if (typeof globalThis.localStorage === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -15,7 +15,7 @@ function loadTickets(): Ticket[] {
 }
 
 function saveTickets(tickets: Ticket[]): void {
-  if (typeof window === "undefined") return;
+  if (typeof globalThis.localStorage === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
   } catch {

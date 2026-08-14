@@ -19,15 +19,15 @@ Tujuan V1: aplikasi stabil, mobile-first, berbasis mock data lokal, tanpa depend
 
 ## Tech Stack
 
-| Layer       | Teknologi                                                                 |
-| ----------- | ------------------------------------------------------------------------- |
-| Frontend    | React 19, TypeScript                                                      |
-| Routing     | TanStack Router + TanStack Start (file-based routing, `src/routes/`)       |
-| Styling     | Tailwind CSS v4, UI komponen shadcn-style (`src/components/ui/*`)          |
-| Icons/Toast | Lucide icons, Sonner                                                     |
-| Data layer  | Mock data lokal (`src/lib/mock-data.ts`) + repository layer lokal (tanpa Supabase) |
-| Build/Deploy| Vite 7 + Nitro (`@lovable.dev/vite-tanstack-config`), preset Cloudflare Pages |
-| Runtime     | Node.js (tooling lokal), Bun tersedia sebagai alternatif package manager  |
+| Layer        | Teknologi                                                                          |
+| ------------ | ---------------------------------------------------------------------------------- |
+| Frontend     | React 19, TypeScript                                                               |
+| Routing      | TanStack Router + TanStack Start (file-based routing, `src/routes/`)               |
+| Styling      | Tailwind CSS v4, UI komponen shadcn-style (`src/components/ui/*`)                  |
+| Icons/Toast  | Lucide icons, Sonner                                                               |
+| Data layer   | Mock data lokal (`src/lib/mock-data.ts`) + repository layer lokal (tanpa Supabase) |
+| Build/Deploy | Vite 7 + Nitro (`@lovable.dev/vite-tanstack-config`), preset Cloudflare Pages      |
+| Runtime      | Node.js (tooling lokal), Bun tersedia sebagai alternatif package manager           |
 
 ## Checklist V1
 
@@ -70,21 +70,21 @@ npm run lint
 
 ## Struktur Utama
 
-| Path                            | Fungsi                                   |
-| ------------------------------- | ---------------------------------------- |
-| `src/routes/index.tsx`          | Halaman utama (katalog/home)             |
-| `src/routes/produk.tsx`         | Daftar & filter produk                   |
-| `src/routes/produk_.$slug.tsx`  | Detail produk                            |
-| `src/routes/inventory.tsx`      | Modul inventori                          |
-| `src/routes/service-new.tsx`    | Form buat tiket servis                   |
-| `src/routes/repair-tracker.tsx` | Lacak tiket servis                       |
-| `src/routes/repair-tracker.$ticketId.invoice.tsx` | Nota servis printable   |
-| `src/routes/tukar-tambah.tsx`   | Estimator trade-in                       |
-| `src/lib/mock-data.ts`          | Data mock terstruktur (produk, seller)   |
-| `src/lib/products-db.ts`        | Helper data produk & inventori           |
-| `src/lib/ticket-store.ts`       | State tiket servis                       |
-| `src/lib/repositories/`         | Repository layer (local storage)         |
-| `docs/CHANGELOG.md`             | Changelog                               |
+| Path                                              | Fungsi                                 |
+| ------------------------------------------------- | -------------------------------------- |
+| `src/routes/index.tsx`                            | Halaman utama (katalog/home)           |
+| `src/routes/produk.tsx`                           | Daftar & filter produk                 |
+| `src/routes/produk_.$slug.tsx`                    | Detail produk                          |
+| `src/routes/inventory.tsx`                        | Modul inventori                        |
+| `src/routes/service-new.tsx`                      | Form buat tiket servis                 |
+| `src/routes/repair-tracker.tsx`                   | Lacak tiket servis                     |
+| `src/routes/repair-tracker.$ticketId.invoice.tsx` | Nota servis printable                  |
+| `src/routes/tukar-tambah.tsx`                     | Estimator trade-in                     |
+| `src/lib/mock-data.ts`                            | Data mock terstruktur (produk, seller) |
+| `src/lib/products-db.ts`                          | Helper data produk & inventori         |
+| `src/lib/ticket-store.ts`                         | State tiket servis                     |
+| `src/lib/repositories/`                           | Repository layer (local storage)       |
+| `docs/CHANGELOG.md`                               | Changelog                              |
 
 ## TODO List
 

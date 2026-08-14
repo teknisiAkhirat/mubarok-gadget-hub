@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatIDR } from "@/lib/format";
+import { inventoryItemSchema } from "@/lib/schemas";
 
 type InventoryItem = {
   id: string;
@@ -34,11 +35,11 @@ type InventoryItem = {
 
 type FormState = {
   name: string;
-  type: string;
+  type: "hp-bekas" | "sparepart" | "tablet";
   merk: string;
   tipe: string;
   imei_or_sn: string;
-  condition: string;
+  condition: "mulus" | "normal" | "ori-copotan" | "compatible";
   condition_note: string;
   description: string;
   price: number;
@@ -124,6 +125,7 @@ function InventoryPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [busy, setBusy] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   async function load() {
     setLoading(true);
@@ -150,11 +152,11 @@ function InventoryPage() {
     setEditId(item.id);
     setForm({
       name: item.name,
-      type: item.type,
+      type: item.type as FormState["type"],
       merk: item.merk ?? "",
       tipe: item.tipe ?? "",
       imei_or_sn: item.imei_or_sn ?? "",
-      condition: item.condition,
+      condition: item.condition as FormState["condition"],
       condition_note: item.condition_note ?? "",
       description: item.description ?? "",
       price: item.price,
@@ -169,49 +171,103 @@ function InventoryPage() {
     setBusy(true);
     try {
       if (editId) {
+        // Validasi form dengan Zod sebelum edit
+        const raw: Record<string, unknown> = {
+          name: form.name,
+          type: form.type,
+          merk: form.merk || null,
+          tipe: form.tipe || null,
+          imei_or_sn: form.imei_or_sn || null,
+          condition: form.condition,
+          condition_note: form.condition_note || "",
+          description: form.description || "",
+          price: form.price,
+          cost_price: form.cost_price,
+          stock: form.stock,
+          warranty: form.warranty,
+        };
+        const result = inventoryItemSchema.safeParse(raw);
+        if (!result.success) {
+          const fieldErrors: Record<string, string> = {};
+          for (const issue of result.error.errors) {
+            const path = issue.path.join(".");
+            fieldErrors[path] = issue.message;
+          }
+          setErrors(fieldErrors);
+          toast.error("Perbaiki data berikut sebelum menyimpan.");
+          return;
+        }
+
         inventoryStore = inventoryStore.map((item) =>
           item.id === editId
             ? {
                 ...item,
-                name: form.name || "Produk Baru",
-                type: form.type,
-                condition: form.condition,
-                condition_label: form.condition.replace(/^(.)/, (c) => c.toUpperCase()),
-                condition_note: form.condition_note,
-                description: form.description,
-                price: form.price,
-                cost_price: form.cost_price,
-                stock: form.stock,
-                warranty: form.warranty,
-                imei_or_sn: form.imei_or_sn || null,
-                merk: form.merk || null,
-                tipe: form.tipe || null,
+                name: result.data.name || "Produk Baru",
+                type: result.data.type,
+                condition: result.data.condition,
+                condition_label: result.data.condition.replace(/^(.)/, (c) => c.toUpperCase()),
+                condition_note: result.data.condition_note,
+                description: result.data.description,
+                price: result.data.price,
+                cost_price: result.data.cost_price,
+                stock: result.data.stock,
+                warranty: result.data.warranty,
+                imei_or_sn: result.data.imei_or_sn,
+                merk: result.data.merk,
+                tipe: result.data.tipe,
               }
             : item,
         );
         toast.success("Inventori diperbarui");
       } else {
-        const newItem: InventoryItem = {
-          id: `inv-${Date.now()}`,
-          seller_id: "seller-mubarok",
-          name: form.name || "Produk Baru",
-          slug: (form.name || "produk-baru").toLowerCase().replace(/\s+/g, "-"),
+        // Validasi form dengan Zod sebelum tambah
+        const raw: Record<string, unknown> = {
+          name: form.name,
           type: form.type,
+          merk: form.merk || null,
+          tipe: form.tipe || null,
+          imei_or_sn: form.imei_or_sn || null,
           condition: form.condition,
-          condition_label: form.condition.replace(/^(.)/, (c) => c.toUpperCase()),
-          condition_note: form.condition_note,
-          description: form.description,
+          condition_note: form.condition_note || "",
+          description: form.description || "",
           price: form.price,
           cost_price: form.cost_price,
           stock: form.stock,
           warranty: form.warranty,
+        };
+        const result = inventoryItemSchema.safeParse(raw);
+        if (!result.success) {
+          const fieldErrors: Record<string, string> = {};
+          for (const issue of result.error.errors) {
+            const path = issue.path.join(".");
+            fieldErrors[path] = issue.message;
+          }
+          setErrors(fieldErrors);
+          toast.error("Perbaiki data berikut sebelum menyimpan.");
+          return;
+        }
+
+        const newItem: InventoryItem = {
+          id: `inv-${Date.now()}`,
+          seller_id: "seller-mubarok",
+          name: result.data.name || "Produk Baru",
+          slug: (result.data.name || "produk-baru").toLowerCase().replace(/\s+/g, "-"),
+          type: result.data.type,
+          condition: result.data.condition,
+          condition_label: result.data.condition.replace(/^(.)/, (c) => c.toUpperCase()),
+          condition_note: result.data.condition_note,
+          description: result.data.description,
+          price: result.data.price,
+          cost_price: result.data.cost_price,
+          stock: result.data.stock,
+          warranty: result.data.warranty,
           images: [],
           weight: 300,
           is_active: true,
-          sale_status: form.stock > 0 ? "tersedia" : "terjual",
-          imei_or_sn: form.imei_or_sn || null,
-          merk: form.merk || null,
-          tipe: form.tipe || null,
+          sale_status: result.data.stock > 0 ? "tersedia" : "terjual",
+          imei_or_sn: result.data.imei_or_sn,
+          merk: result.data.merk,
+          tipe: result.data.tipe,
           created_at: new Date().toISOString(),
         };
         inventoryStore = [newItem, ...inventoryStore];
@@ -312,7 +368,7 @@ function InventoryPage() {
                 <label className="text-xs font-semibold text-muted-foreground">Jenis</label>
                 <select
                   value={form.type}
-                  onChange={(e) => setForm({ ...form, type: e.target.value })}
+                  onChange={(e) => setForm({ ...form, type: e.target.value as FormState["type"] })}
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                 >
                   <option value="hp-bekas">HP Bekas</option>
@@ -324,7 +380,9 @@ function InventoryPage() {
                 <label className="text-xs font-semibold text-muted-foreground">Kondisi Fisik</label>
                 <select
                   value={form.condition}
-                  onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, condition: e.target.value as FormState["condition"] })
+                  }
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                 >
                   <option value="mulus">Mulus</option>

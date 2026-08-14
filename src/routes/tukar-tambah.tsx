@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Camera, CheckCircle2, Loader2, Upload, X } from "lucide-react";
 import { mockBrands } from "@/lib/mock-data";
 import { waLink } from "@/lib/format";
+import { tradeInSchema } from "@/lib/schemas";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/tukar-tambah")({
   ssr: false,
@@ -68,22 +70,32 @@ function TukarTambahPage() {
 
   const selectedBrand = mockBrands.find((b) => b.name === form.merek);
 
-  function validate(): boolean {
-    const e: Partial<Record<keyof FormState, string>> = {};
-    if (!form.nama.trim()) e.nama = "Nama wajib diisi.";
-    if (!/^(\+?62|08)\d{8,12}$/.test(form.wa.replace(/[\s-]/g, "")))
-      e.wa = "Nomor WhatsApp tidak valid (contoh: 081234567890).";
-    if (!form.merek) e.merek = "Pilih merek HP.";
-    if (!form.model.trim()) e.model = "Model HP wajib diisi.";
-    if (!form.kondisi) e.kondisi = "Pilih kondisi HP.";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  }
-
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
     setBusy(true);
+
+    const raw: Record<string, unknown> = {
+      nama: form.nama,
+      wa: form.wa,
+      merek: form.merek,
+      model: form.model,
+      kondisi: form.kondisi,
+      kerusakan: form.kerusakan || undefined,
+      catatan: form.catatan || undefined,
+    };
+
+    const result = tradeInSchema.safeParse(raw);
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof FormState, string>> = {};
+      for (const issue of result.error.errors) {
+        const path = issue.path[0] as keyof FormState;
+        fieldErrors[path] = issue.message;
+      }
+      setErrors(fieldErrors);
+      toast.error("Perbaiki data berikut sebelum mengirim.");
+      setBusy(false);
+      return;
+    }
 
     const answerText = CONDITION_QUESTIONS.map(
       (q, i) => `${q} ${form.answers[String(i)] ? "Ya" : "Tidak"}`,

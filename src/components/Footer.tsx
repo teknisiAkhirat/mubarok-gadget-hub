@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Smartphone, MapPin, Clock, ShieldCheck, MessageCircle } from "lucide-react";
-import { waLink } from "@/lib/format";
+import { waLink, formatWA } from "@/lib/format";
+import { mockSeller } from "@/lib/mock-data";
 
 export function Footer() {
   return (
@@ -84,6 +85,7 @@ export function Footer() {
               >
                 <MessageCircle className="h-4 w-4" /> Chat WhatsApp
               </a>
+              <p className="text-sm text-muted-foreground">{formatWA(mockSeller.whatsapp)}</p>
             </div>
           </div>
         </div>

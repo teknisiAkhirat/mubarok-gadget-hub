@@ -178,6 +178,7 @@ function RepairTrackerPage() {
                 <Link
                   to="/repair-tracker/$ticketId/invoice"
                   params={{ ticketId: ticket.ticket_number }}
+                  search={{ q: undefined }}
                 >
                   <Printer className="h-4 w-4" /> Nota Servis
                 </Link>

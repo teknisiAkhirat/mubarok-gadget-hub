@@ -14,23 +14,23 @@
 
 ## 2. Verifikasi Terakhir
 
-| Gate               | Hasil  |
-| ------------------ | ------ |
-| `npm run build`    | LULUS  |
-| `npx tsc --noEmit` | LULUS  |
-| `npm run lint`     | LULUS  |
+| Gate               | Hasil |
+| ------------------ | ----- |
+| `npm run build`    | LULUS |
+| `npx tsc --noEmit` | LULUS |
+| `npm run lint`     | LULUS |
 
 ## 3. Tech Stack (aktual)
 
-| Layer       | Teknologi                                                            |
-| ----------- | -------------------------------------------------------------------- |
-| Frontend    | React 19, TypeScript                                                 |
-| Routing     | TanStack Router + TanStack Start (file-based routing)                |
-| Styling     | Tailwind CSS v4 + shadcn-style UI (`src/components/ui/*`)            |
-| Icons/Toast | Lucide icons, Sonner                                                 |
-| Data layer  | Mock data (`src/lib/mock-data.ts`), repo lokal (`src/lib/repositories/`) |
+| Layer       | Teknologi                                                                 |
+| ----------- | ------------------------------------------------------------------------- |
+| Frontend    | React 19, TypeScript                                                      |
+| Routing     | TanStack Router + TanStack Start (file-based routing)                     |
+| Styling     | Tailwind CSS v4 + shadcn-style UI (`src/components/ui/*`)                 |
+| Icons/Toast | Lucide icons, Sonner                                                      |
+| Data layer  | Mock data (`src/lib/mock-data.ts`), repo lokal (`src/lib/repositories/`)  |
 | Build       | Vite 7 + Nitro via `@lovable.dev/vite-tanstack-config`, preset Cloudflare |
-| Deploy      | Cloudflare Pages (`/.output/public` sebagai output statis)           |
+| Deploy      | Cloudflare Pages (`/.output/public` sebagai output statis)                |
 
 > Supabase = LEGACY. Tujuan akhir: Cloudflare D1 (data), R2 (file), Workers (API).
 
@@ -112,18 +112,18 @@ npx tsc --noEmit # typecheck
 
 ## 10. Referensi File
 
-| File                                              | Fungsi                                |
-| ------------------------------------------------- | ------------------------------------- |
-| `README.md`                                       | Gambaran umum & checklist V1          |
-| `OPENCODE_AGENT_POLICY.md`                        | Aturan kerja agent                    |
-| `AUDIT_REPORT.md`                                 | Laporan audit/perubahan UI            |
-| `src/lib/mock-data.ts`                            | Mock data sumber                     |
-| `src/lib/products-db.ts`                          | CRUD produk & inventori               |
-| `src/lib/ticket-store.ts`                         | State tiket servis                    |
-| `src/lib/repositories/`                           | Repository layer (local storage)      |
-| `src/routes/`                                     | Routing aplikasi                      |
-| `docs/CHANGELOG.md`                               | Changelog                             |
-| `package.json` / `vite.config.ts`                 | Script & config build                 |
+| File                              | Fungsi                           |
+| --------------------------------- | -------------------------------- |
+| `README.md`                       | Gambaran umum & checklist V1     |
+| `OPENCODE_AGENT_POLICY.md`        | Aturan kerja agent               |
+| `AUDIT_REPORT.md`                 | Laporan audit/perubahan UI       |
+| `src/lib/mock-data.ts`            | Mock data sumber                 |
+| `src/lib/products-db.ts`          | CRUD produk & inventori          |
+| `src/lib/ticket-store.ts`         | State tiket servis               |
+| `src/lib/repositories/`           | Repository layer (local storage) |
+| `src/routes/`                     | Routing aplikasi                 |
+| `docs/CHANGELOG.md`               | Changelog                        |
+| `package.json` / `vite.config.ts` | Script & config build            |
 
 ---
 
