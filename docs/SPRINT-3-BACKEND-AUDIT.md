@@ -12,10 +12,11 @@
 Repository Mubarok Gadget Hub saat ini **sepenuhnya berbasis mock data + localStorage**. Tidak ada backend sungguhan. Namun, arsitektur sudah dipersiapkan dengan baik untuk migrasi:
 
 - **Repository pattern** sudah ada (`src/lib/repositories/`) dengan interface `ProductRepository` dan `TicketRepository`, serta satu titik masuk (`index.ts`) tempat implementasi backend baru cukup di-swap.
-- **Zod schemas** sudah ada (`src/lib/schemas.ts`) untuk validasi form — ini *validation boundary* yang ideal untuk backend.
+- **Zod schemas** sudah ada (`src/lib/schemas.ts`) untuk validasi form — ini _validation boundary_ yang ideal untuk backend.
 - **Type definitions** untuk `Product`, `Ticket`, `InventoryItem`, `Order`, `TradeIn` sudah terbentuk dari kode aktual.
 
 Temuan kunci:
+
 1. Data persisten saat ini = localStorage keys: `mubarok_products`, `mubarok_service_tickets`, `mubarok_cart`, `mubarok_orders`, `mubarok_checkout_draft`.
 2. Mock data statis (`mockProducts`, `mockBrands`, `mockCategories`, `mockSeller`) di `mock-data.ts` — ini "reference data" (brand/model/category) yang perlu dimasukkan ke D1 sebagai tabel lookup.
 3. Form yang menghasilkan data: `inventory.tsx` (InventoryItem), `service-new.tsx` (Ticket), `tukar-tambah.tsx` (TradeIn — saat ini hanya kirim WhatsApp, **belum persist**).
@@ -29,17 +30,17 @@ Temuan kunci:
 
 ### 2.1 Sumber Data Saat Ini
 
-| Sumber | Lokasi | Jenis | Persistence | Status |
-|---|---|---|---|---|
-| `mockProducts` | `src/lib/mock-data.ts` | Array statis `Product[]` | Tidak (hardcode) | Seed data produk |
-| `mockBrands` | `src/lib/mock-data.ts` | Array statis `PhoneBrand[]` | Tidak | Lookup merek+model |
-| `mockCategories` | `src/lib/mock-data.ts` | Array statis `SparePartCategory[]` | Tidak | Lookup kategori sparepart |
-| `mockSeller` | `src/lib/mock-data.ts` | Objek `Seller` | Tidak | Info toko tunggal |
-| `LocalStorageProductRepository` | `src/lib/repositories/local-storage-product-repository.ts` | CRUD produk | localStorage `mubarok_products` | Aktif (default repo) |
-| `LocalStorageTicketRepository` | `src/lib/repositories/local-storage-ticket-repository.ts` | CRUD tiket servis | localStorage `mubarok_service_tickets` | Aktif (default repo) |
-| `cart-store.tsx` | `src/lib/cart-store.tsx` | Cart context | localStorage `mubarok_cart` | Aktif (client-only) |
-| `order-store.ts` | `src/lib/order-store.ts` | Order CRUD | localStorage `mubarok_orders` | Aktif |
-| `checkout-store.ts` | `src/lib/checkout-store.ts` | Checkout draft | localStorage `mubarok_checkout_draft` | Aktif (client-only) |
+| Sumber                          | Lokasi                                                     | Jenis                              | Persistence                            | Status                    |
+| ------------------------------- | ---------------------------------------------------------- | ---------------------------------- | -------------------------------------- | ------------------------- |
+| `mockProducts`                  | `src/lib/mock-data.ts`                                     | Array statis `Product[]`           | Tidak (hardcode)                       | Seed data produk          |
+| `mockBrands`                    | `src/lib/mock-data.ts`                                     | Array statis `PhoneBrand[]`        | Tidak                                  | Lookup merek+model        |
+| `mockCategories`                | `src/lib/mock-data.ts`                                     | Array statis `SparePartCategory[]` | Tidak                                  | Lookup kategori sparepart |
+| `mockSeller`                    | `src/lib/mock-data.ts`                                     | Objek `Seller`                     | Tidak                                  | Info toko tunggal         |
+| `LocalStorageProductRepository` | `src/lib/repositories/local-storage-product-repository.ts` | CRUD produk                        | localStorage `mubarok_products`        | Aktif (default repo)      |
+| `LocalStorageTicketRepository`  | `src/lib/repositories/local-storage-ticket-repository.ts`  | CRUD tiket servis                  | localStorage `mubarok_service_tickets` | Aktif (default repo)      |
+| `cart-store.tsx`                | `src/lib/cart-store.tsx`                                   | Cart context                       | localStorage `mubarok_cart`            | Aktif (client-only)       |
+| `order-store.ts`                | `src/lib/order-store.ts`                                   | Order CRUD                         | localStorage `mubarok_orders`          | Aktif                     |
+| `checkout-store.ts`             | `src/lib/checkout-store.ts`                                | Checkout draft                     | localStorage `mubarok_checkout_draft`  | Aktif (client-only)       |
 
 ### 2.2 API Abstraction Layer (sudah ada)
 
@@ -53,6 +54,7 @@ src/lib/repositories/
 ```
 
 `index.ts` saat ini:
+
 ```ts
 export const ticketRepository = new LocalStorageTicketRepository();
 export const productRepository = new LocalStorageProductRepository();
@@ -107,22 +109,23 @@ inventory_items (InventoryItem)     ← dari inventory.tsx, overlap dgn products
 
 ### 3.2 Relasi Aktual (bukan asumsi)
 
-| Relasi | Bukti di kode | Keputusan V1 |
-|---|---|---|
-| `Product.brandId` → `PhoneBrand.id` | `mock-data.ts` | FK ke `brands` |
-| `Product.modelId` → `PhoneModel.id` | `mock-data.ts` | FK ke `phone_models` |
-| `Product.categoryId` → `SparePartCategory.id` | `mock-data.ts` (null untuk hp-bekas) | FK nullable ke `sparepart_categories` |
-| `Product.sellerId` → `Seller.id` | `mock-data.ts` | FK ke `sellers` (atau hardcode V1) |
-| `Product.inspection[]` → InspectionItem | `mock-data.ts` | pecah ke `product_inspections` |
-| `Product.defects[]` → string | `mock-data.ts` | pecah ke `product_defects` |
-| `Product.images[]` → string (path/URL) | `mock-data.ts` | pecah ke `product_images` (R2 key) |
-| `Ticket` → `Product` | **TIDAK ADA** di kode | OPEN DECISION: perlu link tiket ke unit? |
-| `Order.items[].productId` → `Product.id` | `order-store.ts` | reference by ID (tidak wajib FK strict V1) |
-| `InventoryItem` vs `Product` | `inventory.tsx` vs `mock-data.ts` | OVERLAP — lihat §3.3 |
+| Relasi                                        | Bukti di kode                        | Keputusan V1                               |
+| --------------------------------------------- | ------------------------------------ | ------------------------------------------ |
+| `Product.brandId` → `PhoneBrand.id`           | `mock-data.ts`                       | FK ke `brands`                             |
+| `Product.modelId` → `PhoneModel.id`           | `mock-data.ts`                       | FK ke `phone_models`                       |
+| `Product.categoryId` → `SparePartCategory.id` | `mock-data.ts` (null untuk hp-bekas) | FK nullable ke `sparepart_categories`      |
+| `Product.sellerId` → `Seller.id`              | `mock-data.ts`                       | FK ke `sellers` (atau hardcode V1)         |
+| `Product.inspection[]` → InspectionItem       | `mock-data.ts`                       | pecah ke `product_inspections`             |
+| `Product.defects[]` → string                  | `mock-data.ts`                       | pecah ke `product_defects`                 |
+| `Product.images[]` → string (path/URL)        | `mock-data.ts`                       | pecah ke `product_images` (R2 key)         |
+| `Ticket` → `Product`                          | **TIDAK ADA** di kode                | OPEN DECISION: perlu link tiket ke unit?   |
+| `Order.items[].productId` → `Product.id`      | `order-store.ts`                     | reference by ID (tidak wajib FK strict V1) |
+| `InventoryItem` vs `Product`                  | `inventory.tsx` vs `mock-data.ts`    | OVERLAP — lihat §3.3                       |
 
 ### 3.3 Konflik / Duplikasi yang Perlu Diputuskan
 
 **`InventoryItem` (inventory.tsx) vs `Product` (mock-data.ts):**
+
 - `InventoryItem` punya field `imei_or_sn`, `cost_price`, `sale_status`, `merk`, `tipe` yang TIDAK ada di `Product`.
 - `Product` punya `grade`, `defects`, `inspection`, `brandId`, `modelId`, `slug` yang tidak semua ada di `InventoryItem`.
 - **Keduanya mendeskripsikan "barang yang dijual"**. Di V1, disarankan **gabungkan menjadi satu tabel `products`** dengan kolom tambahan (`imei_or_sn`, `cost_price`, `sale_status`) — jangan buat 2 tabel terpisah. Inventory page bisa menjadi admin-view dari `products` dengan filter `type`.
@@ -164,15 +167,15 @@ inventory_items (InventoryItem)     ← dari inventory.tsx, overlap dgn products
 
 ### 4.2 Boundary Frontend / Backend
 
-| Concern | Frontend | Backend (Worker) |
-|---|---|---|
-| Render UI | ✅ | ❌ |
-| Form validation (UX) | ✅ Zod di client | ✅ Zod di server (authoritative) |
-| Auth session | simpan token/cookie | issue & verify |
-| CRUD produk/tiket | panggil `/api/*` | eksekusi ke D1 |
-| Upload foto | presign / direct ke Worker | teruskan ke R2 |
-| Business logic | ❌ | ✅ |
-| Pricing | tampilkan | sumber harga di D1 |
+| Concern              | Frontend                   | Backend (Worker)                 |
+| -------------------- | -------------------------- | -------------------------------- |
+| Render UI            | ✅                         | ❌                               |
+| Form validation (UX) | ✅ Zod di client           | ✅ Zod di server (authoritative) |
+| Auth session         | simpan token/cookie        | issue & verify                   |
+| CRUD produk/tiket    | panggil `/api/*`           | eksekusi ke D1                   |
+| Upload foto          | presign / direct ke Worker | teruskan ke R2                   |
+| Business logic       | ❌                         | ✅                               |
+| Pricing              | tampilkan                  | sumber harga di D1               |
 
 ### 4.3 Endpoint API yang Diperlukan (V1 minimum)
 
@@ -213,11 +216,11 @@ Lihat §7 untuk detail contract.
 
 ### 4.9 Environment dev/staging/prod
 
-| Env | D1 | R2 prefix | Worker route |
-|---|---|---|---|
-| dev | `mubarok_db_dev` | `dev/` | `api-dev.mubarok.dev` |
+| Env     | D1                   | R2 prefix  | Worker route             |
+| ------- | -------------------- | ---------- | ------------------------ |
+| dev     | `mubarok_db_dev`     | `dev/`     | `api-dev.mubarok.dev`    |
 | staging | `mubarok_db_staging` | `staging/` | `api-staging.mubarok.id` |
-| prod | `mubarok_db_prod` | `prod/` | `api.mubarok.id` |
+| prod    | `mubarok_db_prod`    | `prod/`    | `api.mubarok.id`         |
 
 Gunakan `wrangler.toml` `[env.dev]`, `[env.prod]` sections. Jangan share DB antar env.
 
@@ -230,146 +233,146 @@ Gunakan `wrangler.toml` `[env.dev]`, `[env.prod]` sections. Jangan share DB anta
 
 ### 5.1 `brands`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | "brand-samsung" |
-| name | TEXT | NOT NULL | "Samsung" |
-| slug | TEXT | NOT NULL, UNIQUE | "samsung" |
-| logo | TEXT | NULL | path R2 (opsional V1) |
+| Kolom | Tipe | Constraint       | Keterangan            |
+| ----- | ---- | ---------------- | --------------------- |
+| id    | TEXT | PK               | "brand-samsung"       |
+| name  | TEXT | NOT NULL         | "Samsung"             |
+| slug  | TEXT | NOT NULL, UNIQUE | "samsung"             |
+| logo  | TEXT | NULL             | path R2 (opsional V1) |
 
 **Alasan:** dari `mockBrands`. Lookup merek.
 
 ### 5.2 `phone_models`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | "sam-m52" |
-| brand_id | TEXT | NOT NULL, FK→brands(id) | |
-| name | TEXT | NOT NULL | "Galaxy M52" |
-| slug | TEXT | NOT NULL, UNIQUE | "galaxy-m52" |
-| release_year | INTEGER | NULL | 2021 |
+| Kolom        | Tipe    | Constraint              | Keterangan   |
+| ------------ | ------- | ----------------------- | ------------ |
+| id           | TEXT    | PK                      | "sam-m52"    |
+| brand_id     | TEXT    | NOT NULL, FK→brands(id) |              |
+| name         | TEXT    | NOT NULL                | "Galaxy M52" |
+| slug         | TEXT    | NOT NULL, UNIQUE        | "galaxy-m52" |
+| release_year | INTEGER | NULL                    | 2021         |
 
 **Alasan:** dari `mockBrands[].models`.
 
 ### 5.3 `sparepart_categories`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | "cat-lcd" |
-| name | TEXT | NOT NULL | |
-| slug | TEXT | NOT NULL, UNIQUE | |
-| icon | TEXT | NULL | emoji (V1) |
-| description | TEXT | NULL | |
+| Kolom       | Tipe | Constraint       | Keterangan |
+| ----------- | ---- | ---------------- | ---------- |
+| id          | TEXT | PK               | "cat-lcd"  |
+| name        | TEXT | NOT NULL         |            |
+| slug        | TEXT | NOT NULL, UNIQUE |            |
+| icon        | TEXT | NULL             | emoji (V1) |
+| description | TEXT | NULL             |            |
 
 **Alasan:** dari `mockCategories`.
 
 ### 5.4 `sellers`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | "seller-mubarok" |
-| store_name | TEXT | NOT NULL | |
-| slug | TEXT | NOT NULL, UNIQUE | |
-| owner_name | TEXT | NULL | |
-| city | TEXT | NULL | |
-| whatsapp | TEXT | NULL | |
-| is_verified | INTEGER | NOT NULL DEFAULT 0 | boolean (0/1) |
-| description | TEXT | NULL | |
-| operational_hours | TEXT | NULL | |
+| Kolom             | Tipe    | Constraint         | Keterangan       |
+| ----------------- | ------- | ------------------ | ---------------- |
+| id                | TEXT    | PK                 | "seller-mubarok" |
+| store_name        | TEXT    | NOT NULL           |                  |
+| slug              | TEXT    | NOT NULL, UNIQUE   |                  |
+| owner_name        | TEXT    | NULL               |                  |
+| city              | TEXT    | NULL               |                  |
+| whatsapp          | TEXT    | NULL               |                  |
+| is_verified       | INTEGER | NOT NULL DEFAULT 0 | boolean (0/1)    |
+| description       | TEXT    | NULL               |                  |
+| operational_hours | TEXT    | NULL               |                  |
 
 **Alasan:** dari `mockSeller`. V1 bisa 1 row saja (single store).
 
 ### 5.5 `products` (gabungan Product + InventoryItem)
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | "hp-001" / uuid |
-| seller_id | TEXT | NOT NULL, FK→sellers(id) | |
-| type | TEXT | NOT NULL | 'hp-bekas'\|'sparepart'\|'tablet' |
-| name | TEXT | NOT NULL | |
-| slug | TEXT | NOT NULL, UNIQUE | |
-| brand_id | TEXT | NULL, FK→brands(id) | |
-| model_id | TEXT | NULL, FK→phone_models(id) | |
-| category_id | TEXT | NULL, FK→sparepart_categories(id) | null untuk hp-bekas |
-| condition | TEXT | NOT NULL | 'mulus'\|'normal'\|'ori-copotan'\|'compatible' |
-| condition_label | TEXT | NOT NULL | "Normal" |
-| condition_note | TEXT | NOT NULL DEFAULT '' | **AMANAH: wajib diisi** |
-| grade | TEXT | NULL | 'A'\|'B+'\|'B'\|'C' |
-| description | TEXT | NOT NULL DEFAULT '' | |
-| specifications | TEXT | NOT NULL DEFAULT '{}' | JSON string (Record<string,string>) |
-| price | INTEGER | NOT NULL | dalam sen (price*100) |
-| compare_at_price | INTEGER | NULL | sen |
-| cost_price | INTEGER | NULL | sen (dari InventoryItem) |
-| imei_or_sn | TEXT | NULL | dari InventoryItem |
-| stock | INTEGER | NOT NULL DEFAULT 0 | |
-| sale_status | TEXT | NULL | 'tersedia'\|'terjual'\|'pending' (dari InventoryItem) |
-| warranty | TEXT | NOT NULL DEFAULT '' | |
-| weight | INTEGER | NOT NULL DEFAULT 300 | gram |
-| rating | REAL | NOT NULL DEFAULT 0 | |
-| review_count | INTEGER | NOT NULL DEFAULT 0 | |
-| sold_count | INTEGER | NOT NULL DEFAULT 0 | |
-| is_featured | INTEGER | NOT NULL DEFAULT 0 | |
-| is_active | INTEGER | NOT NULL DEFAULT 1 | |
-| compatible_with | TEXT | NOT NULL DEFAULT '[]' | JSON array (sparepart) |
-| tags | TEXT | NOT NULL DEFAULT '[]' | JSON array |
-| created_at | INTEGER | NOT NULL DEFAULT (epoch) | |
-| updated_at | INTEGER | NOT NULL DEFAULT (epoch) | |
+| Kolom            | Tipe    | Constraint                        | Keterangan                                            |
+| ---------------- | ------- | --------------------------------- | ----------------------------------------------------- |
+| id               | TEXT    | PK                                | "hp-001" / uuid                                       |
+| seller_id        | TEXT    | NOT NULL, FK→sellers(id)          |                                                       |
+| type             | TEXT    | NOT NULL                          | 'hp-bekas'\|'sparepart'\|'tablet'                     |
+| name             | TEXT    | NOT NULL                          |                                                       |
+| slug             | TEXT    | NOT NULL, UNIQUE                  |                                                       |
+| brand_id         | TEXT    | NULL, FK→brands(id)               |                                                       |
+| model_id         | TEXT    | NULL, FK→phone_models(id)         |                                                       |
+| category_id      | TEXT    | NULL, FK→sparepart_categories(id) | null untuk hp-bekas                                   |
+| condition        | TEXT    | NOT NULL                          | 'mulus'\|'normal'\|'ori-copotan'\|'compatible'        |
+| condition_label  | TEXT    | NOT NULL                          | "Normal"                                              |
+| condition_note   | TEXT    | NOT NULL DEFAULT ''               | **AMANAH: wajib diisi**                               |
+| grade            | TEXT    | NULL                              | 'A'\|'B+'\|'B'\|'C'                                   |
+| description      | TEXT    | NOT NULL DEFAULT ''               |                                                       |
+| specifications   | TEXT    | NOT NULL DEFAULT '{}'             | JSON string (Record<string,string>)                   |
+| price            | INTEGER | NOT NULL                          | dalam sen (price*100)                                 |
+| compare_at_price | INTEGER | NULL                              | sen                                                   |
+| cost_price       | INTEGER | NULL                              | sen (dari InventoryItem)                              |
+| imei_or_sn       | TEXT    | NULL                              | dari InventoryItem                                    |
+| stock            | INTEGER | NOT NULL DEFAULT 0                |                                                       |
+| sale_status      | TEXT    | NULL                              | 'tersedia'\|'terjual'\|'pending' (dari InventoryItem) |
+| warranty         | TEXT    | NOT NULL DEFAULT ''               |                                                       |
+| weight           | INTEGER | NOT NULL DEFAULT 300              | gram                                                  |
+| rating           | REAL    | NOT NULL DEFAULT 0                |                                                       |
+| review_count     | INTEGER | NOT NULL DEFAULT 0                |                                                       |
+| sold_count       | INTEGER | NOT NULL DEFAULT 0                |                                                       |
+| is_featured      | INTEGER | NOT NULL DEFAULT 0                |                                                       |
+| is_active        | INTEGER | NOT NULL DEFAULT 1                |                                                       |
+| compatible_with  | TEXT    | NOT NULL DEFAULT '[]'             | JSON array (sparepart)                                |
+| tags             | TEXT    | NOT NULL DEFAULT '[]'             | JSON array                                            |
+| created_at       | INTEGER | NOT NULL DEFAULT (epoch)          |                                                       |
+| updated_at       | INTEGER | NOT NULL DEFAULT (epoch)          |                                                       |
 
 **Index:** `idx_products_type` (type), `idx_products_brand` (brand_id), `idx_products_active` (is_active), `idx_products_slug` UNIQUE(slug).
 **Alasan:** gabung Product + InventoryItem (lihat §3.3). Field `imei_or_sn`, `cost_price`, `sale_status` diambil dari `InventoryItem`.
 
 ### 5.6 `product_defects`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | uuid |
-| product_id | TEXT | NOT NULL, FK→products(id) ON DELETE CASCADE | |
-| defect_text | TEXT | NOT NULL | "Frame kanan gores ringan" |
+| Kolom       | Tipe | Constraint                                  | Keterangan                 |
+| ----------- | ---- | ------------------------------------------- | -------------------------- |
+| id          | TEXT | PK                                          | uuid                       |
+| product_id  | TEXT | NOT NULL, FK→products(id) ON DELETE CASCADE |                            |
+| defect_text | TEXT | NOT NULL                                    | "Frame kanan gores ringan" |
 
 **Alasan:** pecah dari `Product.defects[]`. Transparansi cacat — core trust.
 
 ### 5.7 `product_inspections`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | uuid |
-| product_id | TEXT | NOT NULL, FK→products(id) ON DELETE CASCADE | |
-| label | TEXT | NOT NULL | "Layar" |
-| status | TEXT | NOT NULL | 'Normal'\|'Minus' |
-| note | TEXT | NULL | |
+| Kolom      | Tipe | Constraint                                  | Keterangan        |
+| ---------- | ---- | ------------------------------------------- | ----------------- |
+| id         | TEXT | PK                                          | uuid              |
+| product_id | TEXT | NOT NULL, FK→products(id) ON DELETE CASCADE |                   |
+| label      | TEXT | NOT NULL                                    | "Layar"           |
+| status     | TEXT | NOT NULL                                    | 'Normal'\|'Minus' |
+| note       | TEXT | NULL                                        |                   |
 
 **Alasan:** pecah dari `Product.inspection[]`. Inspection Report (blueprint §5).
 
 ### 5.8 `product_images` (atau `media`)
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | uuid |
-| product_id | TEXT | NOT NULL, FK→products(id) ON DELETE CASCADE | |
-| r2_key | TEXT | NOT NULL | "prod/hp-001/a1b2.jpg" |
-| sort_order | INTEGER | NOT NULL DEFAULT 0 | |
-| content_type | TEXT | NULL | "image/jpeg" |
+| Kolom        | Tipe    | Constraint                                  | Keterangan             |
+| ------------ | ------- | ------------------------------------------- | ---------------------- |
+| id           | TEXT    | PK                                          | uuid                   |
+| product_id   | TEXT    | NOT NULL, FK→products(id) ON DELETE CASCADE |                        |
+| r2_key       | TEXT    | NOT NULL                                    | "prod/hp-001/a1b2.jpg" |
+| sort_order   | INTEGER | NOT NULL DEFAULT 0                          |                        |
+| content_type | TEXT    | NULL                                        | "image/jpeg"           |
 
 **Alasan:** pecah dari `Product.images[]`. Path R2, bukan URL.
 
 ### 5.9 `service_tickets`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | uuid |
-| ticket_number | TEXT | NOT NULL, UNIQUE | "SRV-2026-0001" |
-| customer_name | TEXT | NOT NULL | |
-| customer_phone | TEXT | NULL | |
-| device_model | TEXT | NOT NULL | |
-| issue_description | TEXT | NOT NULL | |
-| diagnosis | TEXT | NULL | |
-| sparepart_cost | INTEGER | NOT NULL DEFAULT 0 | sen |
-| service_cost | INTEGER | NOT NULL DEFAULT 0 | sen |
-| total_cost | INTEGER | NOT NULL DEFAULT 0 | sen |
-| status | TEXT | NOT NULL | 'Menunggu'\|'Dikerjakan'\|'Selesai'\|'Gagal' |
-| notes | TEXT | NULL | |
-| created_at | INTEGER | NOT NULL DEFAULT (epoch) | |
-| updated_at | INTEGER | NOT NULL DEFAULT (epoch) | |
+| Kolom             | Tipe    | Constraint               | Keterangan                                   |
+| ----------------- | ------- | ------------------------ | -------------------------------------------- |
+| id                | TEXT    | PK                       | uuid                                         |
+| ticket_number     | TEXT    | NOT NULL, UNIQUE         | "SRV-2026-0001"                              |
+| customer_name     | TEXT    | NOT NULL                 |                                              |
+| customer_phone    | TEXT    | NULL                     |                                              |
+| device_model      | TEXT    | NOT NULL                 |                                              |
+| issue_description | TEXT    | NOT NULL                 |                                              |
+| diagnosis         | TEXT    | NULL                     |                                              |
+| sparepart_cost    | INTEGER | NOT NULL DEFAULT 0       | sen                                          |
+| service_cost      | INTEGER | NOT NULL DEFAULT 0       | sen                                          |
+| total_cost        | INTEGER | NOT NULL DEFAULT 0       | sen                                          |
+| status            | TEXT    | NOT NULL                 | 'Menunggu'\|'Dikerjakan'\|'Selesai'\|'Gagal' |
+| notes             | TEXT    | NULL                     |                                              |
+| created_at        | INTEGER | NOT NULL DEFAULT (epoch) |                                              |
+| updated_at        | INTEGER | NOT NULL DEFAULT (epoch) |                                              |
 
 **Index:** `idx_tickets_number` UNIQUE(ticket_number), `idx_tickets_status` (status).
 **Alasan:** dari `Ticket` type (`service-ticket-types.ts`).
@@ -377,40 +380,40 @@ Gunakan `wrangler.toml` `[env.dev]`, `[env.prod]` sections. Jangan share DB anta
 
 ### 5.10 `trade_ins` (BARU — persist trade-in)
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | uuid |
-| ticket_number | TEXT | NOT NULL, UNIQUE | "TI-2026-0001" |
-| nama | TEXT | NOT NULL | |
-| wa | TEXT | NOT NULL | nomor WA (validasi regex di schemas) |
-| merek | TEXT | NOT NULL | |
-| model | TEXT | NOT NULL | |
-| kondisi | TEXT | NOT NULL | |
-| kerusakan | TEXT | NULL | |
-| catatan | TEXT | NULL | |
-| answers_json | TEXT | NULL | JSON checklist kondisi |
-| status | TEXT | NOT NULL DEFAULT 'Menunggu' | 'Menunggu'\|'Dinilai'\|'Ditolak' |
-| created_at | INTEGER | NOT NULL DEFAULT (epoch) | |
+| Kolom         | Tipe    | Constraint                  | Keterangan                           |
+| ------------- | ------- | --------------------------- | ------------------------------------ |
+| id            | TEXT    | PK                          | uuid                                 |
+| ticket_number | TEXT    | NOT NULL, UNIQUE            | "TI-2026-0001"                       |
+| nama          | TEXT    | NOT NULL                    |                                      |
+| wa            | TEXT    | NOT NULL                    | nomor WA (validasi regex di schemas) |
+| merek         | TEXT    | NOT NULL                    |                                      |
+| model         | TEXT    | NOT NULL                    |                                      |
+| kondisi       | TEXT    | NOT NULL                    |                                      |
+| kerusakan     | TEXT    | NULL                        |                                      |
+| catatan       | TEXT    | NULL                        |                                      |
+| answers_json  | TEXT    | NULL                        | JSON checklist kondisi               |
+| status        | TEXT    | NOT NULL DEFAULT 'Menunggu' | 'Menunggu'\|'Dinilai'\|'Ditolak'     |
+| created_at    | INTEGER | NOT NULL DEFAULT (epoch)    |                                      |
 
 **Alasan:** dari `tukar-tambah.tsx` form (`tradeInSchema`). Saat ini hanya kirim WA — V1 persist ke DB agar admin bisa follow-up.
 **Foto trade-in:** lewat tabel `trade_in_media` (r2_key) — OPEN DECISION apakah V1 perlu foto di DB atau cukup WA manual.
 
 ### 5.11 `orders`
 
-| Kolom | Tipe | Constraint | Keterangan |
-|---|---|---|---|
-| id | TEXT | PK | uuid |
-| order_number | TEXT | NOT NULL, UNIQUE | "MUB-10000001" |
-| subtotal | INTEGER | NOT NULL | sen |
-| shipping_method | TEXT | NULL | |
-| shipping_cost | INTEGER | NOT NULL DEFAULT 0 | sen |
-| payment | TEXT | NULL | |
-| total | INTEGER | NOT NULL | sen |
-| status | TEXT | NOT NULL | 'Menunggu Konfirmasi'\|'Diproses'\|'Dikirim'\|'Selesai' |
-| customer_name | TEXT | NULL | dari address |
-| customer_phone | TEXT | NULL | |
-| address_json | TEXT | NULL | JSON OrderAddress |
-| created_at | INTEGER | NOT NULL DEFAULT (epoch) | |
+| Kolom           | Tipe    | Constraint               | Keterangan                                              |
+| --------------- | ------- | ------------------------ | ------------------------------------------------------- |
+| id              | TEXT    | PK                       | uuid                                                    |
+| order_number    | TEXT    | NOT NULL, UNIQUE         | "MUB-10000001"                                          |
+| subtotal        | INTEGER | NOT NULL                 | sen                                                     |
+| shipping_method | TEXT    | NULL                     |                                                         |
+| shipping_cost   | INTEGER | NOT NULL DEFAULT 0       | sen                                                     |
+| payment         | TEXT    | NULL                     |                                                         |
+| total           | INTEGER | NOT NULL                 | sen                                                     |
+| status          | TEXT    | NOT NULL                 | 'Menunggu Konfirmasi'\|'Diproses'\|'Dikirim'\|'Selesai' |
+| customer_name   | TEXT    | NULL                     | dari address                                            |
+| customer_phone  | TEXT    | NULL                     |                                                         |
+| address_json    | TEXT    | NULL                     | JSON OrderAddress                                       |
+| created_at      | INTEGER | NOT NULL DEFAULT (epoch) |                                                         |
 
 **Alasan:** dari `order-store.ts` `Order`. V1 bisa simpan `items` sebagai JSON di `items_json` (tanpa pecah ke `order_items` dulu — simplifikasi).
 
@@ -441,6 +444,7 @@ Blueprint §5 menekankan: Inspection Report, Kondisi & Kekurangan (jangan sembun
 ### 6.2 Apakah perlu pemisahan Product vs Physical Unit di V1?
 
 **KEPUTUSAN: TIDAK untuk V1.** Alasan:
+
 1. Blueprint §9 Fase 3 baru masuk "unit" — saat ini masih Fase data layer awal.
 2. `mock-data.ts` & `inventory.tsx` menyatukan listing & barang fisik (1 produk = 1 unit, stock kecil).
 3. Pemisahan `products` (listing/katalog) vs `units` (barang fisik dengan IMEI, riwayat servis, garansi per-unit) menambah kompleksitas yang belum dibutuhkan V1.
@@ -448,19 +452,20 @@ Blueprint §5 menekankan: Inspection Report, Kondisi & Kekurangan (jangan sembun
 
 ### 6.3 Dukungan Trust di V1 (sudah cukup)
 
-| Kebutuhan Trust | Di V1 lewat | Status |
-|---|---|---|
-| Kondisi jujur | `condition`, `condition_note`, `grade` di `products` | ✅ |
-| Cacat transparan | `product_defects` (1 row per cacat) | ✅ |
-| Inspection report | `product_inspections` (label/status/note) | ✅ |
-| Foto kondisi | `product_images` → R2 | ✅ |
-| Garansi | `warranty` (text) di `products` | ✅ (belum structured periode) |
-| Riwayat unit (masuk/servis/ganti sparepart) | **BELUM** di V1 | ⏸ OPEN DECISION |
-| ID internal unit | `imei_or_sn` (V1) / nanti `unit_code` | ⚠️ |
+| Kebutuhan Trust                             | Di V1 lewat                                          | Status                        |
+| ------------------------------------------- | ---------------------------------------------------- | ----------------------------- |
+| Kondisi jujur                               | `condition`, `condition_note`, `grade` di `products` | ✅                            |
+| Cacat transparan                            | `product_defects` (1 row per cacat)                  | ✅                            |
+| Inspection report                           | `product_inspections` (label/status/note)            | ✅                            |
+| Foto kondisi                                | `product_images` → R2                                | ✅                            |
+| Garansi                                     | `warranty` (text) di `products`                      | ✅ (belum structured periode) |
+| Riwayat unit (masuk/servis/ganti sparepart) | **BELUM** di V1                                      | ⏸ OPEN DECISION               |
+| ID internal unit                            | `imei_or_sn` (V1) / nanti `unit_code`                | ⚠️                            |
 
 ### 6.4 Rekomendasi untuk V2+ (bukan V1)
 
 Jika kelak butuh riwayat lengkap per-unit fisik:
+
 - Buat tabel `units` (`id`, `product_listing_id`, `unit_code` = `MGH-XXX-00017`, `imei`, `status_qc`, `status_stock`, `acquired_at`).
 - `unit_history` (`unit_id`, `event_type` = 'masuk'|'inspeksi'|'servis'|'ganti_sparepart'|'garansi'|'terjual', `note`, `created_at`).
 - `unit_sparepart_replacements` (`unit_id`, `sparepart_id`, `replaced_at`).
@@ -477,17 +482,20 @@ Semua response JSON. Auth: `Authorization: Bearer <token>` untuk route `/admin/*
 ### 7.1 Products
 
 **GET /api/products**
+
 - Auth: public
 - Query: `?type=&brand=&condition=&minPrice=&maxPrice=&search=&page=`
 - Resp: `{ items: Product[], total, page }`
 - Valid: query di-map & clamp di server.
 
 **GET /api/products/:slug**
+
 - Auth: public
 - Resp: `Product` (dengan `defects`, `inspections`, `images` di-join)
 - Error: 404 jika slug tidak ada.
 
 **POST /api/products** (admin)
+
 - Auth: required
 - Req: `InventoryItemForm` (reuse `inventoryItemSchema`) + `grade`, `defects`, `inspections`
 - Valid: Zod
@@ -495,30 +503,36 @@ Semua response JSON. Auth: `Authorization: Bearer <token>` untuk route `/admin/*
 - Error: 400 (validation), 409 (slug exists)
 
 **PUT /api/products/:id** (admin)
+
 - Auth: required
 - Req: partial product patch
 - Resp: 200 `{ ok: true }`
 
 **DELETE /api/products/:id** (admin)
+
 - Auth: required
 - Resp: 200 `{ ok: true }`
 
 ### 7.2 Service Tickets
 
 **GET /api/service-tickets** (admin)
+
 - Auth: required
 - Resp: `Ticket[]`
 
 **GET /api/service-tickets/:ticketNumber** (admin/publik via tracker)
+
 - Auth: public (tracker page `repair-tracker.$ticketId`)
 - Resp: `Ticket` (tanpa data sensitif? — OPEN DECISION)
 
 **POST /api/service-tickets**
+
 - Auth: public (customer submit)
 - Req: `ServiceTicketForm` (reuse `serviceTicketSchema`)
 - Resp: 201 `{ ticket_number }`
 
 **PATCH /api/service-tickets/:ticketNumber/status** (admin)
+
 - Auth: required
 - Req: `{ status, notes? }`
 - Valid: enum status
@@ -527,11 +541,13 @@ Semua response JSON. Auth: `Authorization: Bearer <token>` untuk route `/admin/*
 ### 7.3 Trade-in
 
 **POST /api/trade-ins**
+
 - Auth: public (customer submit)
 - Req: `TradeInForm` (reuse `tradeInSchema`) + `answers`, `files`
 - Resp: 201 `{ ticket_number }`
 
 **GET /api/trade-ins** (admin)
+
 - Auth: required
 - Resp: `TradeIn[]`
 
@@ -547,6 +563,7 @@ Semua response JSON. Auth: `Authorization: Bearer <token>` untuk route `/admin/*
 ### 7.6 Media Upload
 
 **POST /api/media/upload** (admin)
+
 - Auth: required
 - Req: multipart `file`
 - Valid: type ∈ {jpg,png,webp}, size ≤ 5MB
@@ -604,33 +621,40 @@ contoh:
 **Prinsip:** aplikasi tetap buildable di setiap milestone. Tidak break UI.
 
 ### Milestone 1 — Schema & Seeding (build-safe)
+
 1. Tulis `schema.sql` (D1) sesuai §5.
 2. Buat Worker `mubarok-api` dengan `wrangler.toml` (binding D1 + R2).
 3. Tulis seed script: konversi `mockBrands`, `mockCategories`, `mockSeller`, `mockProducts` → INSERT ke D1.
 4. **Tidak ubah frontend.** Aplikasi tetap pakai localStorage. Build tetap hijau.
 
 ### Milestone 2 — Repository Swap (build-safe)
+
 5. Buat `D1ProductRepository` & `D1TicketRepository` implement interface yg sama.
 6. Ubah `repositories/index.ts` untuk inject D1 (dengan fallback localStorage jika `env.DB` undefined → dev tanpa backend tetap jalan).
 7. Frontend panggil `/api/*` via fetch. Build hijau.
 
 ### Milestone 3 — Products Read Path
+
 8. Ganti `fetchProducts()` → `GET /api/products`. Katalog & detail produk dari D1.
 9. Cart masih localStorage (client-only, aman).
 
 ### Milestone 4 — Write Paths (Admin)
+
 10. `inventory.tsx` & `admin.katalog.tsx` → `POST/PUT /api/products`.
 11. `service-new.tsx` → `POST /api/service-tickets`.
 12. `tukar-tambah.tsx` → `POST /api/trade-ins` (selain WA).
 
 ### Milestone 5 — Media
+
 13. Upload foto ke R2 via `POST /api/media/upload`.
 14. `product_images` terisi.
 
 ### Milestone 6 — Orders & Checkout
+
 15. `order-store` → `POST /api/orders`. Checkout tetap client, tapi persist order ke D1.
 
 ### Milestone 7 — Cutover & Cleanup
+
 16. Hapus `LocalStorageProductRepository`/`LocalStorageTicketRepository` (opsional, bisa dipertahankan sebagai fallback).
 17. Hapus mock seed otomatis di client.
 18. Final build + test.
@@ -639,15 +663,15 @@ contoh:
 
 ## 10. Security Considerations
 
-| Area | Risiko | Mitigasi |
-|---|---|---|
-| API Key / D1 binding | bocor ke client | binding hanya di Worker, tidak pernah di-bundle ke frontend |
-| Admin auth | akses tidak sah ke mutasi | JWT/session cookie + verifikasi di Worker; jangan simpan secret di localStorage |
-| Upload R2 | abuse / malware | validasi type+size, rate-limit, generate key di server |
-| PII (WA, nama) | bocor | trade-in/servis foto → R2 private + signed URL; jangan public |
-| CORS | CSRF | izinkan hanya origin resmi |
-| Validation | injection | Zod server-side; parameterize semua query D1 (`?` binding) |
-| Secret di repo | commit credential | `.dev.vars` / `wrangler secret` — JANGAN commit; sudah di luar scope Sprint 3 |
+| Area                 | Risiko                    | Mitigasi                                                                        |
+| -------------------- | ------------------------- | ------------------------------------------------------------------------------- |
+| API Key / D1 binding | bocor ke client           | binding hanya di Worker, tidak pernah di-bundle ke frontend                     |
+| Admin auth           | akses tidak sah ke mutasi | JWT/session cookie + verifikasi di Worker; jangan simpan secret di localStorage |
+| Upload R2            | abuse / malware           | validasi type+size, rate-limit, generate key di server                          |
+| PII (WA, nama)       | bocor                     | trade-in/servis foto → R2 private + signed URL; jangan public                   |
+| CORS                 | CSRF                      | izinkan hanya origin resmi                                                      |
+| Validation           | injection                 | Zod server-side; parameterize semua query D1 (`?` binding)                      |
+| Secret di repo       | commit credential         | `.dev.vars` / `wrangler secret` — JANGAN commit; sudah di luar scope Sprint 3   |
 
 ---
 
@@ -664,18 +688,18 @@ contoh:
 
 ## 12. Open Decisions
 
-| # | Keputusan | Dibutuhkan dari PO | Impact |
-|---|---|---|---|
-| OD-1 | Apakah `inventory.tsx` = admin kelola `products` (same table) atau entitas berbeda? | Ya/ Tidak | Skema §5.5 |
-| OD-2 | Perlu `product_id` FK di `service_tickets`? | Ya/ Tidak | Skema §5.9 |
-| OD-3 | Trade-in foto perlu di-DB atau cukup WA manual? | Ya/ Tidak | §5.10 / §8.5 |
-| OD-4 | Harga simpan sebagai INTEGER sen atau REAL? | Rekom: INTEGER sen | Semua tabel harga |
-| OD-5 | Riwayat unit (units/unit_history) masuk V1 atau V2? | V2 (disarankan) | §6.4 |
-| OD-6 | Auth admin: JWT sendiri atau Cloudflare Access / OAuth? | Pilih | §4.5 / §10 |
-| OD-7 | `sellers` hardcode 1 row atau tabel penuh? | V1: 1 row cukup | §5.4 |
-| OD-8 | R2 public untuk produk, private untuk trade-in/servis? | Ya (disarankan) | §8.5 |
-| OD-9 | Apakah `orders.items` dipecah ke `order_items` atau `items_json`? | V1: `items_json` | §5.11 |
-| OD-10 | Environment strategy: dev/staging/prod via wrangler env? | Ya | §4.9 |
+| #     | Keputusan                                                                           | Dibutuhkan dari PO | Impact            |
+| ----- | ----------------------------------------------------------------------------------- | ------------------ | ----------------- |
+| OD-1  | Apakah `inventory.tsx` = admin kelola `products` (same table) atau entitas berbeda? | Ya/ Tidak          | Skema §5.5        |
+| OD-2  | Perlu `product_id` FK di `service_tickets`?                                         | Ya/ Tidak          | Skema §5.9        |
+| OD-3  | Trade-in foto perlu di-DB atau cukup WA manual?                                     | Ya/ Tidak          | §5.10 / §8.5      |
+| OD-4  | Harga simpan sebagai INTEGER sen atau REAL?                                         | Rekom: INTEGER sen | Semua tabel harga |
+| OD-5  | Riwayat unit (units/unit_history) masuk V1 atau V2?                                 | V2 (disarankan)    | §6.4              |
+| OD-6  | Auth admin: JWT sendiri atau Cloudflare Access / OAuth?                             | Pilih              | §4.5 / §10        |
+| OD-7  | `sellers` hardcode 1 row atau tabel penuh?                                          | V1: 1 row cukup    | §5.4              |
+| OD-8  | R2 public untuk produk, private untuk trade-in/servis?                              | Ya (disarankan)    | §8.5              |
+| OD-9  | Apakah `orders.items` dipecah ke `order_items` atau `items_json`?                   | V1: `items_json`   | §5.11             |
+| OD-10 | Environment strategy: dev/staging/prod via wrangler env?                            | Ya                 | §4.9              |
 
 ---
 
@@ -697,26 +721,26 @@ contoh:
 
 ## Appendix A — Mapping Field: Mock/TS → D1
 
-| TS Type | Field | D1 Table.Column | Catatan |
-|---|---|---|---|
-| `Product` | id | products.id | |
-| `Product` | slug | products.slug | UNIQUE |
-| `Product` | type | products.type | enum |
-| `Product` | condition | products.condition | enum |
-| `Product` | conditionNote | products.condition_note | AMANAH |
-| `Product` | grade | products.grade | nullable |
-| `Product` | defects[] | product_defects.defect_text | 1 row/item |
-| `Product` | inspection[] | product_inspections | 1 row/item |
-| `Product` | images[] | product_images.r2_key | |
-| `Product` | price | products.price | INTEGER sen |
-| `Product` | specifications | products.specifications | JSON TEXT |
-| `InventoryItem` | imei_or_sn | products.imei_or_sn | |
-| `InventoryItem` | cost_price | products.cost_price | sen |
-| `InventoryItem` | sale_status | products.sale_status | |
-| `Ticket` | ticket_number | service_tickets.ticket_number | UNIQUE |
-| `Ticket` | status | service_tickets.status | enum |
-| `TradeInForm` | wa | trade_ins.wa | regex |
-| `Order` | orderNumber | orders.order_number | UNIQUE |
+| TS Type         | Field          | D1 Table.Column               | Catatan     |
+| --------------- | -------------- | ----------------------------- | ----------- |
+| `Product`       | id             | products.id                   |             |
+| `Product`       | slug           | products.slug                 | UNIQUE      |
+| `Product`       | type           | products.type                 | enum        |
+| `Product`       | condition      | products.condition            | enum        |
+| `Product`       | conditionNote  | products.condition_note       | AMANAH      |
+| `Product`       | grade          | products.grade                | nullable    |
+| `Product`       | defects[]      | product_defects.defect_text   | 1 row/item  |
+| `Product`       | inspection[]   | product_inspections           | 1 row/item  |
+| `Product`       | images[]       | product_images.r2_key         |             |
+| `Product`       | price          | products.price                | INTEGER sen |
+| `Product`       | specifications | products.specifications       | JSON TEXT   |
+| `InventoryItem` | imei_or_sn     | products.imei_or_sn           |             |
+| `InventoryItem` | cost_price     | products.cost_price           | sen         |
+| `InventoryItem` | sale_status    | products.sale_status          |             |
+| `Ticket`        | ticket_number  | service_tickets.ticket_number | UNIQUE      |
+| `Ticket`        | status         | service_tickets.status        | enum        |
+| `TradeInForm`   | wa             | trade_ins.wa                  | regex       |
+| `Order`         | orderNumber    | orders.order_number           | UNIQUE      |
 
 ## Appendix B — Validation Reuse
 

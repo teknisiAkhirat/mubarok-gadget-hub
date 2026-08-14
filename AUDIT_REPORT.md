@@ -1,49 +1,54 @@
 # AUDIT REPORT — Mubarok Gadget Hub
 
-Tanggal audit: 13 Agustus 2026  
-Branch: `clean-rebuild`  
-Commit HEAD: `85e044a` docs(Sprint3): backend architecture audit & Cloudflare D1 schema design  
+Tanggal audit: 14 Agustus 2026
+Branch: `clean-rebuild`
+Commit HEAD: `fba47cf` fix(#p001): selaraskan label Tablet Bekas di seluruh aplikasi
 Acuan aturan: `OPENCODE_AGENT_POLICY.md` (`AGENT.md` tidak ada di repo; policy tersebut adalah aturan aktif)
 
 ## Ringkasan
 
-Audit terhadap repository pada kondisi working tree clean (sebelum fix). Verifikasi lengkap `npm run build`, `npx tsc --noEmit`, `npm run lint`, dan `npm test` dilakukan. Dua masalah “SAFE” ditemukan dan diperbaiki.
+Audit terhadap repository pada kondisi working tree mengandung perubahan dokumentasi dan satu fix SAFE pada repository localStorage. Verifikasi lengkap `npm run build`, `npx tsc --noEmit`, `npm run lint`, dan `npm test` dilakukan. Semua gate lulus.
 
 ## Hasil Verifikasi
 
-| Gate               | Sebelum Fix | Sesudah Fix |
-| ------------------ | ----------- | ----------- |
-| `npm run build`    | ✅ LULUS    | ✅ LULUS    |
-| `npx tsc --noEmit` | ✅ LULUS    | ✅ LULUS    |
-| `npm run lint`     | ✅ LULUS    | ✅ LULUS    |
-| `npm test`         | ❌ GAGAL    | ✅ LULUS    |
+| Gate               | Hasil     |
+| ------------------ | --------- |
+| `npm run build`    | ✅ LULUS  |
+| `npx tsc --noEmit` | ✅ LULUS  |
+| `npm run lint`     | ✅ LULUS  |
+| `npm test`         | ✅ LULUS  |
 
 ## Analisis Perubahan HEAD
 
-Komit `85e044a` murni dokumentasi:
-- Menambah `blueprint.md` (669 baris) — referensi arsitektur utama proyek.
-- Menambah `docs/SPRINT-3-BACKEND-AUDIT.md` (728 baris) — audit backend Cloudflare D1/R2/Workers, skema 11 tabel, kontrak API V1, rencana migrasi, 10 open decisions.
-- **Tidak ada perubahan kode sumber** pada komit ini.
+Komit `fba47cf` (HEAD):
 
-## Analisis Working Tree (Sebelum Fix)
+- `fix(#p001): selaraskan label Tablet Bekas di seluruh aplikasi` — perbaikan konsistensi label UI.
+- **Tidak ada perubahan arsitektur atau data layer.**
 
-Tidak ada perubahan file yang belum di-commit sebelum audit ini dimulai.
+## Analisis Working Tree
+
+| File | Status | Jenis perubahan |
+|------|--------|----------------|
+| `AUDIT_REPORT.md` | modified | Reformat (blank line) |
+| `docs/SPRINT-3-BACKEND-AUDIT.md` | modified | Reformat tabel + blank line |
+| `src/lib/repositories/local-storage-product-repository.ts` | modified | Fix SAFE |
+| `.github/workflows/ci.yml` | untracked | CI workflow baru |
 
 ## Fix yang Diterapkan (SAFE)
 
-### 1. Ketidakcocokan lingkungan test (`vitest.config.ts`)
-**Masalah:** `jsdom@30.0.1` menarik `undici@8.10.0` yang membutuhkan Node.js `>=22.19.0`, sementara environment menggunakan Node `v20.20.2`. Akibatnya `npm test` gagal dengan error `webidl.util.markAsUncloneable is not a function`.
+### 1. Konsistensi guard localStorage di product repository
 
-**Fix:** Ubah `environment: "jsdom"` menjadi `environment: "node"` di `vitest.config.ts:6`.
+**File:** `src/lib/repositories/local-storage-product-repository.ts`
 
-**Alasan SAFE:** Ketiga file test (`schemas.test.ts`, `service-flow.test.ts`, `ticket-repository.test.ts`) tidak memakai API browser-native selain `localStorage`, dan semuanya sudah di-mock secara manual via `globalThis.localStorage`. Tidak ada kerugian fungsional.
+**Masalah:** `loadProducts()`, `saveProducts()`, dan `seedIfEmpty()` masih memeriksa `typeof window === "undefined"`. Di environment non-browser (Cloudflare Workers, Node, Deno), `window` tidak ada, sehingga repository selalu return `[]` dan menolak simpan. Kondisi ini inkonsisten dengan `LocalStorageTicketRepository` yang sudah diperbaiki sebelumnya.
 
-### 2. Repository localStorage tidak testable di environment Node (`local-storage-ticket-repository.ts`)
-**Masalah:** `loadTickets()` dan `saveTickets()` memeriksa `typeof window === "undefined"`. Di environment Node (setelah fix #1), `window` memang undefined, sehingga repository selalu return `[]` dan menolak simpan. Tes `ticket-repository.test.ts` 5 skenario gagal.
+**Fix:** Ganti guard dari `typeof window === "undefined"` menjadi `typeof globalThis.localStorage === "undefined"` pada 3 lokasi (`loadProducts:61`, `saveProducts:74`, `seedIfEmpty:109`).
 
-**Fix:** Ganti guard dari `typeof window === "undefined"` menjadi `typeof globalThis.localStorage === "undefined"` pada `src/lib/repositories/local-storage-ticket-repository.ts:7` dan `:18`.
-
-**Alasan SAFE:** Perubahan memperluas portabilitas kode (bukan sekedar untuk test). Kode kini berjalan di runtime manapun yang menyediakan `localStorage` (Cloudflare Workers, Deno, Bun, Node), tanpa bergantung pada keberadaan `window`. Tidak ada perilaku runtime yang diubah untuk kasus penggunaan normal.
+**Alasan SAFE:**
+- Tidak mengubah perilaku runtime untuk kasus penggunaan normal (browser tetap memiliki `localStorage`).
+- Memperluas portabilitas kode ke runtime manapun yang menyediakan `localStorage`.
+- Menghilangkan dependency pada objek `window` yang spesifik browser.
+- Konsisten dengan fix yang sudah diterapkan pada `local-storage-ticket-repository.ts`.
 
 ## Kepatuhan Policy
 
@@ -56,17 +61,15 @@ Tidak ada perubahan file yang belum di-commit sebelum audit ini dimulai.
 - ✅ Tidak ada perubahan arsitektur fundamental.
 - ✅ Tidak ada akses luar repo.
 - ✅ Tidak ada akses produksi atau data sensitif.
-- ✅ WhatsApp tetap satu source of truth (`src/lib/format.ts`).
+- ✅ WhatsApp menggunakan satu source of truth (`src/lib/format.ts` + `mockSeller.whatsapp`).
 - ✅ Tidak ada referensi Supabase di `src/**/*`.
+- ✅ Tidak ada hardcoded API key/token.
 
-## Item Berkelanjutan
+## Catatan
 
-1. **StoreInfoCard.tsx** — Terpasang di `src/routes/index.tsx:372`. Tidak ada dead code.
-2. **Footer.tsx** — CTA WhatsApp aktif menggunakan `waLink` + `formatWA(mockSeller.whatsapp)`.
-3. **products-db.ts** — Tidak ada referensi Supabase di source code.
-4. **.env** — Masih memuat variabel legacy, namun sudah di-`.gitignore` dan tidak masuk repository. Aman sesuai kebijakan clean-rebuild.
-5. **Node.js version untuk CI** — Saat ini Node `20.20.2`. Jika `.github/workflows/ci.yml` tetap menjalankan `npm test`, pastikan Node `>=22.19` **atau** pertahankan config vitest `node` environment agar CI tidak gagal.
+- `.github/workflows/ci.yml` baru ditambahkan (untracked). Workflow menjalankan `lint`, `typecheck`, `build`, dan `test` di Node 20. Konsisten dengan konfigurasi vitest `environment: "node"`.
+- Perubahan dokumentasi (`AUDIT_REPORT.md`, `docs/SPRINT-3-BACKEND-AUDIT.md`) murni formatting (blank line dan alignment tabel).
 
 ## Status Akhir
 
-Repository dalam kondisi bersih. Build, type check, lint, dan test semuanya lulus. Dua fix SAFE telah diterapkan. Tidak ada safety rail yang terpicu. Siap untuk milestone berikutnya atau commit perubahan.
+Repository dalam kondisi bersih. Build, type check, lint, dan test semuanya lulus. Satu fix SAFE telah diterapkan. Tidak ada safety rail yang terpicu. Siap untuk milestone berikutnya atau commit perubahan.
