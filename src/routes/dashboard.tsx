@@ -8,7 +8,9 @@ import type { Ticket } from "@/lib/service-ticket-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { BadgeKondisi } from "@/components/BadgeKondisi";
+import { isAdminLoggedIn, adminLogin, adminLogout } from "@/lib/admin-auth";
 import { fetchProducts, insertProduct, updateProduct, deleteProduct } from "@/lib/products-db";
 import { toast } from "sonner";
 import {
@@ -23,6 +25,7 @@ import {
   LogOut,
   Loader2,
   Wrench,
+  Lock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
@@ -45,6 +48,33 @@ function DashboardPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "produk" | "pesanan" | "toko" | "servis">("overview");
+
+  const [authenticated, setAuthenticated] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [pin, setPin] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  useEffect(() => {
+    setAuthenticated(isAdminLoggedIn());
+    setAuthChecking(false);
+  }, []);
+
+  function handleAdminLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoginError("");
+    if (adminLogin(pin)) {
+      setAuthenticated(true);
+      setPin("");
+    } else {
+      setLoginError("PIN salah. Silakan coba lagi.");
+      setPin("");
+    }
+  }
+
+  function handleAdminLogout() {
+    adminLogout();
+    setAuthenticated(false);
+  }
 
   useEffect(() => {
     (async () => {
@@ -131,6 +161,46 @@ function DashboardPage() {
       color: "from-red-500 to-red-600",
     },
   ];
+
+  if (authChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-sm text-muted-foreground">Memuat...</p>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-sm">
+          <CardContent className="p-6">
+            <div className="mb-6 text-center">
+              <Lock className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+              <h1 className="text-lg font-bold">Akses Dashboard Penjual</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Masukkan PIN admin untuk melanjutkan.
+              </p>
+            </div>
+            <form onSubmit={handleAdminLogin} className="space-y-3">
+              <Input
+                type="password"
+                inputMode="numeric"
+                autoFocus
+                placeholder="PIN admin"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+              />
+              {loginError && <p className="text-sm text-red-600">{loginError}</p>}
+              <Button type="submit" className="w-full">
+                Masuk
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
