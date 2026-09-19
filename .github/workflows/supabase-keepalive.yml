@@ -1,0 +1,53 @@
+name: Supabase Keep-Alive — Mubarok Gadget Hub
+
+on:
+  schedule:
+    # Run every 2 days. This is intentionally more frequent than Supabase's
+    # inactivity window so scheduled delays do not easily exceed 7 days.
+    - cron: "17 0 */2 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: "https://hitmyfexknnthllsujrf.supabase.co"
+          SUPABASE_PUBLISHABLE_KEY: "sb_publishable_pAiMNwTVHA4FIzGIF8T4AA_IDR2x8ty"
+        run: |
+          set -euo pipefail
+
+          echo "Pinging Supabase project: hitmyfexknnthllsujrf"
+
+          code="$(curl -sS -o /dev/null -w "%{http_code}" \
+            --max-time 30 \
+            -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
+            "${SUPABASE_URL}/rest/v1/")"
+
+          echo "Supabase REST response: HTTP ${code}"
+
+          if [ "${code}" -ge 500 ]; then
+            echo "Supabase returned a server-side error."
+            exit 1
+          fi
+
+          echo "Keep-alive request completed."
+
+      - name: Verify project health endpoint
+        env:
+          SUPABASE_URL: "https://hitmyfexknnthllsujrf.supabase.co"
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${SUPABASE_URL}/auth/v1/health")"
+          echo "Supabase Auth health: HTTP ${code}"
+
+          if [ "${code}" -ge 500 ]; then
+            echo "Supabase health endpoint returned a server-side error."
+            exit 1
+          fi
